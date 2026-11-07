@@ -12,6 +12,7 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from hostwatch.core.errors import explain
 from hostwatch.core.forecast import Method
 from hostwatch.core.models import (
     AccountStatus,
@@ -106,27 +107,8 @@ def menu(v: View, can_order: bool) -> Screen:
 
 
 def reason(v: View, error: str | None) -> str:
-    """Account error from `describe()`, in the owner's language. Hoster reasons stay as they are."""
-    if not error:
-        return v.t("error.plugin_error")
-    code, _, detail = error.partition(":")
-    code = "unexpected" if code not in ERROR_CODES else code
-    text = v.t(f"error.{code}")
-    if code == "hoster_error" and detail.strip():
-        text = f"{text}: {detail.strip()}"
-    return text
-
-
-ERROR_CODES = (
-    "auth_expired",
-    "rate_limited",
-    "blocked",
-    "layout_changed",
-    "hoster_error",
-    "plugin_error",
-    "timeout",
-    "unexpected",
-)
+    """Account error from `describe()`, in the owner's language."""
+    return explain(error, v.lang)
 
 
 def _failed_line(v: View, data: AccountData) -> str:
@@ -290,7 +272,7 @@ def summary(
 # Servers
 
 
-def servers(v: View, accounts: list[AccountData]) -> Screen:
+def servers(v: View, accounts: list[AccountData], own_ip: str | None = None) -> Screen:
     lines = [v.t("servers.title")]
     kb = InlineKeyboardBuilder()
     live = [d for d in accounts if d.account.status is not AccountStatus.DISABLED]
@@ -300,15 +282,16 @@ def servers(v: View, accounts: list[AccountData]) -> Screen:
             continue
         lines += ["", f"<b>{v.t(f'servers.kind.{kind.value}')}</b>"]
         for data, server in rows:
-            lines.append(
-                v.t(
-                    "servers.line",
-                    hoster=escape(data.title),
-                    name=escape(server.name),
-                    status=v.t(f"status.{server.status.value}"),
-                    ip=server.ip or "—",
-                )
+            line = v.t(
+                "servers.line",
+                hoster=escape(data.title),
+                name=escape(server.name),
+                status=v.t(f"status.{server.status.value}"),
+                ip=server.ip or "—",
             )
+            if own_ip is not None and server.ip == own_ip:
+                line += f" · {v.t('servers.own')}"
+            lines.append(line)
             kb.row(
                 _button(
                     f"{server.name} · {data.title}",
@@ -388,7 +371,10 @@ def server_actions(data: AccountData, server: Server) -> list[str]:
     return shown
 
 
-def server_card(v: View, data: AccountData, server: Server, usage: Usage | None) -> Screen:
+def server_card(
+    v: View, data: AccountData, server: Server, usage: Usage | None, own_days: int | None = None
+) -> Screen:
+    """`own_days`: this is hostwatch's own server, warned about that many days earlier."""
     autorenew = v.t(f"autorenew.{server.autorenew.value.replace('/', '')}")
     lines = [
         f"<b>{escape(server.name)}</b> · {escape(data.title)}",
@@ -409,6 +395,8 @@ def server_card(v: View, data: AccountData, server: Server, usage: Usage | None)
     lines.append(v.t("card.usage", value=_usage(v, data, usage)))
     if data.servers_at is not None:
         lines.append(v.t("card.data_at", date=v.moment(data.servers_at)))
+    if own_days is not None:
+        lines += ["", v.t("card.own", days=own_days)]
     if _failed(data):
         lines += ["", _failed_line(v, data)]
 
@@ -604,6 +592,7 @@ def settings(v: View, timezone: str, currency: str, thresholds: dict[str, str]) 
     )
     for item in THRESHOLDS:
         kb.row(_button(v.t(f"threshold.button.{item.key}"), SetCb(key="th", value=item.key)))
+    kb.row(_button(v.t("settings.button.backup"), SetCb(key="backup")))
     kb.row(_back(v))
     return Screen("\n".join(lines), kb.as_markup())
 

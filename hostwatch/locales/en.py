@@ -156,7 +156,10 @@ MESSAGES: dict[str, str] = {
     "settings.timezone": "Time zone: {value}",
     "settings.currency": "Currency of totals: {value}",
     "settings.thresholds": "<b>Alert thresholds</b>",
-    "settings.thresholds_note": "Threshold alerts start working at stage 05.",
+    "settings.thresholds_note": (
+        "During quiet hours ordinary alerts wait for the end of the quiet hours;"
+        " critical ones come at once."
+    ),
     "settings.button.language": "Language",
     "settings.button.timezone": "Time zone",
     "settings.button.currency": "Currency",
@@ -179,4 +182,37 @@ MESSAGES: dict[str, str] = {
     "threshold.ask.quiet_hours": "Now {value}. Type quiet hours like this: 23:00-08:00.",
     "threshold.ask.summary_time": "Now {value}. When to send the summary? E.g. 09:00.",
     "threshold.bad": "I did not understand the value. Try again.",
+    # Alerts, backups, releases
+    "alert.balance_low": "⚠ <b>{title}</b>: the balance is {amount}, the money lasts until {date}.",
+    "alert.balance_low_own": "hostwatch itself runs here, so I warn {days} days earlier.",
+    "alert.server_status": "‼ <b>{title}</b>: server {server} is {status}.",
+    "alert.ends_soon": "⚠ <b>{title}</b>: {server} does not renew and ends on {date}.",
+    "alert.ends_soon_short": (
+        "⚠ <b>{title}</b>: {server} ends on {date}, and there is not enough money to renew it."
+    ),
+    "alert.load": (
+        "⚠ <b>{title}</b>: {metric} on {server} is above {percent}% for {polls} polls in a row."
+    ),
+    "alert.disk": "⚠ <b>{title}</b>: the disk on {server} is {percent}% full.",
+    "alert.relogin": "⚠ <b>{title}</b>: you need to log in again. Open «Integrations».",
+    "alert.plugin_broken": "⚠ <b>{title}</b>: cannot get data ({reason}).",
+    "alert.reminder": "Reminder. {text}",
+    "alert.resolved": "✅ Resolved: {subject}.",
+    "alert.subject.balance_low": "{title} balance",
+    "alert.subject.server": "{title}, server {server}",
+    "alert.subject.ends_soon": "{title}, {server} ending",
+    "alert.subject.load": "{title}, {metric} on {server}",
+    "alert.subject.disk": "{title}, disk on {server}",
+    "alert.subject.relogin": "{title}, login",
+    "alert.subject.plugin_broken": "{title}, getting data",
+    "release.new": "hostwatch {version} is out. What is new: {url}",
+    "settings.button.backup": "Send backup",
+    "backup.caption": (
+        "Database backup of {date}. Secrets in it are encrypted; HOSTWATCH_KEY is not in it."
+    ),
+    "backup.failed": "Could not make a backup. See the logs.",
+    "card.own": (
+        "This is the hostwatch server: I warn about this account's balance {days} days earlier."
+    ),
+    "servers.own": "hostwatch",
 }

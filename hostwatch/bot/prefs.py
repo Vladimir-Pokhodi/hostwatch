@@ -5,8 +5,10 @@ from __future__ import annotations
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
+from datetime import time
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
+from hostwatch.core.alerts import AlertSettings, QuietHours, Thresholds
 from hostwatch.storage.repositories import SettingsRepository
 
 LANGUAGES = ("ru", "en")
@@ -53,7 +55,6 @@ class Threshold:
     parse: Callable[[str], str | None]
 
 
-# Notifications (stage 05) read these; the bot only stores them for now.
 THRESHOLDS = (
     Threshold("balance_days", "5", _days),
     Threshold("load_percent", "90", _percent),
@@ -131,3 +132,28 @@ class Prefs:
             return False
         self._settings.set(f"threshold.{key}", value)
         return True
+
+    def _number(self, key: str) -> int:
+        value = self.threshold(key)
+        return int(value) if value.isdigit() else int(THRESHOLD_BY_KEY[key].default)
+
+    def alert_settings(self, own_ip: str | None = None) -> AlertSettings:
+        return AlertSettings(
+            lang=self.lang,
+            tz=self.tz,
+            thresholds=Thresholds(
+                balance_days=self._number("balance_days"),
+                load_percent=self._number("load_percent"),
+                disk_percent=self._number("disk_percent"),
+            ),
+            quiet=QuietHours.parse(self.threshold("quiet_hours")),
+            own_ip=own_ip,
+        )
+
+    @property
+    def summary_at(self) -> time:
+        value = self.threshold("summary_time")
+        if _time(value) is None:
+            value = THRESHOLD_BY_KEY["summary_time"].default
+        hours, minutes = value.split(":")
+        return time(int(hours), int(minutes))

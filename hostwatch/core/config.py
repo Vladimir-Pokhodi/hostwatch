@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     owner_id: int
     hostwatch_key: SecretStr
     hostwatch_domain: str | None = None
+    # Public IP of this server. Empty: the bot asks an outside service.
+    hostwatch_ip: str | None = None
     tg_proxy: str | None = None
     heartbeat_url: str | None = None
     data_dir: Path = Path("/data")
@@ -30,7 +32,14 @@ class Settings(BaseSettings):
         load_key(value.get_secret_value())
         return value
 
-    @field_validator("hostwatch_domain", "tg_proxy", "heartbeat_url", "plugins_dir", mode="before")
+    @field_validator(
+        "hostwatch_domain",
+        "hostwatch_ip",
+        "tg_proxy",
+        "heartbeat_url",
+        "plugins_dir",
+        mode="before",
+    )
     @classmethod
     def _empty_is_none(cls, value: object) -> object:
         return None if value == "" else value

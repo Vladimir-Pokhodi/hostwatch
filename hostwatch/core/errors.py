@@ -1,5 +1,7 @@
 """Errors a plugin raises. The core turns them into account statuses and polling pauses."""
 
+from hostwatch.locales import t
+
 
 class PluginError(Exception):
     code = "plugin_error"
@@ -51,3 +53,27 @@ def describe(error: BaseException) -> str:
     if isinstance(error, TimeoutError):
         return "timeout"
     return f"unexpected: {type(error).__name__}"
+
+
+ERROR_CODES = (
+    "auth_expired",
+    "rate_limited",
+    "blocked",
+    "layout_changed",
+    "hoster_error",
+    "plugin_error",
+    "timeout",
+    "unexpected",
+)
+
+
+def explain(described: str | None, lang: str) -> str:
+    """Text of `describe()` in the owner's language. Hoster reasons stay as they are."""
+    if not described:
+        return t("error.plugin_error", lang)
+    code, _, detail = described.partition(":")
+    code = "unexpected" if code not in ERROR_CODES else code
+    text = t(f"error.{code}", lang)
+    if code == "hoster_error" and detail.strip():
+        text = f"{text}: {detail.strip()}"
+    return text

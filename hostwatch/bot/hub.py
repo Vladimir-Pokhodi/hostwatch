@@ -7,11 +7,13 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Protocol
 
+from hostwatch.core.alerts import AccountView
 from hostwatch.core.forecast import RECONCILE_WINDOW, Forecast, forecast
 from hostwatch.core.models import Account, Balance, Server, Usage
 from hostwatch.core.plugin import ApiKeyAuth, Capability, Plugin, capabilities
 from hostwatch.core.rates import Rates
 from hostwatch.core.registry import Registry
+from hostwatch.scheduler.maintenance import Backups
 from hostwatch.scheduler.polling import Poller
 from hostwatch.storage.repositories import (
     AccountRepository,
@@ -65,6 +67,9 @@ class Hub:
     rates: RatesSource
     now: Callable[[], datetime] = field(default=lambda: datetime.now(UTC))
     hidden_plugins: frozenset[str] = HIDDEN_PLUGINS
+    # Public IP of the server the bot runs on, once known (spec, decision 17).
+    own_ip: str | None = None
+    backups: Backups | None = None
 
     def plugins(self) -> list[type[Plugin]]:
         ids = [pid for pid in self.registry.ids() if pid not in self.hidden_plugins]
@@ -102,6 +107,32 @@ class Hub:
 
     def usage_of(self, account_id: int, server_id: str) -> Usage | None:
         return self.usage.get(account_id, server_id)
+
+    def is_own(self, server: Server) -> bool:
+        return self.own_ip is not None and server.ip == self.own_ip
+
+    def alert_views(self) -> list[AccountView]:
+        """Accounts as the alert rules see them."""
+        views = []
+        for data in self.load_all():
+            acc = data.account.id
+            usage = {
+                s.external_id: found
+                for s in data.servers
+                if (found := self.usage_of(acc, s.external_id)) is not None
+            }
+            schedule = self.poller.schedules.get(acc)
+            views.append(
+                AccountView(
+                    account=data.account,
+                    title=data.title,
+                    servers=data.servers,
+                    forecast=data.forecast,
+                    usage=usage,
+                    failures=0 if schedule is None else schedule.failures,
+                )
+            )
+        return views
 
 
 def key_fields(plugin: type[Plugin]) -> tuple[str, ...]:

@@ -155,7 +155,10 @@ MESSAGES: dict[str, str] = {
     "settings.timezone": "Часовой пояс: {value}",
     "settings.currency": "Валюта итогов: {value}",
     "settings.thresholds": "<b>Пороги уведомлений</b>",
-    "settings.thresholds_note": "Уведомления по порогам заработают на этапе 05.",
+    "settings.thresholds_note": (
+        "Обычные уведомления в тихие часы копятся и приходят в конце тихих часов,"
+        " критические приходят сразу."
+    ),
     "settings.button.language": "Язык",
     "settings.button.timezone": "Часовой пояс",
     "settings.button.currency": "Валюта",
@@ -178,4 +181,35 @@ MESSAGES: dict[str, str] = {
     "threshold.ask.quiet_hours": "Сейчас {value}. Напишите тихие часы так: 23:00-08:00.",
     "threshold.ask.summary_time": "Сейчас {value}. Во сколько присылать сводку? Например, 09:00.",
     "threshold.bad": "Не понял значение. Попробуйте ещё раз.",
+    # Alerts, backups, releases
+    "alert.balance_low": "⚠ <b>{title}</b>: на балансе {amount}, денег хватит до {date}.",
+    "alert.balance_low_own": (
+        "Здесь работает сам hostwatch, поэтому предупреждаю на {days} дн. раньше."
+    ),
+    "alert.server_status": "‼ <b>{title}</b>: сервер {server} — {status}.",
+    "alert.ends_soon": "⚠ <b>{title}</b>: {server} не продлевается и закончится {date}.",
+    "alert.ends_soon_short": (
+        "⚠ <b>{title}</b>: {server} закончится {date}, на продление не хватит денег."
+    ),
+    "alert.load": "⚠ <b>{title}</b>: у {server} {metric} выше {percent}% {polls} опроса подряд.",
+    "alert.disk": "⚠ <b>{title}</b>: на {server} диск занят на {percent}%.",
+    "alert.relogin": "⚠ <b>{title}</b>: надо войти заново. Откройте «Интеграции».",
+    "alert.plugin_broken": "⚠ <b>{title}</b>: не получается получить данные ({reason}).",
+    "alert.reminder": "Напоминание. {text}",
+    "alert.resolved": "✅ Решено: {subject}.",
+    "alert.subject.balance_low": "баланс {title}",
+    "alert.subject.server": "{title}, сервер {server}",
+    "alert.subject.ends_soon": "{title}, окончание {server}",
+    "alert.subject.load": "{title}, {metric} на {server}",
+    "alert.subject.disk": "{title}, диск на {server}",
+    "alert.subject.relogin": "{title}, вход",
+    "alert.subject.plugin_broken": "{title}, получение данных",
+    "release.new": "Вышла версия hostwatch {version}. Что нового: {url}",
+    "settings.button.backup": "Прислать бэкап",
+    "backup.caption": (
+        "Бэкап базы на {date}. Секреты в нём зашифрованы, ключа HOSTWATCH_KEY в нём нет."
+    ),
+    "backup.failed": "Не получилось сделать бэкап. Подробности в логах.",
+    "card.own": "Это сервер hostwatch: о балансе этого аккаунта предупрежу на {days} дн. раньше.",
+    "servers.own": "hostwatch",
 }

@@ -14,8 +14,9 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import CallbackQuery, InaccessibleMessage, Message
+from aiogram.types import BufferedInputFile, CallbackQuery, InaccessibleMessage, Message
 
+from hostwatch.core.alerts import Thresholds
 from hostwatch.core.logs import register_secrets
 from hostwatch.core.models import AccountStatus
 from hostwatch.core.plugin import Capability
@@ -132,7 +133,7 @@ async def screen_for(hub: Hub, to: str) -> Screen:
         rates = await _rates(hub)
         return views.summary(v, accounts, rates, hub.prefs.currency, hub.now())
     if to == "servers":
-        return views.servers(v, hub.load_all())
+        return views.servers(v, hub.load_all(), hub.own_ip)
     if to == "balance":
         return views.balance(v, hub.load_all())
     if to == "integrations":
@@ -165,7 +166,9 @@ def server_screen(hub: Hub, account_id: int, server_id: str) -> Screen | None:
     server = next((s for s in data.servers if s.external_id == server_id), None)
     if server is None:
         return None
-    return views.server_card(view(hub), data, server, hub.usage_of(account_id, server_id))
+    own_days = Thresholds().own_extra_days if hub.is_own(server) else None
+    usage = hub.usage_of(account_id, server_id)
+    return views.server_card(view(hub), data, server, usage, own_days)
 
 
 def account_screen(hub: Hub, account_id: int) -> Screen | None:
@@ -293,6 +296,31 @@ async def on_threshold_text(message: Message, hub: Hub, state: FSMContext) -> No
         return
     await state.clear()
     await show(message, settings_screen(hub))
+
+
+@on("callback_query", SetCb.filter(F.key == "backup"))
+async def on_backup(query: CallbackQuery, hub: Hub) -> None:
+    v = view(hub)
+    message = query.message
+    if message is None or isinstance(message, InaccessibleMessage):
+        await answer(query)
+        return
+    if hub.backups is None:
+        await answer(query, v.t("backup.failed"), alert=True)
+        return
+    try:
+        # The connection belongs to this thread; the database is small, so no executor.
+        data = hub.backups.snapshot()
+    except Exception:
+        log.exception("backup for the owner failed")
+        await answer(query, v.t("backup.failed"), alert=True)
+        return
+    await answer(query)
+    now = hub.now()
+    name = f"hostwatch-{now.astimezone(hub.prefs.tz):%Y%m%d-%H%M}.sqlite3"
+    await message.answer_document(
+        BufferedInputFile(data, filename=name), caption=v.t("backup.caption", date=v.moment(now))
+    )
 
 
 # Sections

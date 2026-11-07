@@ -1,0 +1,42 @@
+# Run: docker compose up -d --build
+# The data folder must belong to the container user: mkdir -p data && chown 10001:10001 data
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  hostwatch:
+    build: .
+    image: hostwatch:local
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - ./data:/data
+    logging: *logging
+
+  caddy:
+    image: caddy:2.11
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      # The login page address: the domain if there is one, otherwise the server IP.
+      SITE_ADDRESS: ${HOSTWATCH_DOMAIN:-${HOSTWATCH_IP:?set HOSTWATCH_IP or HOSTWATCH_DOMAIN in .env}}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - hostwatch
+    logging: *logging
+
+volumes:
+  caddy_data:
+  caddy_config:

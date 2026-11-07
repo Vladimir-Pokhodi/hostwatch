@@ -7,6 +7,7 @@ import sqlite3
 from collections.abc import AsyncGenerator, AsyncIterator
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
+from pathlib import Path
 from typing import Any
 
 import httpx
@@ -18,6 +19,7 @@ from aiogram.methods import (
     AnswerCallbackQuery,
     DeleteMessage,
     EditMessageText,
+    SendDocument,
     SendMessage,
     TelegramMethod,
 )
@@ -46,7 +48,9 @@ from hostwatch.core.registry import Registry
 from hostwatch.plugins.aeza import AezaPlugin
 from hostwatch.plugins.fake import FakePlugin
 from hostwatch.plugins.timeweb import TimewebPlugin
+from hostwatch.scheduler.maintenance import Backups
 from hostwatch.scheduler.polling import Poller, PollEvent
+from hostwatch.storage.db import connect
 from hostwatch.storage.repositories import (
     AccountRepository,
     BalanceHistoryRepository,
@@ -619,3 +623,47 @@ def test_summary_without_rates_says_so() -> None:
     )
     text = summary_text(View("en", UTC), [d], None, "RUB", NOW)
     assert "No totals in RUB" in text
+
+
+async def test_send_backup_button_sends_the_database(harness: Harness, tmp_path: Path) -> None:
+    harness.onboard("ru")
+    conn = connect(tmp_path / "db.sqlite3")
+    harness.hub.backups = Backups(
+        conn, tmp_path / "backups", SettingsRepository(conn), lambda: harness.hub.prefs.tz
+    )
+
+    await harness.press(Nav(to="settings"))
+    assert SetCb(key="backup").pack() in harness.session.buttons()
+    await harness.press(SetCb(key="backup"))
+
+    documents = [c for c in harness.session.calls if isinstance(c, SendDocument)]
+    assert len(documents) == 1
+    assert "HOSTWATCH_KEY" in str(documents[0].caption)
+    conn.close()
+
+
+async def test_own_server_is_marked(harness: Harness) -> None:
+    harness.onboard("ru")
+    account = harness.hub.accounts.add("fake", "main", {})
+    await harness.poller.poll_account(account)
+    server = harness.hub.load(account).servers[0]
+    harness.hub.own_ip = server.ip
+
+    await harness.press(Nav(to="servers"))
+    assert "· hostwatch" in harness.session.last_text()
+    await harness.press(f"s:{account}:{server.external_id}")
+    assert "Это сервер hostwatch" in harness.session.last_text()
+
+
+async def test_alert_views_carry_usage_and_settings(harness: Harness) -> None:
+    harness.onboard("ru")
+    account = harness.hub.accounts.add("fake", "main", {})
+    await harness.poller.poll_account(account)
+    harness.hub.prefs.set_threshold("balance_days", "7")
+
+    [alert_view] = harness.hub.alert_views()
+    assert alert_view.usage
+    assert alert_view.failures == 0
+    config = harness.hub.prefs.alert_settings("203.0.113.7")
+    assert config.thresholds.balance_days == 7
+    assert config.quiet is not None and config.own_ip == "203.0.113.7"

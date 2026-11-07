@@ -1,0 +1,25 @@
+# TLS in front of hostwatch. Outside only the login page is reachable (spec, decision 6).
+# SITE_ADDRESS is HOSTWATCH_DOMAIN, or the server IP when there is no domain;
+# docker-compose.yml fills it in.
+
+{
+	# Clients send no SNI when they connect by IP; without this Caddy finds no certificate.
+	default_sni {$SITE_ADDRESS}
+}
+
+{$SITE_ADDRESS} {
+	tls {
+		# Let's Encrypt issues IP certificates only in the 6-day profile.
+		issuer acme {
+			profile shortlived
+		}
+	}
+
+	handle /login/* {
+		reverse_proxy hostwatch:8080
+	}
+
+	handle {
+		respond 404
+	}
+}
