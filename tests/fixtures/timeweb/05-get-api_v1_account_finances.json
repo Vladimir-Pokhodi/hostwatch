@@ -1,0 +1,23 @@
+{
+  "method": "GET",
+  "url": "https://api.timeweb.cloud/api/v1/account/finances",
+  "query": {},
+  "status": 200,
+  "json": {
+    "finances": {
+      "balance": 1234.56,
+      "currency": "RUB",
+      "discount_end_date_at": null,
+      "discount_percent": 0,
+      "hourly_cost": 7.19,
+      "hourly_fee": 7.19,
+      "monthly_cost": 5260,
+      "monthly_fee": 5260,
+      "total_paid": 5000,
+      "hours_left": 171,
+      "autopay_card_info": null,
+      "total_balance": 1234.56
+    },
+    "response_id": "response_id-11"
+  }
+}

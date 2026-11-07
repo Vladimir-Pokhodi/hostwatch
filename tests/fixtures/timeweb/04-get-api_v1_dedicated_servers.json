@@ -1,0 +1,13 @@
+{
+  "method": "GET",
+  "url": "https://api.timeweb.cloud/api/v1/dedicated-servers",
+  "query": {},
+  "status": 200,
+  "json": {
+    "dedicated_servers": [],
+    "meta": {
+      "total": 0
+    },
+    "response_id": "response_id-10"
+  }
+}

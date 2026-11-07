@@ -72,6 +72,9 @@ class PluginContext:
 
 class Plugin(ABC):
     meta: ClassVar[PluginMeta]
+    # JSON paths with names the owner chose, e.g. "items.*.name"; `hostwatch record`
+    # replaces their values. Emails, IPs, ids and secrets are replaced without this list.
+    record_names: ClassVar[tuple[str, ...]] = ()
 
     def __init__(self, ctx: PluginContext) -> None:
         self.ctx = ctx

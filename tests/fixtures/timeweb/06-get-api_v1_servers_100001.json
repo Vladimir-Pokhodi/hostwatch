@@ -1,0 +1,99 @@
+{
+  "method": "GET",
+  "url": "https://api.timeweb.cloud/api/v1/servers/100001",
+  "query": {},
+  "status": 200,
+  "json": {
+    "server": {
+      "id": 100001,
+      "name": "name-3",
+      "comment": "comment-7",
+      "os": {
+        "id": 100004,
+        "name": "ubuntu",
+        "version": "26.04"
+      },
+      "software": null,
+      "preset_id": 100005,
+      "configurator_id": null,
+      "location": "ru-3",
+      "availability_zone": "msk-1",
+      "boot_mode": "std",
+      "status": "on",
+      "start_at": "2026-10-28T19:54:15.000Z",
+      "is_ddos_guard": false,
+      "is_master_ssh": false,
+      "avatar_id": null,
+      "avatar_link": null,
+      "vnc_pass": "***",
+      "cpu": 1,
+      "is_dedicated_cpu": false,
+      "gpu": 0,
+      "gpu_info": null,
+      "cpu_frequency": "3.3",
+      "ram": 1024,
+      "created_at": "2026-10-28T16:44:19.000Z",
+      "status_changed_at": "2026-10-28T22:54:15.000Z",
+      "project_id": 100002,
+      "networks": [
+        {
+          "type": "public",
+          "bandwidth": 1000,
+          "ips": [
+            {
+              "ip": "192.0.2.10",
+              "id": "id-2",
+              "is_main": true,
+              "ptr": null,
+              "type": "ipv4",
+              "is_ddos_guard": false
+            },
+            {
+              "ip": "2001:db8::c",
+              "is_main": false,
+              "ptr": null,
+              "type": "ipv6"
+            }
+          ],
+          "blocked_ports": [
+            587,
+            53413,
+            2525,
+            25,
+            389,
+            465,
+            3389,
+            5060
+          ]
+        }
+      ],
+      "disks": [
+        {
+          "size": 15360,
+          "used": 3910,
+          "id": 100006,
+          "type": "nvme",
+          "is_mounted": true,
+          "is_system": true,
+          "status": "done",
+          "system_name": "vda",
+          "is_auto_backup": true,
+          "comment": "comment-7",
+          "display_name": "comment-7"
+        }
+      ],
+      "image": null,
+      "is_image_mounted": false,
+      "root_pass": "***",
+      "cloud_init": null,
+      "is_qemu_agent": true,
+      "is_allow_root_ssh_pass": true,
+      "is_available_additional_ip": true,
+      "node_name": "node_name-8",
+      "service": null,
+      "is_blocked": false,
+      "blocked_ips": []
+    },
+    "response_id": "response_id-12"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "method": "GET",
+  "url": "https://my.aeza.net/api/v2/billing/transactions",
+  "query": {
+    "offset": "0",
+    "limit": "1"
+  },
+  "status": 200,
+  "json": {
+    "items": [
+      {
+        "id": 100016,
+        "amount": -1250.5,
+        "bonusAmount": 0,
+        "status": "cancelled",
+        "performedAt": "1970-01-01T00:00:00.000Z",
+        "createdAt": "2024-09-25T16:39:32.000Z",
+        "type": "order",
+        "serviceId": null,
+        "payload": {
+          "orderIds": [
+            100017
+          ],
+          "hours": 1,
+          "term": "hour"
+        },
+        "invoiceId": 100018,
+        "invoice": {
+          "id": 100018,
+          "flowType": "default",
+          "status": "cancelled"
+        }
+      }
+    ],
+    "total": 159
+  }
+}

@@ -1,4 +1,8 @@
-"""Command line: `python -m hostwatch check <plugin_or_account> [--key ...]`."""
+"""Command line.
+
+`python -m hostwatch check <plugin_or_account> [--key ...]` reads and prints;
+`python -m hostwatch record <plugin_or_account> [--key ...]` saves scrubbed test fixtures.
+"""
 
 from __future__ import annotations
 
@@ -13,7 +17,7 @@ from collections.abc import Awaitable, Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Protocol, TypeVar
+from typing import Any, Protocol, TypeVar, cast
 
 from hostwatch.core.accounts import AccountRunner
 from hostwatch.core.config import ConfigError, load_settings
@@ -22,13 +26,24 @@ from hostwatch.core.forecast import RECONCILE_WINDOW, Forecast, forecast
 from hostwatch.core.http import make_client
 from hostwatch.core.logs import register_secrets, setup_logging
 from hostwatch.core.models import Balance, Money, Server
-from hostwatch.core.plugin import ApiKeyAuth, Plugin, PluginContext, Secrets, capabilities
+from hostwatch.core.plugin import (
+    ApiKeyAuth,
+    Capability,
+    Plugin,
+    PluginContext,
+    Secrets,
+    SupportsInvoices,
+    SupportsUsage,
+    capabilities,
+)
+from hostwatch.core.record import Recorder, Scrubber, write_fixtures
 from hostwatch.core.registry import Registry, discover
 from hostwatch.storage.db import connect
 from hostwatch.storage.repositories import AccountRepository, BalanceHistoryRepository, NotFound
 
 T = TypeVar("T")
 DB_NAME = "hostwatch.sqlite3"
+FIXTURES_DIR = Path("tests/fixtures")
 
 
 class CheckFailed(Exception):
@@ -54,6 +69,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     handler = setup_logging(logging.DEBUG if args.verbose else logging.WARNING, stream=sys.stderr)
     try:
         registry = discover(_plugins_dir())
+        if args.command == "record":
+            written = asyncio.run(_record(registry, args.target, args.key, args.out))
+            print("\n".join(str(path) for path in written))
+            return 0
         result = asyncio.run(_check(registry, args.target, args.key))
     except CheckFailed as exc:
         print(f"error: {exc}", file=sys.stderr)
@@ -78,10 +97,29 @@ def _parser() -> argparse.ArgumentParser:
         action="append",
         default=[],
         metavar="[FIELD=]VALUE",
-        help="secret for a plugin id; a bare value goes to the plugin's first key field",
+        help="secret for a plugin id; a bare value goes to the plugin's first key field;"
+        " '$NAME' reads it from the environment variable NAME",
     )
     check.add_argument("--lang", choices=("en", "ru"), default="en")
     check.add_argument("-v", "--verbose", action="store_true", help="log HTTP requests")
+    record = commands.add_parser(
+        "record",
+        help="run a plugin's read calls and save its scrubbed HTTP answers as test fixtures",
+    )
+    record.add_argument(
+        "target", help="plugin id (uses --key) or account label/id from the database"
+    )
+    record.add_argument(
+        "--key",
+        action="append",
+        default=[],
+        metavar="[FIELD=]VALUE",
+        help="secret for a plugin id, as for check",
+    )
+    record.add_argument(
+        "--out", type=Path, help="folder for the fixtures, default tests/fixtures/<plugin>"
+    )
+    record.add_argument("-v", "--verbose", action="store_true", help="log HTTP requests")
     return parser
 
 
@@ -190,12 +228,100 @@ def parse_keys(plugin_cls: type[Plugin], keys: list[str]) -> dict[str, str]:
     for item in keys:
         name, sep, value = item.partition("=")
         if sep and name:
-            secrets[name] = value
+            secrets[name] = _from_env(value)
         elif fields:
-            secrets[fields[0]] = item
+            secrets[fields[0]] = _from_env(item)
         else:
             raise CheckFailed(f"plugin {plugin_cls.meta.id} has no key field; use FIELD=VALUE")
     return secrets
+
+
+def _from_env(value: str) -> str:
+    """`$NAME` (quoted for the shell) reads the secret from the environment variable NAME,
+    so the secret stays out of the process list."""
+    if not value.startswith("$"):
+        return value
+    try:
+        return os.environ[value[1:]]
+    except KeyError:
+        raise CheckFailed(f"environment variable {value[1:]} is not set") from None
+
+
+async def _record(registry: Registry, target: str, keys: list[str], out: Path | None) -> list[Path]:
+    recorder = Recorder()
+    if target in registry:
+        plugin_cls = registry.get(target)
+        secrets: Secrets = parse_keys(plugin_cls, keys)
+        register_secrets(secrets.values())
+        async with recorder.attach(make_client(plugin_cls.meta.id)) as http:
+            plugin = plugin_cls(PluginContext(secrets, http, _discard_secrets))
+
+            def invoke(action: Callable[[Plugin], Awaitable[T]]) -> Awaitable[T]:
+                return action(plugin)
+
+            await _exercise(plugin_cls, invoke)
+    elif keys:
+        raise CheckFailed(f"unknown plugin {target!r}; known: {', '.join(registry.ids())}")
+    else:
+        plugin_cls, secrets = await _record_account(registry, target, recorder)
+    scrubber = Scrubber(secrets.values(), plugin_cls.record_names)
+    records = scrubber.exchanges(recorder.exchanges)
+    return write_fixtures(records, out or FIXTURES_DIR / plugin_cls.meta.id)
+
+
+async def _discard_secrets(new: Secrets) -> None:
+    register_secrets(new.values())
+    print("note: the hoster issued new secrets; they are not saved", file=sys.stderr)
+
+
+async def _record_account(
+    registry: Registry, target: str, recorder: Recorder
+) -> tuple[type[Plugin], Secrets]:
+    try:
+        settings = load_settings()
+    except ConfigError as exc:
+        raise CheckFailed(
+            f"{target!r} is not a plugin, and the database is unavailable:\n{exc}"
+        ) from None
+    path = settings.data_dir / DB_NAME
+    if not path.is_file():
+        raise CheckFailed(f"{target!r} is not a plugin, and there is no database at {path}")
+    conn = connect(path)
+    try:
+        accounts = AccountRepository(conn, settings.encryption_key)
+        account_id = _find_account(accounts, target)
+        plugin_cls = registry.get(accounts.get(account_id).plugin_id)
+        runner = AccountRunner(
+            accounts, registry, lambda pid: recorder.attach(make_client(pid, settings.tg_proxy))
+        )
+
+        def invoke(action: Callable[[Plugin], Awaitable[T]]) -> Awaitable[T]:
+            return runner.call(account_id, action)
+
+        await _exercise(plugin_cls, invoke)
+        # Read after the calls: a token rotated during them must be scrubbed too.
+        return plugin_cls, accounts.load_secrets(account_id)
+    finally:
+        conn.close()
+
+
+async def _exercise(plugin_cls: type[Plugin], invoke: Invoke) -> None:
+    """Every read-only call the plugin supports; nothing that changes state at the hoster."""
+
+    async def step(name: str, action: Callable[[Plugin], Awaitable[Any]]) -> Any:
+        try:
+            return await invoke(action)
+        except Exception as exc:
+            raise CheckFailed(f"{name}: {describe(exc)}") from None
+
+    servers: list[Server] = await step("servers", lambda p: p.servers())
+    await step("balance", lambda p: p.balance())
+    caps = capabilities(plugin_cls)
+    if Capability.USAGE in caps and servers:
+        server_id = servers[0].external_id
+        await step("usage", lambda p: cast(SupportsUsage, p).usage(server_id))
+    if Capability.INVOICES in caps:
+        await step("invoices", lambda p: cast(SupportsInvoices, p).invoices())
 
 
 def render(result: CheckResult, lang: str) -> str:

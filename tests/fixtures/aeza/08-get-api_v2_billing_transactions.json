@@ -1,0 +1,1049 @@
+{
+  "method": "GET",
+  "url": "https://my.aeza.net/api/v2/billing/transactions",
+  "query": {
+    "offset": "109",
+    "limit": "50"
+  },
+  "status": 200,
+  "json": {
+    "items": [
+      {
+        "id": 100019,
+        "amount": -1375,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-03-25T08:15:32.000Z",
+        "createdAt": "2026-03-25T08:15:32.000Z",
+        "type": "prolong",
+        "serviceId": 100010,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "from": "2026-03-25T08:15:32.000Z",
+          "to": "2026-04-24T08:15:32.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100020,
+        "amount": 0,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-03-25T20:31:29.000Z",
+        "createdAt": "2026-03-25T20:31:28.000Z",
+        "type": "order",
+        "serviceId": 100013,
+        "payload": {
+          "version": 2,
+          "productId": 100021,
+          "name": "name-6",
+          "term": "month",
+          "parameters": {
+            "os": "ubuntu_2404"
+          },
+          "autoProlong": false,
+          "backups": false,
+          "hours": 720,
+          "__compatOrderId": 100022,
+          "__servicePrice": 494,
+          "__installPrice": 0
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100023,
+        "amount": -1500,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-03-25T20:31:28.000Z",
+        "createdAt": "2026-03-25T20:31:28.000Z",
+        "type": "prolong",
+        "serviceId": 100013,
+        "payload": {
+          "from": "2026-03-25T20:31:28.963Z",
+          "to": "2026-04-24T20:31:28.000Z",
+          "hours": 720,
+          "term": "month"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100024,
+        "amount": -1625,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-09-04T21:56:23.000Z",
+        "createdAt": "2026-09-04T21:56:23.000Z",
+        "type": "change_product",
+        "serviceId": 100025,
+        "payload": {
+          "productId": 100026
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100027,
+        "amount": 0,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-04-20T14:49:16.000Z",
+        "createdAt": "2026-04-20T14:49:16.000Z",
+        "type": "order",
+        "serviceId": 100028,
+        "payload": {
+          "version": 2,
+          "productId": 100007,
+          "name": "name-7",
+          "term": "hour",
+          "termCount": 1,
+          "parameters": {
+            "os": "ubuntu_2404",
+            "recipe": null
+          },
+          "autoProlong": false,
+          "backups": false,
+          "hours": 1,
+          "__compatOrderId": 100029,
+          "__servicePrice": 3,
+          "__installPrice": 0,
+          "additionalResources": {}
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100030,
+        "amount": -1750,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-04-20T14:49:16.000Z",
+        "createdAt": "2026-04-20T14:49:16.000Z",
+        "type": "prolong",
+        "serviceId": 100028,
+        "payload": {
+          "from": "2026-04-20T14:54:35.698Z",
+          "to": "2026-04-20T15:54:35.698Z",
+          "hours": 1,
+          "term": "hour"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100031,
+        "amount": -1500,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-04-20T15:16:55.000Z",
+        "createdAt": "2026-04-20T15:16:55.000Z",
+        "type": "prolong",
+        "serviceId": 100028,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "from": "2026-04-20T15:54:36.000Z",
+          "to": "2026-05-20T15:54:36.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100032,
+        "amount": -1375,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-04-24T08:21:34.000Z",
+        "createdAt": "2026-04-24T08:21:34.000Z",
+        "type": "prolong",
+        "serviceId": 100010,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "from": "2026-04-24T08:21:34.711Z",
+          "to": "2026-05-24T08:21:34.711Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100033,
+        "amount": -1500,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-04-24T20:35:57.000Z",
+        "createdAt": "2026-04-24T20:35:57.000Z",
+        "type": "prolong",
+        "serviceId": 100013,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "from": "2026-04-24T20:35:57.252Z",
+          "to": "2026-05-24T20:35:57.252Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100034,
+        "amount": -1875,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-09-16T21:09:30.000Z",
+        "createdAt": "2026-09-16T21:09:30.000Z",
+        "type": "change_product",
+        "serviceId": 100013,
+        "payload": {
+          "productId": 100014
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100035,
+        "amount": -2000,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-09-24T18:19:48.000Z",
+        "createdAt": "2026-09-24T18:19:47.000Z",
+        "type": "prolong",
+        "serviceId": 100013,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "source": "task:8dcc3e14-4081-4129-b6b1-3d1bb97f4f5f",
+          "from": "2026-09-24T18:19:48.348Z",
+          "to": "2026-10-24T18:19:48.348Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100036,
+        "amount": -1500,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-05-21T14:03:09.000Z",
+        "createdAt": "2026-05-21T14:03:09.000Z",
+        "type": "prolong",
+        "serviceId": 100028,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "from": "2026-05-21T14:03:09.000Z",
+          "to": "2026-06-20T14:03:09.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100037,
+        "amount": 2125,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-09-29T16:31:44.000Z",
+        "createdAt": "2026-09-29T16:31:44.000Z",
+        "type": "replenishment",
+        "serviceId": null,
+        "payload": null,
+        "invoiceId": 100038,
+        "invoice": {
+          "id": 100038,
+          "flowType": "default",
+          "status": "performed"
+        }
+      },
+      {
+        "id": 100039,
+        "amount": 0,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-09-29T16:34:39.000Z",
+        "createdAt": "2026-09-29T16:34:39.000Z",
+        "type": "order",
+        "serviceId": 100009,
+        "payload": {
+          "version": 2,
+          "productId": 100007,
+          "name": "name-3",
+          "term": "month",
+          "termCount": 1,
+          "parameters": {
+            "os": "ubuntu_2604",
+            "recipe": null
+          },
+          "autoProlong": true,
+          "backups": false,
+          "hours": 720,
+          "__compatOrderId": 100040,
+          "__servicePrice": 593,
+          "__installPrice": 0,
+          "additionalResources": {}
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100041,
+        "amount": 0,
+        "bonusAmount": -2250,
+        "status": "performed",
+        "performedAt": "2026-09-29T16:34:39.000Z",
+        "createdAt": "2026-09-29T16:34:39.000Z",
+        "type": "prolong",
+        "serviceId": 100009,
+        "payload": {
+          "from": "2026-09-29T16:36:37.788Z",
+          "to": "2026-10-29T16:36:37.788Z",
+          "hours": 720,
+          "term": "month"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100042,
+        "amount": -1375,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-05-24T08:25:18.000Z",
+        "createdAt": "2026-05-24T08:25:18.000Z",
+        "type": "prolong",
+        "serviceId": 100010,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "from": "2026-05-24T08:25:18.699Z",
+          "to": "2026-06-23T08:25:18.699Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100043,
+        "amount": -1500,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-05-24T20:40:21.000Z",
+        "createdAt": "2026-05-24T20:40:21.000Z",
+        "type": "prolong",
+        "serviceId": 100013,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "from": "2026-05-24T20:40:21.477Z",
+          "to": "2026-06-23T20:40:21.477Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100044,
+        "amount": -2375,
+        "bonusAmount": -2500,
+        "status": "performed",
+        "performedAt": "2026-10-02T15:11:02.000Z",
+        "createdAt": "2026-10-02T15:11:02.000Z",
+        "type": "prolong",
+        "serviceId": 100045,
+        "payload": {
+          "from": "2026-10-02T15:12:36.329Z",
+          "to": "2026-11-01T15:12:36.329Z",
+          "hours": 720,
+          "term": "month"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100046,
+        "amount": 0,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-10-02T15:11:03.000Z",
+        "createdAt": "2026-10-02T15:11:02.000Z",
+        "type": "order",
+        "serviceId": 100045,
+        "payload": {
+          "version": 2,
+          "productId": 100047,
+          "name": "name-8",
+          "term": "month",
+          "termCount": 1,
+          "parameters": {
+            "os": "ubuntu_2604",
+            "recipe": null
+          },
+          "autoProlong": false,
+          "backups": false,
+          "hours": 720,
+          "__compatOrderId": 100048,
+          "__servicePrice": 593,
+          "__installPrice": 0,
+          "additionalResources": {}
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100049,
+        "amount": -2000,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-10-04T16:30:31.000Z",
+        "createdAt": "2026-10-04T16:30:31.000Z",
+        "type": "prolong",
+        "serviceId": 100025,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "source": "task:8242f8c6-7383-42c8-ab5f-70c65a99f55a",
+          "from": "2026-10-04T16:30:31.333Z",
+          "to": "2026-11-03T16:30:31.333Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100050,
+        "amount": 0,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-04T19:23:56.000Z",
+        "createdAt": "2026-06-04T19:23:56.000Z",
+        "type": "order",
+        "serviceId": 100051,
+        "payload": {
+          "version": 2,
+          "productId": 100047,
+          "name": "name-9",
+          "term": "month",
+          "termCount": 1,
+          "parameters": {
+            "os": "ubuntu_2604",
+            "recipe": null
+          },
+          "autoProlong": false,
+          "backups": false,
+          "hours": 720,
+          "__compatOrderId": 100052,
+          "__servicePrice": 593,
+          "__installPrice": 0,
+          "additionalResources": {}
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100053,
+        "amount": -2250,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-04T19:23:56.000Z",
+        "createdAt": "2026-06-04T19:23:56.000Z",
+        "type": "prolong",
+        "serviceId": 100051,
+        "payload": {
+          "from": "2026-06-04T19:26:59.257Z",
+          "to": "2026-07-04T19:26:59.257Z",
+          "hours": 720,
+          "term": "month"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100054,
+        "amount": 2125,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-23T14:27:17.000Z",
+        "createdAt": "2026-06-23T14:27:17.000Z",
+        "type": "replenishment",
+        "serviceId": null,
+        "payload": null,
+        "invoiceId": 100055,
+        "invoice": {
+          "id": 100055,
+          "flowType": "default",
+          "status": "performed"
+        }
+      },
+      {
+        "id": 100056,
+        "amount": -2625,
+        "bonusAmount": -2750,
+        "status": "performed",
+        "performedAt": "2026-06-23T14:27:19.000Z",
+        "createdAt": "2026-06-23T14:27:19.000Z",
+        "type": "prolong",
+        "serviceId": 100010,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "from": "2026-06-23T14:27:20.123Z",
+          "to": "2026-07-23T14:27:20.123Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100057,
+        "amount": -2875,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-23T14:27:55.000Z",
+        "createdAt": "2026-06-23T14:27:55.000Z",
+        "type": "prolong",
+        "serviceId": 100010,
+        "payload": {
+          "hours": 2160,
+          "term": "quarter_year",
+          "from": "2026-07-23T14:27:21.000Z",
+          "to": "2026-10-21T14:27:21.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100058,
+        "amount": -3000,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-23T20:45:23.000Z",
+        "createdAt": "2026-06-23T20:45:23.000Z",
+        "type": "prolong",
+        "serviceId": 100013,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "from": "2026-06-23T20:45:23.395Z",
+          "to": "2026-07-23T20:45:23.395Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100059,
+        "amount": 0,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-29T14:08:37.000Z",
+        "createdAt": "2026-06-29T14:08:36.000Z",
+        "type": "order",
+        "serviceId": 100060,
+        "payload": {
+          "version": 2,
+          "productId": 100061,
+          "name": "name-10",
+          "term": "hour",
+          "termCount": 1,
+          "parameters": {
+            "os": "ubuntu_2604",
+            "recipe": null
+          },
+          "autoProlong": false,
+          "backups": false,
+          "hours": 1,
+          "__compatOrderId": 100062,
+          "__servicePrice": 4,
+          "__installPrice": 0,
+          "additionalResources": {}
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100063,
+        "amount": -1750,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-29T14:08:36.000Z",
+        "createdAt": "2026-06-29T14:08:36.000Z",
+        "type": "prolong",
+        "serviceId": 100060,
+        "payload": {
+          "from": "2026-06-29T14:10:07.913Z",
+          "to": "2026-06-29T15:10:07.913Z",
+          "hours": 1,
+          "term": "hour"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100064,
+        "amount": -3125,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-29T15:11:33.000Z",
+        "createdAt": "2026-06-29T15:11:33.000Z",
+        "type": "prolong",
+        "serviceId": 100060,
+        "payload": {
+          "hours": 1,
+          "term": "hour",
+          "source": "manual:100001",
+          "from": "2026-06-29T15:11:33.000Z",
+          "to": "2026-06-29T16:11:33.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100065,
+        "amount": 0,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-29T15:45:28.000Z",
+        "createdAt": "2026-06-29T15:45:28.000Z",
+        "type": "order",
+        "serviceId": 100066,
+        "payload": {
+          "version": 2,
+          "productId": 100067,
+          "name": "name-11",
+          "term": "hour",
+          "termCount": 1,
+          "parameters": {
+            "os": "ubuntu_2404",
+            "recipe": null
+          },
+          "autoProlong": false,
+          "backups": false,
+          "hours": 1,
+          "__compatOrderId": 100068,
+          "__servicePrice": 10,
+          "__installPrice": 0,
+          "additionalResources": {}
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100069,
+        "amount": -3250,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-29T15:45:28.000Z",
+        "createdAt": "2026-06-29T15:45:28.000Z",
+        "type": "prolong",
+        "serviceId": 100066,
+        "payload": {
+          "from": "2026-06-29T15:46:11.251Z",
+          "to": "2026-06-29T16:46:11.251Z",
+          "hours": 1,
+          "term": "hour"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100070,
+        "amount": -3250,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-30T12:10:16.000Z",
+        "createdAt": "2026-06-30T12:10:16.000Z",
+        "type": "prolong",
+        "serviceId": 100071,
+        "payload": {
+          "hours": 1,
+          "term": "hour",
+          "source": "manual:100001",
+          "from": "2026-06-30T12:14:09.000Z",
+          "to": "2026-06-30T13:14:09.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100072,
+        "amount": 0,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-30T11:13:18.000Z",
+        "createdAt": "2026-06-30T11:13:18.000Z",
+        "type": "order",
+        "serviceId": 100071,
+        "payload": {
+          "version": 2,
+          "productId": 100067,
+          "name": "name-12",
+          "term": "hour",
+          "termCount": 1,
+          "parameters": {
+            "os": "ubuntu_2404",
+            "recipe": null
+          },
+          "autoProlong": false,
+          "backups": false,
+          "hours": 1,
+          "__compatOrderId": 100073,
+          "__servicePrice": 10,
+          "__installPrice": 0,
+          "additionalResources": {}
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100074,
+        "amount": -3250,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-30T11:13:18.000Z",
+        "createdAt": "2026-06-30T11:13:18.000Z",
+        "type": "prolong",
+        "serviceId": 100071,
+        "payload": {
+          "from": "2026-06-30T11:13:18.637Z",
+          "to": "2026-06-30T12:13:18.000Z",
+          "hours": 1,
+          "term": "hour"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100075,
+        "amount": -3250,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-30T12:58:49.000Z",
+        "createdAt": "2026-06-30T12:58:49.000Z",
+        "type": "prolong",
+        "serviceId": 100071,
+        "payload": {
+          "hours": 1,
+          "term": "hour",
+          "source": "manual:100001",
+          "from": "2026-06-30T13:14:09.000Z",
+          "to": "2026-06-30T14:14:09.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100076,
+        "amount": 0,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-30T13:24:05.000Z",
+        "createdAt": "2026-06-30T13:24:05.000Z",
+        "type": "order",
+        "serviceId": 100077,
+        "payload": {
+          "version": 2,
+          "productId": 100067,
+          "name": "name-13",
+          "term": "hour",
+          "termCount": 1,
+          "parameters": {
+            "os": "ubuntu_2404",
+            "recipe": null
+          },
+          "autoProlong": false,
+          "backups": false,
+          "hours": 1,
+          "__compatOrderId": 100078,
+          "__servicePrice": 10,
+          "__installPrice": 0,
+          "additionalResources": {}
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100079,
+        "amount": -3250,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-30T13:24:05.000Z",
+        "createdAt": "2026-06-30T13:24:05.000Z",
+        "type": "prolong",
+        "serviceId": 100077,
+        "payload": {
+          "from": "2026-06-30T13:25:09.721Z",
+          "to": "2026-06-30T14:25:09.721Z",
+          "hours": 1,
+          "term": "hour"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100080,
+        "amount": -3250,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-30T14:58:46.000Z",
+        "createdAt": "2026-06-30T14:58:46.000Z",
+        "type": "prolong",
+        "serviceId": 100077,
+        "payload": {
+          "hours": 1,
+          "term": "hour",
+          "source": "manual:100001",
+          "from": "2026-06-30T14:58:46.000Z",
+          "to": "2026-06-30T15:58:46.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100081,
+        "amount": -3250,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-30T15:20:33.000Z",
+        "createdAt": "2026-06-30T15:20:33.000Z",
+        "type": "prolong",
+        "serviceId": 100077,
+        "payload": {
+          "hours": 1,
+          "term": "hour",
+          "source": "manual:100001",
+          "from": "2026-06-30T15:58:46.000Z",
+          "to": "2026-06-30T16:58:46.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100082,
+        "amount": -3250,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-06-30T16:33:27.000Z",
+        "createdAt": "2026-06-30T16:33:26.000Z",
+        "type": "prolong",
+        "serviceId": 100077,
+        "payload": {
+          "hours": 1,
+          "term": "hour",
+          "source": "manual:100001",
+          "from": "2026-06-30T16:58:46.000Z",
+          "to": "2026-06-30T17:58:46.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100083,
+        "amount": 0,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-07-04T17:24:38.000Z",
+        "createdAt": "2026-07-04T17:24:38.000Z",
+        "type": "order",
+        "serviceId": 100084,
+        "payload": {
+          "version": 2,
+          "productId": 100047,
+          "name": "name-14",
+          "term": "hour",
+          "termCount": 1,
+          "parameters": {
+            "os": "ubuntu_2604",
+            "recipe": null
+          },
+          "autoProlong": false,
+          "backups": false,
+          "hours": 1,
+          "__compatOrderId": 100085,
+          "__servicePrice": 4,
+          "__installPrice": 0,
+          "additionalResources": {}
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100086,
+        "amount": -1750,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-07-04T17:24:38.000Z",
+        "createdAt": "2026-07-04T17:24:38.000Z",
+        "type": "prolong",
+        "serviceId": 100084,
+        "payload": {
+          "from": "2026-07-04T17:26:49.500Z",
+          "to": "2026-07-04T18:26:49.500Z",
+          "hours": 1,
+          "term": "hour"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100087,
+        "amount": -3125,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-07-05T16:31:50.000Z",
+        "createdAt": "2026-07-05T16:31:50.000Z",
+        "type": "prolong",
+        "serviceId": 100084,
+        "payload": {
+          "hours": 1,
+          "term": "hour",
+          "source": "manual:100001",
+          "from": "2026-07-05T16:31:50.000Z",
+          "to": "2026-07-05T17:31:50.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100088,
+        "amount": -3125,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-07-06T09:04:09.000Z",
+        "createdAt": "2026-07-06T09:04:09.000Z",
+        "type": "prolong",
+        "serviceId": 100084,
+        "payload": {
+          "hours": 1,
+          "term": "hour",
+          "source": "manual:100001",
+          "from": "2026-07-06T09:04:09.000Z",
+          "to": "2026-07-06T10:04:09.000Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100089,
+        "amount": -3000,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-07-25T20:54:46.000Z",
+        "createdAt": "2026-07-25T20:54:46.000Z",
+        "type": "prolong",
+        "serviceId": 100013,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "source": "task:287516c3-b7b5-46aa-8080-640f95eecb1f",
+          "from": "2026-07-25T20:54:46.273Z",
+          "to": "2026-08-24T20:54:46.273Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100090,
+        "amount": -3375,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-10-23T14:30:22.000Z",
+        "createdAt": "2026-10-23T14:30:22.000Z",
+        "type": "prolong",
+        "serviceId": 100010,
+        "payload": {
+          "hours": 2160,
+          "term": "quarter_year",
+          "source": "task:42000b17-51f7-42c5-a1c8-61c99a41982f",
+          "from": "2026-10-23T14:30:22.698Z",
+          "to": "2027-01-21T14:30:22.698Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100091,
+        "amount": -2000,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-10-24T18:25:25.000Z",
+        "createdAt": "2026-10-24T18:25:25.000Z",
+        "type": "prolong",
+        "serviceId": 100013,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "source": "task:3dafc78a-3b8c-4dd2-be24-1855610ee063",
+          "from": "2026-10-24T18:25:25.441Z",
+          "to": "2026-11-23T18:25:25.441Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100092,
+        "amount": -2250,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-10-29T16:40:20.000Z",
+        "createdAt": "2026-10-29T16:40:20.000Z",
+        "type": "prolong",
+        "serviceId": 100009,
+        "payload": {
+          "hours": 720,
+          "term": "month",
+          "source": "task:e88119d8-ffae-431a-b675-6bbbf4f48a6b",
+          "from": "2026-10-29T16:40:20.449Z",
+          "to": "2026-11-28T16:40:20.449Z"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100093,
+        "amount": 0,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-11-06T23:47:33.000Z",
+        "createdAt": "2026-11-06T23:47:32.000Z",
+        "type": "order",
+        "serviceId": 100006,
+        "payload": {
+          "version": 2,
+          "productId": 100007,
+          "name": "name-15",
+          "term": "month",
+          "termCount": 1,
+          "parameters": {
+            "os": "ubuntu_2604",
+            "recipe": null
+          },
+          "autoProlong": true,
+          "backups": false,
+          "hours": 720,
+          "__compatOrderId": 100094,
+          "__servicePrice": 593,
+          "__installPrice": 0,
+          "additionalResources": {}
+        },
+        "invoiceId": 0,
+        "invoice": null
+      },
+      {
+        "id": 100095,
+        "amount": -2250,
+        "bonusAmount": 0,
+        "status": "performed",
+        "performedAt": "2026-11-06T23:47:32.000Z",
+        "createdAt": "2026-11-06T23:47:32.000Z",
+        "type": "prolong",
+        "serviceId": 100006,
+        "payload": {
+          "from": "2026-11-06T23:47:32.912Z",
+          "to": "2026-12-06T23:47:32.000Z",
+          "hours": 720,
+          "term": "month"
+        },
+        "invoiceId": 0,
+        "invoice": null
+      }
+    ],
+    "total": 159
+  }
+}

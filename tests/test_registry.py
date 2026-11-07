@@ -51,7 +51,7 @@ def test_loads_local_plugin_with_relative_import(tmp_path: Path) -> None:
 
     registry = discover(tmp_path)
 
-    assert registry.ids() == ["fake", "mine"]
+    assert registry.ids() == sorted([*discover().ids(), "mine"])
 
 
 def test_broken_local_plugin_is_skipped(tmp_path: Path, caplog: pytest.LogCaptureFixture) -> None:
@@ -61,7 +61,7 @@ def test_broken_local_plugin_is_skipped(tmp_path: Path, caplog: pytest.LogCaptur
     with caplog.at_level(logging.ERROR):
         registry = discover(tmp_path)
 
-    assert registry.ids() == ["fake"]
+    assert registry.ids() == discover().ids()
     assert "broken" in caplog.text
     assert "_template" not in caplog.text
 
@@ -71,7 +71,7 @@ def test_local_plugin_id_must_match_folder(tmp_path: Path) -> None:
         tmp_path / "other" / "__init__.py", LOCAL_PLUGIN.replace("from .helpers", "ZERO = '0'\n#")
     )
 
-    assert discover(tmp_path).ids() == ["fake"]
+    assert discover(tmp_path).ids() == discover().ids()
 
 
 def test_local_plugin_cannot_replace_builtin(tmp_path: Path) -> None:

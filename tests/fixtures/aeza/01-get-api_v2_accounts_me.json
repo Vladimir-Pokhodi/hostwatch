@@ -1,0 +1,46 @@
+{
+  "method": "GET",
+  "url": "https://my.aeza.net/api/v2/accounts/me",
+  "query": {},
+  "status": 200,
+  "json": {
+    "id": 100001,
+    "status": "active",
+    "email": "***",
+    "balance": 1000,
+    "withdrawBalance": 0,
+    "totalReplenished": 1125.5,
+    "bonusBalance": 0,
+    "referrerProgramId": 100002,
+    "bonusState": "unlocked",
+    "tfa": null,
+    "tfaEnabled": false,
+    "companyId": null,
+    "interface": {
+      "lang": "ru",
+      "currency": "eur",
+      "theme": "light"
+    },
+    "legal": null,
+    "payload": {
+      "supportPIN": "***"
+    },
+    "connectedServices": {},
+    "discount": {
+      "total": 0
+    },
+    "permittedDebt": 0,
+    "profile": {
+      "type": "person",
+      "phoneConfirmed": false
+    },
+    "roles": [
+      "user"
+    ],
+    "region": "global",
+    "currency": "EUR",
+    "withdrawMetadata": null,
+    "photo": "***",
+    "isLegalTransformationAvailable": false
+  }
+}

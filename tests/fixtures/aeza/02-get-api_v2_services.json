@@ -1,0 +1,310 @@
+{
+  "method": "GET",
+  "url": "https://my.aeza.net/api/v2/services",
+  "query": {
+    "offset": "0",
+    "limit": "50"
+  },
+  "status": 200,
+  "json": {
+    "items": [
+      {
+        "id": 100003,
+        "name": "name-1",
+        "icon": null,
+        "ip": null,
+        "payload": {
+          "profileId": "100004"
+        },
+        "paymentTerm": "year",
+        "autoProlong": true,
+        "createdAt": "2024-11-29T22:49:32.000Z",
+        "expiresAt": "2026-12-02T15:37:21.000Z",
+        "status": "active",
+        "typeSlug": "domain",
+        "productName": "ru",
+        "locationCode": null,
+        "price": 401,
+        "capabilities": [],
+        "currentTask": null,
+        "product": {
+          "id": 100005,
+          "name": "ru",
+          "groupId": null,
+          "payload": {},
+          "fullPayload": {},
+          "typeSlug": "domain",
+          "typeName": "Domain",
+          "prices": {
+            "year": 401
+          }
+        },
+        "abuse": null
+      },
+      {
+        "id": 100006,
+        "name": "name-2",
+        "icon": null,
+        "ip": "192.0.2.10",
+        "payload": {
+          "activationTaskId": "6d02c2f2-0503-4d3c-a2b4-fe895d83bd08"
+        },
+        "paymentTerm": "month",
+        "autoProlong": true,
+        "createdAt": "2026-11-06T23:47:32.000Z",
+        "expiresAt": "2026-12-06T23:49:02.000Z",
+        "status": "active",
+        "typeSlug": "vps",
+        "productName": "CLTs-1",
+        "locationCode": "us",
+        "price": 593,
+        "capabilities": [
+          "order_many",
+          "ctl",
+          "ctl.restart",
+          "ctl.force_off",
+          "ip",
+          "manual_delete",
+          "upgrade",
+          "charts",
+          "rename",
+          "change_password",
+          "reinstall",
+          "backups",
+          "clone",
+          "remote",
+          "remote.vnc",
+          "rescue",
+          "backups",
+          "ssh_keys",
+          "node",
+          "resources_check"
+        ],
+        "currentTask": null,
+        "product": {
+          "id": 100007,
+          "name": "CLTs-1",
+          "groupId": 100008,
+          "payload": {
+            "isDisabled": false,
+            "windowsDisabled": true
+          },
+          "fullPayload": {
+            "mgr": "usa",
+            "mode": "shared",
+            "label": "US-SHARED",
+            "isPrivate": false,
+            "isDisabled": false,
+            "windowsDisabled": true
+          },
+          "typeSlug": "vps",
+          "typeName": "Virtual server",
+          "prices": {
+            "hour": 4,
+            "year": 6263,
+            "month": 593,
+            "half_year": 3238,
+            "quarter_year": 1691
+          }
+        },
+        "abuse": null
+      },
+      {
+        "id": 100009,
+        "name": "name-3",
+        "icon": null,
+        "ip": "192.0.2.11",
+        "payload": {
+          "activationTaskId": "5f0d5730-85b3-47ae-bcad-09823ddfc165"
+        },
+        "paymentTerm": "month",
+        "autoProlong": true,
+        "createdAt": "2026-09-29T16:34:39.000Z",
+        "expiresAt": "2026-11-28T16:40:21.000Z",
+        "status": "active",
+        "typeSlug": "vps",
+        "productName": "CLTs-1",
+        "locationCode": "us",
+        "price": 593,
+        "capabilities": [
+          "order_many",
+          "ctl",
+          "ctl.restart",
+          "ctl.force_off",
+          "ip",
+          "manual_delete",
+          "upgrade",
+          "charts",
+          "rename",
+          "change_password",
+          "reinstall",
+          "backups",
+          "clone",
+          "remote",
+          "remote.vnc",
+          "rescue",
+          "backups",
+          "ssh_keys",
+          "node",
+          "resources_check"
+        ],
+        "currentTask": null,
+        "product": {
+          "id": 100007,
+          "name": "CLTs-1",
+          "groupId": 100008,
+          "payload": {
+            "isDisabled": false,
+            "windowsDisabled": true
+          },
+          "fullPayload": {
+            "mgr": "usa",
+            "mode": "shared",
+            "label": "US-SHARED",
+            "isPrivate": false,
+            "isDisabled": false,
+            "windowsDisabled": true
+          },
+          "typeSlug": "vps",
+          "typeName": "Virtual server",
+          "prices": {
+            "hour": 4,
+            "year": 6263,
+            "month": 593,
+            "half_year": 3238,
+            "quarter_year": 1691
+          }
+        },
+        "abuse": null
+      },
+      {
+        "id": 100010,
+        "name": "name-4",
+        "icon": null,
+        "ip": "192.0.2.12",
+        "payload": {
+          "keeping_policy": 432000,
+          "activationTaskId": "2d5900c4-396d-40a6-bc4b-5df81839da27"
+        },
+        "paymentTerm": "quarter_year",
+        "autoProlong": true,
+        "createdAt": "2026-01-23T16:45:30.000Z",
+        "expiresAt": "2027-01-21T14:30:23.000Z",
+        "status": "active",
+        "typeSlug": "vps",
+        "productName": "NLs-2",
+        "locationCode": "nl",
+        "price": 3383,
+        "capabilities": [
+          "order_many",
+          "ctl",
+          "ctl.restart",
+          "ctl.force_off",
+          "ip",
+          "manual_delete",
+          "upgrade",
+          "charts",
+          "rename",
+          "change_password",
+          "reinstall",
+          "backups",
+          "clone",
+          "remote",
+          "remote.vnc",
+          "rescue",
+          "backups",
+          "ssh_keys",
+          "node",
+          "resources_check"
+        ],
+        "currentTask": null,
+        "product": {
+          "id": 100011,
+          "name": "NLs-2",
+          "groupId": 100012,
+          "payload": {},
+          "fullPayload": {
+            "mode": "shared",
+            "label": "NL-SHARED",
+            "isPrivate": false,
+            "isDisabled": false
+          },
+          "typeSlug": "vps",
+          "typeName": "Virtual server",
+          "prices": {
+            "hour": 7,
+            "year": 12535,
+            "month": 1187,
+            "half_year": 6482,
+            "quarter_year": 3383
+          }
+        },
+        "abuse": null
+      },
+      {
+        "id": 100013,
+        "name": "name-5",
+        "icon": null,
+        "ip": "192.0.2.13",
+        "payload": {
+          "activationTaskId": "cfc64dcf-214e-41c9-a993-91205c1065e1"
+        },
+        "paymentTerm": "month",
+        "autoProlong": true,
+        "createdAt": "2026-03-25T20:31:28.000Z",
+        "expiresAt": "2026-11-23T18:25:26.000Z",
+        "status": "active",
+        "typeSlug": "vps",
+        "productName": "PARs-2",
+        "locationCode": "fr",
+        "price": 1187,
+        "capabilities": [
+          "order_many",
+          "ctl",
+          "ctl.restart",
+          "ctl.force_off",
+          "ip",
+          "manual_delete",
+          "upgrade",
+          "charts",
+          "rename",
+          "change_password",
+          "reinstall",
+          "backups",
+          "clone",
+          "remote",
+          "remote.vnc",
+          "rescue",
+          "backups",
+          "ssh_keys",
+          "node",
+          "resources_check"
+        ],
+        "currentTask": null,
+        "product": {
+          "id": 100014,
+          "name": "PARs-2",
+          "groupId": 100015,
+          "payload": {},
+          "fullPayload": {
+            "mode": "shared",
+            "label": "FR-SHARED",
+            "isPrivate": false,
+            "isDisabled": false
+          },
+          "typeSlug": "vps",
+          "typeName": "Virtual server",
+          "prices": {
+            "hour": 7,
+            "year": 12535,
+            "month": 1187,
+            "half_year": 6482,
+            "quarter_year": 3383
+          }
+        },
+        "abuse": null
+      }
+    ],
+    "total": 5
+  }
+}

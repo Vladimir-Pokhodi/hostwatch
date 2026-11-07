@@ -136,6 +136,9 @@ class Usage(Model):
     ram_percent: float | None = None
     disk_percent: float | None = None
     traffic_gb: float | None = None
+    # Average network speed over the hoster's last measurement window.
+    net_in_mbits: float | None = None
+    net_out_mbits: float | None = None
 
 
 class InvoiceStatus(StrEnum):

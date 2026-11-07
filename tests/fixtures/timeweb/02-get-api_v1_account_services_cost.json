@@ -1,0 +1,74 @@
+{
+  "method": "GET",
+  "url": "https://api.timeweb.cloud/api/v1/account/services/cost",
+  "query": {},
+  "status": 200,
+  "json": {
+    "meta": {
+      "total": 2
+    },
+    "services_costs": [
+      {
+        "cost": 1720,
+        "total_cost": 2010,
+        "type": "server",
+        "service_id": 100001,
+        "project_id": 100002,
+        "services": [
+          {
+            "cost": 90,
+            "type": "backups"
+          },
+          {
+            "cost": 200,
+            "type": "floating_ip",
+            "info": {
+              "name": "192.0.2.10",
+              "id": "id-2"
+            }
+          }
+        ],
+        "info": {
+          "name": "name-3",
+          "description": "Cloud MSK Ultra 15"
+        },
+        "configuration": {
+          "disk": 15,
+          "cpu": 1,
+          "ram": 1
+        }
+      },
+      {
+        "cost": 2960,
+        "total_cost": 3250,
+        "type": "server",
+        "service_id": 100003,
+        "project_id": 100002,
+        "services": [
+          {
+            "cost": 90,
+            "type": "backups"
+          },
+          {
+            "cost": 200,
+            "type": "floating_ip",
+            "info": {
+              "name": "192.0.2.11",
+              "id": "id-4"
+            }
+          }
+        ],
+        "info": {
+          "name": "name-5",
+          "description": "Конфигуратор"
+        },
+        "configuration": {
+          "disk": 15,
+          "cpu": 2,
+          "ram": 2
+        }
+      }
+    ],
+    "response_id": "response_id-6"
+  }
+}
