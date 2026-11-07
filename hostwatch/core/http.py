@@ -4,10 +4,10 @@ import logging
 
 import httpx
 
-# Same browser as the login page, so the hoster sees one client.
+# Same browser as the login page (Chromium of Playwright 1.64), so the hoster sees one client.
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+    "(KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
 )
 TIMEOUT = httpx.Timeout(20.0, connect=10.0)
 

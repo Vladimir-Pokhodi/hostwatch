@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import Awaitable, Callable, Iterable, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
+from fnmatch import fnmatchcase
 from typing import ClassVar, Protocol, runtime_checkable
 
 import httpx
@@ -37,9 +38,43 @@ class ApiKeyAuth:
 
 @dataclass(frozen=True)
 class BrowserAuth:
+    """The owner logs in on the hoster's site through the login page (spec, decision 6).
+
+    `allowed_domains` match the host and its subdomains. `cookies` are the names the login
+    must produce; `extra_cookies` are kept when present (e.g. anti-bot cookies). Both take
+    shell patterns: `WHMCS*`. Only cookies of the allowed domains are taken, and they are
+    stored as the account's secrets under their names.
+    """
+
     start_url: str
     allowed_domains: tuple[str, ...]
     cookies: tuple[str, ...]
+    extra_cookies: tuple[str, ...] = ()
+
+    def wants(self, name: str) -> bool:
+        return any(fnmatchcase(name, p) for p in self.cookies + self.extra_cookies)
+
+    def missing(self, names: Iterable[str]) -> list[str]:
+        """Required patterns that none of `names` matches."""
+        have = list(names)
+        return [p for p in self.cookies if not any(fnmatchcase(n, p) for n in have)]
+
+    def allows_host(self, host: str) -> bool:
+        return host_in(host, self.allowed_domains)
+
+
+def host_in(host: str, domains: Iterable[str]) -> bool:
+    host = host.lower().rstrip(".")
+    return any(host == d or host.endswith("." + d) for d in (d.lower() for d in domains))
+
+
+def browser_auth(plugin: type[Plugin]) -> BrowserAuth | None:
+    return next((a for a in plugin.meta.auth if isinstance(a, BrowserAuth)), None)
+
+
+def cookie_header(secrets: Secrets, auth: BrowserAuth) -> str:
+    """`Cookie` header value from the cookies a browser login stored in the secrets."""
+    return "; ".join(f"{name}={value}" for name, value in secrets.items() if auth.wants(name))
 
 
 @dataclass(frozen=True)
@@ -72,6 +107,9 @@ class PluginContext:
 
 class Plugin(ABC):
     meta: ClassVar[PluginMeta]
+    # A stub before the plugin is written: the owner can log in and the session is kept,
+    # but the account is not polled.
+    login_only: ClassVar[bool] = False
     # JSON paths with names the owner chose, e.g. "items.*.name"; `hostwatch record`
     # replaces their values. Emails, IPs, ids and secrets are replaced without this list.
     record_names: ClassVar[tuple[str, ...]] = ()
@@ -84,6 +122,17 @@ class Plugin(ABC):
 
     @abstractmethod
     async def balance(self) -> Balance: ...
+
+
+@runtime_checkable
+class SupportsLoginCheck(Protocol):
+    """Checks a fresh browser login from the server, e.g. `GET /api/auth/session`.
+
+    Raise AuthExpired if the session does not work. Without this method a login counts
+    as done once every cookie in `BrowserAuth.cookies` is there.
+    """
+
+    async def check_login(self) -> None: ...
 
 
 @runtime_checkable

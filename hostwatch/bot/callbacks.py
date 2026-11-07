@@ -59,3 +59,9 @@ class SetCb(CallbackData, prefix="set"):
     key: str
     value: str = ""
     onb: bool = False
+
+
+class LoginCb(CallbackData, prefix="lg"):
+    """«Not me» under the «link opened» message: end the login session."""
+
+    op: str

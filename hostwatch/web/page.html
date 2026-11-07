@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="__LANG__">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>__TITLE__</title>
+<style>
+  :root {
+    --bg: #f4f5f7; --panel: #ffffff; --text: #1d2330; --muted: #677085; --line: #d9dde5;
+    --accent: #1f6feb; --accent-text: #ffffff; --warn: #b35c00; --ok: #1a7f37;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #11141a; --panel: #1a1f28; --text: #e6e9ef; --muted: #98a1b3; --line: #2c3340;
+      --accent: #3b82f6; --accent-text: #ffffff; --warn: #f0a050; --ok: #4ac26b;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
+    font: 15px/1.35 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { display: flex; flex-direction: column; height: 100dvh; overflow: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left); }
+  header { display: flex; gap: 8px; align-items: center; padding: 6px 10px; background: var(--panel);
+    border-bottom: 1px solid var(--line); min-height: 34px; }
+  #host { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #status { color: var(--muted); font-size: 13px; margin-left: auto; text-align: right; }
+  #status.warn { color: var(--warn); }
+  #status.ok { color: var(--ok); }
+  #screen { flex: 1; position: relative; min-height: 0; background: #fff; }
+  #view { width: 100%; height: 100%; object-fit: contain; display: block; touch-action: none;
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  #overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    padding: 24px; text-align: center; background: var(--bg); font-size: 17px; white-space: pre-line; }
+  #overlay[hidden] { display: none; }
+  footer { background: var(--panel); border-top: 1px solid var(--line);
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); display: grid; gap: 6px; }
+  .row { display: flex; gap: 6px; }
+  .row > * { flex: 1; min-width: 0; }
+  input { font: inherit; font-size: 16px; padding: 9px 10px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--text); flex: 3; }
+  button { font: inherit; padding: 9px 6px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--text); cursor: pointer; white-space: nowrap; }
+  button:active { filter: brightness(0.9); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text);
+    font-weight: 600; }
+  button[disabled] { opacity: 0.5; }
+</style>
+</head>
+<body>
+<header>
+  <span id="host"></span>
+  <span id="status"></span>
+</header>
+<div id="screen">
+  <img id="view" alt="" draggable="false">
+  <div id="overlay"></div>
+</div>
+<footer>
+  <div class="row">
+    <input id="text" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
+    <button id="send" type="button"></button>
+  </div>
+  <div class="row">
+    <button type="button" data-key="Backspace">⌫</button>
+    <button type="button" data-key="Enter">⏎</button>
+    <button type="button" data-key="Tab">Tab</button>
+    <button type="button" data-scroll="-1">▲</button>
+    <button type="button" data-scroll="1">▼</button>
+    <button id="hide" type="button">••</button>
+  </div>
+  <div class="row">
+    <button id="back" type="button"></button>
+    <button id="cancel" type="button"></button>
+    <button id="done" type="button" class="primary"></button>
+  </div>
+</footer>
+<script>
+"use strict";
+const S = __STRINGS__;
+const $ = (id) => document.getElementById(id);
+const view = $("view"), overlay = $("overlay"), statusEl = $("status"), hostEl = $("host");
+const text = $("text");
+$("send").textContent = S.send;
+$("back").textContent = S.back;
+$("cancel").textContent = S.cancel;
+$("done").textContent = S.done;
+text.placeholder = S.placeholder;
+hostEl.textContent = S.hoster;
+
+let ws = null, ended = false, failures = 0, remote = { w: 0, h: 0 }, loaded = false;
+
+function status(message, cls) {
+  statusEl.textContent = message || "";
+  statusEl.className = cls || "";
+}
+function cover(message) {
+  overlay.textContent = message;
+  overlay.hidden = !message;
+}
+function finish(message) {
+  ended = true;
+  cover(message);
+  status("");
+  document.querySelectorAll("footer button, footer input").forEach((el) => { el.disabled = true; });
+  if (ws) ws.close();
+}
+function send(message) {
+  if (ws && ws.readyState === WebSocket.OPEN && !ended) ws.send(JSON.stringify(message));
+}
+
+function connect() {
+  const scheme = location.protocol === "https:" ? "wss://" : "ws://";
+  ws = new WebSocket(scheme + location.host + "/login/ws");
+  ws.onopen = () => {
+    failures = 0;
+    const box = $("screen").getBoundingClientRect();
+    send({ t: "size", w: Math.round(box.width), h: Math.round(box.height) });
+    if (!loaded) cover(S.loading);
+  };
+  ws.onmessage = (event) => {
+    const m = JSON.parse(event.data);
+    if (m.t === "frame") {
+      remote = { w: m.w, h: m.h };
+      view.src = "data:image/jpeg;base64," + m.d;
+    } else if (m.t === "loaded") {
+      loaded = true;
+      cover("");
+    } else if (m.t === "host") {
+      hostEl.textContent = "🔒 " + m.v;
+    } else if (m.t === "blocked") {
+      status(S.blocked.replace("{host}", m.v), "warn");
+    } else if (m.t === "load_failed") {
+      cover("");
+      status(S.load_failed, "warn");
+    } else if (m.t === "notdone") {
+      status(m.v === "check" ? S.notdone_check : S.notdone_missing, "warn");
+      $("done").disabled = false;
+    } else if (m.t === "saved") {
+      finish(S.saved.replace("{hoster}", S.hoster) + (m.v ? "\n" + m.v : ""));
+    } else if (m.t === "fail") {
+      finish(S.fail_browser);
+    } else if (m.t === "end") {
+      if (!ended) finish(S["end_" + m.v] || S.end_cancelled);
+    }
+  };
+  ws.onclose = () => {
+    if (ended) return;
+    failures += 1;
+    if (failures > 5) { finish(S.gone); return; }
+    status(S.reconnecting, "warn");
+    setTimeout(connect, 1500);
+  };
+}
+
+// Screen coordinates to CSS pixels of the remote tab.
+function toRemote(cx, cy) {
+  const r = view.getBoundingClientRect();
+  const iw = view.naturalWidth || r.width, ih = view.naturalHeight || r.height;
+  const k = Math.min(r.width / iw, r.height / ih);
+  const dw = iw * k, dh = ih * k;
+  const ox = r.left + (r.width - dw) / 2, oy = r.top + (r.height - dh) / 2;
+  return { x: ((cx - ox) / dw) * remote.w, y: ((cy - oy) / dh) * remote.h, k: remote.h / dh };
+}
+
+// Mouse: as is. Finger: a tap clicks; a mostly vertical swipe scrolls;
+// a mostly horizontal one drags (captcha sliders).
+let touch = null;
+view.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  view.setPointerCapture(e.pointerId);
+  const p = toRemote(e.clientX, e.clientY);
+  if (e.pointerType === "mouse") {
+    touch = { mode: "mouse" };
+    send({ t: "mouse", e: "down", x: p.x, y: p.y });
+  } else if (!touch) {
+    touch = { mode: null, id: e.pointerId, x0: e.clientX, y0: e.clientY, p0: p, lastY: e.clientY };
+  }
+});
+view.addEventListener("pointermove", (e) => {
+  const p = toRemote(e.clientX, e.clientY);
+  if (!touch) {
+    if (e.pointerType === "mouse") send({ t: "mouse", e: "move", x: p.x, y: p.y });
+    return;
+  }
+  if (touch.mode === "mouse") { send({ t: "mouse", e: "move", x: p.x, y: p.y }); return; }
+  if (e.pointerId !== touch.id) return;
+  if (touch.mode === null) {
+    const dx = e.clientX - touch.x0, dy = e.clientY - touch.y0;
+    if (Math.hypot(dx, dy) < 8) return;
+    if (Math.abs(dy) > Math.abs(dx)) {
+      touch.mode = "scroll";
+    } else {
+      touch.mode = "drag";
+      send({ t: "mouse", e: "move", x: touch.p0.x, y: touch.p0.y });
+      send({ t: "mouse", e: "down", x: touch.p0.x, y: touch.p0.y });
+    }
+  }
+  if (touch.mode === "scroll") {
+    send({ t: "wheel", x: touch.p0.x, y: touch.p0.y, dy: (touch.lastY - e.clientY) * p.k });
+    touch.lastY = e.clientY;
+  } else if (touch.mode === "drag") {
+    send({ t: "mouse", e: "move", x: p.x, y: p.y });
+  }
+});
+function release(e, cancelled) {
+  if (!touch) return;
+  if (touch.mode !== "mouse" && e.pointerId !== touch.id) return;
+  const p = toRemote(e.clientX, e.clientY);
+  if (touch.mode === "mouse" || touch.mode === "drag") {
+    send({ t: "mouse", e: "up", x: p.x, y: p.y });
+  } else if (touch.mode === null && !cancelled) {
+    send({ t: "mouse", e: "move", x: touch.p0.x, y: touch.p0.y });
+    send({ t: "mouse", e: "down", x: touch.p0.x, y: touch.p0.y });
+    send({ t: "mouse", e: "up", x: touch.p0.x, y: touch.p0.y });
+  }
+  touch = null;
+}
+view.addEventListener("pointerup", (e) => release(e, false));
+view.addEventListener("pointercancel", (e) => release(e, true));
+view.addEventListener("contextmenu", (e) => e.preventDefault());
+view.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const p = toRemote(e.clientX, e.clientY);
+  send({ t: "wheel", x: p.x, y: p.y, dy: e.deltaY });
+}, { passive: false });
+
+function sendText(andEnter) {
+  if (text.value) send({ t: "text", s: text.value });
+  text.value = "";
+  if (andEnter) send({ t: "key", k: "Enter" });
+}
+$("send").addEventListener("click", () => sendText(false));
+text.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); sendText(true); }
+});
+$("hide").addEventListener("click", () => {
+  text.type = text.type === "password" ? "text" : "password";
+});
+document.querySelectorAll("[data-key]").forEach((b) =>
+  b.addEventListener("click", () => send({ t: "key", k: b.dataset.key })));
+document.querySelectorAll("[data-scroll]").forEach((b) =>
+  b.addEventListener("click", () => send({
+    t: "wheel", x: remote.w / 2, y: remote.h / 2, dy: Number(b.dataset.scroll) * remote.h * 0.6,
+  })));
+$("back").addEventListener("click", () => send({ t: "back" }));
+$("cancel").addEventListener("click", () => send({ t: "cancel" }));
+$("done").addEventListener("click", () => {
+  status(S.checking);
+  $("done").disabled = true;
+  send({ t: "done" });
+});
+
+connect();
+</script>
+</body>
+</html>

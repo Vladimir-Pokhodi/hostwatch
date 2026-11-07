@@ -17,6 +17,23 @@ services:
       DATA_DIR: /data
     volumes:
       - ./data:/data
+    networks: [web, browser]
+    depends_on:
+      - browser
+    logging: *logging
+
+  # Chromium for browser login (spec, decision 2). Starts a browser only while someone
+  # logs in. No ports outside, no access to /data or the keys.
+  browser:
+    # The tag must match `playwright` in pyproject.toml.
+    image: mcr.microsoft.com/playwright:v1.64.1-noble
+    restart: unless-stopped
+    init: true
+    user: pwuser
+    working_dir: /home/pwuser
+    command: ["npx", "-y", "playwright@1.64.1", "run-server", "--port", "3000", "--host", "0.0.0.0"]
+    networks: [browser]
+    mem_limit: 1200m
     logging: *logging
 
   caddy:
@@ -33,9 +50,16 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+    networks: [web]
     depends_on:
       - hostwatch
     logging: *logging
+
+networks:
+  # caddy <-> hostwatch
+  web:
+  # hostwatch <-> browser; the browser reaches the internet, not caddy.
+  browser:
 
 volumes:
   caddy_data:

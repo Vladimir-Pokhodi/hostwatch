@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     heartbeat_url: str | None = None
     data_dir: Path = Path("/data")
     plugins_dir: Path | None = None
+    # `playwright run-server` in the `browser` container.
+    browser_url: str = "ws://browser:3000/"
 
     @field_validator("hostwatch_key")
     @classmethod

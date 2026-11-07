@@ -126,6 +126,11 @@ class Poller:
     def start_account(self, account_id: int) -> None:
         """Start or restart polling, e.g. after a new key or a fresh login."""
         self.stop_account(account_id)
+        try:
+            if self._runner.plugin_of(account_id).login_only:
+                return
+        except LookupError:
+            return
         self.schedules[account_id] = Schedule()
         self._wake[account_id] = asyncio.Event()
         self._tasks[account_id] = asyncio.create_task(

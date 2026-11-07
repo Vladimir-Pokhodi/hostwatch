@@ -16,6 +16,7 @@ from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ParseMode
 from aiogram.exceptions import TelegramAPIError
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import InlineKeyboardMarkup
 
 from hostwatch.core.accounts import AccountRunner
 from hostwatch.core.config import Settings
@@ -37,10 +38,14 @@ from hostwatch.storage.repositories import (
     SettingsRepository,
     UsageRepository,
 )
+from hostwatch.web.browser import remote_launcher
+from hostwatch.web.login import LoginEvents, LoginService
+from hostwatch.web.server import serve, serve_admin
 
 from . import views
 from .handlers import make_router
 from .hub import Hub
+from .login import BotLogin
 from .middleware import OwnerOnly
 from .prefs import Prefs
 from .views import View
@@ -105,10 +110,14 @@ class Owner:
         self._owner_id = owner_id
         self._failing = False
 
-    async def send(self, text: str) -> bool:
+    async def send(self, text: str, markup: InlineKeyboardMarkup | None = None) -> bool:
         try:
-            for chunk in split_text(text):
-                await self._bot.send_message(self._owner_id, chunk)
+            chunks = split_text(text)
+            for n, chunk in enumerate(chunks):
+                last = n == len(chunks) - 1
+                await self._bot.send_message(
+                    self._owner_id, chunk, reply_markup=markup if last else None
+                )
         except TelegramAPIError as exc:
             if not self._failing:
                 log.warning("cannot message the owner: %s", exc.message)
@@ -180,6 +189,14 @@ async def run(settings: Settings) -> None:
         bot = await make_bot(settings.bot_token.get_secret_value(), settings.tg_proxy)
         dp = build_dispatcher(hub, settings.owner_id)
         owner = Owner(bot, settings.owner_id)
+        launcher = remote_launcher(settings.browser_url)
+
+        def login_service(events: LoginEvents) -> LoginService:
+            return LoginService(launcher, events)
+
+        hub.login = BotLogin(hub, login_service, owner.send, make_client, settings.hostwatch_domain)
+        web = await serve(hub.login.service)
+        admin = await serve_admin(hub.login.resolve, hub.login.send_link)
         jobs = _jobs(hub, owner, settings, http, AlertRepository(conn), settings_repo)
         poller.start()
         tasks = [asyncio.create_task(job, name=name) for name, job in jobs.items()]
@@ -189,6 +206,9 @@ async def run(settings: Settings) -> None:
             for task in tasks:
                 task.cancel()
             await asyncio.gather(*tasks, return_exceptions=True)
+            await hub.login.service.close()
+            await web.cleanup()
+            await admin.cleanup()
             await poller.stop()
             await bot.session.close()
             conn.close()

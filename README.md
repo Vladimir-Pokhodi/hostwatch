@@ -13,6 +13,7 @@ uv sync
 uv run pytest
 uv run ruff check
 uv run mypy --strict hostwatch/core
+uv run playwright install chromium   # once, for the end-to-end login test
 ```
 
 To run the bot on your computer, copy `.env.example` to `.env`, fill in `BOT_TOKEN`,

@@ -215,4 +215,64 @@ MESSAGES: dict[str, str] = {
         "This is the hostwatch server: I warn about this account's balance {days} days earlier."
     ),
     "servers.own": "hostwatch",
+    # Login page and browser login
+    "web.title": "Log in: {hoster}",
+    "web.gone": (
+        "This link no longer works: it was opened already, expired or the login ended. Ask the "
+        "bot for a new one."
+    ),
+    "web.placeholder": "Text for the field on the site",
+    "web.send": "Type",
+    "web.back": "Back",
+    "web.cancel": "Cancel",
+    "web.done": "Done",
+    "web.loading": "Opening the site…",
+    "web.checking": "Checking the login…",
+    "web.reconnecting": "Connection lost, reconnecting…",
+    "web.blocked": "Going to {host} is blocked",
+    "web.load_failed": "The site did not open. Press «Back» or «Cancel».",
+    "web.notdone_missing": "Not logged in yet: log in on the site, then press «Done».",
+    "web.notdone_check": "The site did not confirm the login. Log in and press «Done» again.",
+    "web.saved": "{hoster} is connected. You can close this page.",
+    "web.fail_browser": "The browser did not start. Try later; the bot's log has details.",
+    "web.end_cancelled": "Login cancelled. You can close this page.",
+    "web.end_idle": "Login closed after 15 minutes without input. Ask the bot for a new link.",
+    "web.end_rejected": "Login closed from the bot with «Not me».",
+    "web.end_replaced": "This login is closed: a new link was requested in the bot.",
+    "web.end_failed": "The login stopped on an error. Ask the bot for a new link.",
+    "login.link": (
+        "Log in to <b>{hoster}</b>: open the link on your phone or computer.\n{url}\n\nThe "
+        "link works once, for 10 minutes. Log in on the site as usual, then press «Done»."
+    ),
+    "login.open": "Open login",
+    "login.no_address": (
+        "I do not know this server's address. Set HOSTWATCH_IP or HOSTWATCH_DOMAIN in .env and "
+        "restart the bot."
+    ),
+    "login.opened": "🔑 The {hoster} login link was opened: {ip}, {browser}.",
+    "login.not_me": "Not me",
+    "login.killed": "Login closed.",
+    "login.connected": "✅ {hoster} is connected.",
+    "login.connected_unchecked": (
+        "✅ {hoster}: the session is saved, but it could not be checked without a browser "
+        "({reason})."
+    ),
+    "login.ended.cancelled": "{hoster} login cancelled.",
+    "login.ended.idle": "{hoster} login closed after 15 minutes without input.",
+    "login.ended.rejected": "{hoster} login closed with «Not me».",
+    "login.ended.replaced": "The previous {hoster} login is closed: a new link was issued.",
+    "login.ended.failed": "{hoster} login stopped: the browser did not start. See the logs.",
+    "cookie.usage": (
+        "Fallback login: paste cookies by hand.\n<code>/cookie label</code> or <code>/cookie "
+        "id</code> for a connected account, <code>/cookie {plugins}</code> for a new one.\n"
+        "Accounts with browser login: {accounts}"
+    ),
+    "cookie.unknown": "No account or hoster «{target}». List: /cookie",
+    "cookie.ask": (
+        "Send the <b>{hoster}</b> cookies in one message: a header line <code>name=value; "
+        "name2=value2</code> or JSON from an extension. Needed: {names}.\nI delete the message "
+        "at once. Note: a session made from another IP may not work here."
+    ),
+    "cookie.missing": "Cookies missing: {names}. Send them again, or /cookie to cancel.",
+    "cookie.bad": "Could not read the cookies. Send <code>name=value; …</code> or JSON.",
 }

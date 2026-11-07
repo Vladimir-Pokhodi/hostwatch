@@ -2,7 +2,8 @@
 
 `python -m hostwatch` runs the bot and the polling scheduler;
 `python -m hostwatch check <plugin_or_account> [--key ...]` reads and prints;
-`python -m hostwatch record <plugin_or_account> [--key ...]` saves scrubbed test fixtures.
+`python -m hostwatch record <plugin_or_account> [--key ...]` saves scrubbed test fixtures;
+`python -m hostwatch login <plugin_or_account>` asks the running bot for a login link.
 """
 
 from __future__ import annotations
@@ -70,6 +71,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             stream.reconfigure(encoding="utf-8")
     if args.command is None:
         return _run_bot()
+    if args.command == "login":
+        return _login_link(args.target)
     handler = setup_logging(logging.DEBUG if args.verbose else logging.WARNING, stream=sys.stderr)
     try:
         registry = discover(_plugins_dir())
@@ -124,7 +127,35 @@ def _parser() -> argparse.ArgumentParser:
         "--out", type=Path, help="folder for the fixtures, default tests/fixtures/<plugin>"
     )
     record.add_argument("-v", "--verbose", action="store_true", help="log HTTP requests")
+    login = commands.add_parser(
+        "login",
+        help="ask the running bot for a one-time login link; the bot also sends it to the owner",
+    )
+    login.add_argument(
+        "target", help="account label/id, or a plugin id (a new account unless there is one)"
+    )
     return parser
+
+
+def _login_link(target: str) -> int:
+    """Run inside the bot's container: `docker compose exec hostwatch hostwatch login timeweb`."""
+    import httpx
+
+    from hostwatch.web.server import ADMIN_PORT
+
+    try:
+        response = httpx.post(
+            f"http://127.0.0.1:{ADMIN_PORT}/link", json={"target": target}, timeout=30
+        )
+    except httpx.HTTPError as exc:
+        print(f"error: the bot is not running here ({type(exc).__name__})", file=sys.stderr)
+        return 1
+    data = response.json()
+    if response.status_code != 200:
+        print(f"error: {data.get('error')}", file=sys.stderr)
+        return 1
+    print(f"{data['hoster']}: {data['url']}")
+    return 0
 
 
 def _run_bot() -> int:

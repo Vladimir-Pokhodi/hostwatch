@@ -7,6 +7,7 @@ import contextlib
 import logging
 import sqlite3
 from collections.abc import Awaitable, Callable
+from html import escape
 from typing import Any
 
 from aiogram import F, Router
@@ -19,9 +20,10 @@ from aiogram.types import BufferedInputFile, CallbackQuery, InaccessibleMessage,
 from hostwatch.core.alerts import Thresholds
 from hostwatch.core.logs import register_secrets
 from hostwatch.core.models import AccountStatus
-from hostwatch.core.plugin import Capability
+from hostwatch.core.plugin import Capability, browser_auth
 from hostwatch.core.rates import Rates, RatesUnavailable
 from hostwatch.storage.repositories import NotFound
+from hostwatch.web.login import EndReason, LoginTarget, NotDone
 
 from . import views
 from .callbacks import (
@@ -30,6 +32,7 @@ from .callbacks import (
     AddCb,
     JournalCb,
     LabelCb,
+    LoginCb,
     Nav,
     RefreshCb,
     ServerCb,
@@ -37,6 +40,7 @@ from .callbacks import (
     TopupCb,
 )
 from .hub import AccountData, Hub, key_fields
+from .login import parse_cookie_text
 from .prefs import THRESHOLD_BY_KEY, THRESHOLDS, valid_timezone
 from .views import Screen, View
 
@@ -76,6 +80,10 @@ class AddAccount(StatesGroup):
 
 class ChangeKey(StatesGroup):
     key = State()
+
+
+class PasteCookies(StatesGroup):
+    cookies = State()
 
 
 class EditSetting(StatesGroup):
@@ -401,7 +409,11 @@ async def on_account(
         await show(query, await screen_for(hub, "integrations"))
         return
     if op == "relogin":
-        await answer(query, v.t("stub", stage=6), alert=True)
+        if hub.login is None or browser_auth(data.plugin) is None:
+            await answer(query)
+            return
+        await answer(query)
+        await _send_link(query, hub, hub.login.target(data.plugin, acc))
         return
     await answer(query)
     if op == "key":
@@ -435,8 +447,7 @@ async def on_add(query: CallbackQuery, callback_data: AddCb, hub: Hub, state: FS
         await answer(query)
         return
     plugin = hub.registry.get(callback_data.plugin)
-    if not key_fields(plugin):
-        # Browser login arrives at stage 06.
+    if not key_fields(plugin) and (hub.login is None or browser_auth(plugin) is None):
         await answer(query, v.t("stub", stage=6), alert=True)
         return
     await answer(query)
@@ -470,6 +481,12 @@ async def _ask_first_key(
         await _send(target, views.ask_label(v, plugin.meta.name))
         return
     fields = list(key_fields(plugin))
+    if not fields:
+        # No key to type: the owner logs in on the hoster's site instead.
+        await state.clear()
+        if hub.login is not None:
+            await _send_link(target, hub, hub.login.target(plugin, None, label))
+        return
     await state.set_state(AddAccount.key)
     await state.update_data(label=label, fields=fields, values={})
     await show(target, views.ask_key(v, plugin.meta.name, fields[0]))
@@ -544,6 +561,85 @@ async def _connect(message: Message, hub: Hub, account_id: int) -> None:
     screen = account_screen(hub, account_id)
     if screen is not None:
         await note.edit_text(screen.text, reply_markup=screen.markup)
+
+
+# Browser login
+
+
+async def _send_link(target: Message | CallbackQuery, hub: Hub, login: LoginTarget) -> None:
+    assert hub.login is not None
+    url = await hub.login.link(login)
+    if url is None:
+        await _send(target, view(hub).t("login.no_address"))
+        return
+    text, markup = hub.login.link_message(login, url)
+    await _send(target, Screen(text, markup))
+
+
+@on("callback_query", LoginCb.filter(F.op == "kill"))
+async def on_not_me(query: CallbackQuery, hub: Hub) -> None:
+    await answer(query, view(hub).t("login.killed"))
+    if hub.login is not None:
+        await hub.login.service.end(EndReason.REJECTED)
+
+
+@on("message", Command("cookie"))
+async def on_cookie(message: Message, hub: Hub, state: FSMContext) -> None:
+    await state.clear()
+    v = view(hub)
+    if hub.login is None:
+        return
+    arg = (message.text or "").partition(" ")[2].strip()
+    if not arg:
+        plugins = [p.meta.id for p in hub.plugins() if browser_auth(p) is not None]
+        accounts = [
+            f"{a.id} {a.label}"
+            for a in hub.accounts.all()
+            if a.plugin_id in hub.registry and browser_auth(hub.registry.get(a.plugin_id))
+        ]
+        await message.answer(
+            v.t(
+                "cookie.usage",
+                plugins="|".join(plugins) or "-",
+                accounts=escape(", ".join(accounts) or "-"),
+            )
+        )
+        return
+    login = hub.login.resolve(arg)
+    if login is None:
+        await message.answer(v.t("cookie.unknown", target=escape(arg)))
+        return
+    await state.set_state(PasteCookies.cookies)
+    await state.update_data(plugin=login.plugin_id, acc=login.account_id, label=login.label)
+    names = ", ".join(login.auth.cookies)
+    await message.answer(v.t("cookie.ask", hoster=escape(login.hoster), names=escape(names)))
+
+
+@on("message", PasteCookies.cookies, F.text & ~F.text.startswith("/"))
+async def on_cookie_text(message: Message, hub: Hub, state: FSMContext) -> None:
+    v = view(hub)
+    raw = await _take_secret(message)
+    data = await state.get_data()
+    if hub.login is None or data.get("plugin") not in hub.registry:
+        await state.clear()
+        return
+    plugin = hub.registry.get(data["plugin"])
+    login = hub.login.target(plugin, data.get("acc"), data.get("label", ""))
+    parsed = parse_cookie_text(raw)
+    if not parsed:
+        await message.answer(v.t("cookie.bad"))
+        return
+    register_secrets(parsed.values())
+    cookies = {k: val for k, val in parsed.items() if login.auth.wants(k)}
+    missing = login.auth.missing(cookies)
+    if missing:
+        await message.answer(v.t("cookie.missing", names=escape(", ".join(missing))))
+        return
+    await state.clear()
+    try:
+        await hub.login.store(login, cookies, via="cookie")
+    except NotDone:
+        await message.answer(v.t("web.notdone_check"))
 
 
 @on("message", F.text & ~F.text.startswith("/"))

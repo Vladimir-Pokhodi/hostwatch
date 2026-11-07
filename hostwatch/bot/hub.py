@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from hostwatch.core.alerts import AccountView
 from hostwatch.core.forecast import RECONCILE_WINDOW, Forecast, forecast
@@ -24,6 +24,9 @@ from hostwatch.storage.repositories import (
 )
 
 from .prefs import Prefs
+
+if TYPE_CHECKING:
+    from .login import BotLogin
 
 # The fake plugin is for tests and demos; the owner does not see it unless asked to.
 HIDDEN_PLUGINS = frozenset({"fake"})
@@ -70,6 +73,8 @@ class Hub:
     # Public IP of the server the bot runs on, once known (spec, decision 17).
     own_ip: str | None = None
     backups: Backups | None = None
+    # Browser login (stage 06); None when the login page is not running.
+    login: BotLogin | None = None
 
     def plugins(self) -> list[type[Plugin]]:
         ids = [pid for pid in self.registry.ids() if pid not in self.hidden_plugins]

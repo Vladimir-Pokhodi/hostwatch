@@ -496,7 +496,7 @@ def account_card(v: View, data: AccountData) -> Screen:
 
     kb = InlineKeyboardBuilder()
     acc = account.id
-    if account.status is not AccountStatus.DISABLED:
+    if account.status is not AccountStatus.DISABLED and not data.plugin.login_only:
         kb.row(_button(v.t("button.refresh"), RefreshCb(acc=acc, view="account")))
     if any(isinstance(auth, BrowserAuth) for auth in data.plugin.meta.auth):
         kb.row(_button(v.t("account.relogin"), AccountCb(acc=acc, op="relogin")))

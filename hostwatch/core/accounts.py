@@ -42,6 +42,9 @@ class AccountRunner:
         # Two calls must not refresh one token at the same time: the hoster keeps only one.
         self._locks: defaultdict[int, asyncio.Lock] = defaultdict(asyncio.Lock)
 
+    def plugin_of(self, account_id: int) -> type[Plugin]:
+        return self._registry.get(self._accounts.get(account_id).plugin_id)
+
     async def call(self, account_id: int, action: Callable[[Plugin], Awaitable[T]]) -> T:
         async with self._locks[account_id]:
             account = self._accounts.get(account_id)
