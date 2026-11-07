@@ -1,5 +1,6 @@
 """Command line.
 
+`python -m hostwatch` runs the bot and the polling scheduler;
 `python -m hostwatch check <plugin_or_account> [--key ...]` reads and prints;
 `python -m hostwatch record <plugin_or_account> [--key ...]` saves scrubbed test fixtures.
 """
@@ -8,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import io
 import logging
 import os
@@ -66,6 +68,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
         if isinstance(stream, io.TextIOWrapper):
             stream.reconfigure(encoding="utf-8")
+    if args.command is None:
+        return _run_bot()
     handler = setup_logging(logging.DEBUG if args.verbose else logging.WARNING, stream=sys.stderr)
     try:
         registry = discover(_plugins_dir())
@@ -85,7 +89,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="hostwatch")
-    commands = parser.add_subparsers(dest="command", required=True)
+    commands = parser.add_subparsers(dest="command")
     check = commands.add_parser(
         "check", help="read servers, balance and forecast from a hoster without changing anything"
     )
@@ -121,6 +125,21 @@ def _parser() -> argparse.ArgumentParser:
     )
     record.add_argument("-v", "--verbose", action="store_true", help="log HTTP requests")
     return parser
+
+
+def _run_bot() -> int:
+    from hostwatch.bot.app import run
+
+    try:
+        settings = load_settings()
+    except ConfigError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    setup_logging(logging.INFO)
+    # Ctrl+C is the normal way to stop the bot when it runs in a terminal.
+    with contextlib.suppress(KeyboardInterrupt):
+        asyncio.run(run(settings))
+    return 0
 
 
 def _plugins_dir() -> Path | None:

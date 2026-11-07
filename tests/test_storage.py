@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 from hostwatch.core.models import (
     AccountStatus,
     Autorenew,
+    Balance,
     BillingModel,
     Money,
     Server,
@@ -103,6 +104,39 @@ def test_balance_history_and_prune(conn: sqlite3.Connection, accounts: AccountRe
 
     assert repo.prune(NOW - timedelta(days=180)) == 1
     assert repo.since(account, NOW - timedelta(days=1)) == [(NOW, Money.of("8.25", "EUR"))]
+
+
+def test_latest_balance_keeps_hoster_hours(
+    conn: sqlite3.Connection, accounts: AccountRepository
+) -> None:
+    account = accounts.add("fake", "main", {})
+    repo = BalanceHistoryRepository(conn)
+    assert repo.latest(account) is None
+
+    repo.add(account, Money.of("10", "RUB"), NOW - timedelta(hours=1))
+    repo.add(account, Money.of("9", "RUB"), NOW, hours_left=42.5)
+
+    assert repo.latest(account) == (NOW, Balance(money=Money.of("9", "RUB"), hours_left=42.5))
+
+
+def test_servers_updated_at(conn: sqlite3.Connection, accounts: AccountRepository) -> None:
+    account = accounts.add("fake", "main", {})
+    repo = ServerRepository(conn)
+    assert repo.updated_at(account) is None
+
+    server = Server(
+        external_id="1",
+        name="owl",
+        kind=ServerKind.DEDICATED,
+        status=ServerStatus.UNKNOWN,
+        raw_status="?",
+        autorenew=Autorenew.NOT_AVAILABLE,
+        billing=BillingModel.PERIODIC,
+    )
+
+    repo.replace(account, [server], NOW)
+
+    assert repo.updated_at(account) == NOW
 
 
 def test_alerts(conn: sqlite3.Connection) -> None:

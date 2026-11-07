@@ -1,0 +1,133 @@
+"""Owner preferences kept in the `settings` table: language, time zone, currency, thresholds."""
+
+from __future__ import annotations
+
+import re
+from collections.abc import Callable
+from dataclasses import dataclass
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
+from hostwatch.storage.repositories import SettingsRepository
+
+LANGUAGES = ("ru", "en")
+CURRENCIES = ("RUB", "EUR", "USD")
+DEFAULT_LANG = "ru"
+DEFAULT_TZ = {"ru": "Europe/Moscow", "en": "UTC"}
+TIMEZONES = (
+    "Europe/Kaliningrad",
+    "Europe/Moscow",
+    "Europe/Samara",
+    "Asia/Yekaterinburg",
+    "Asia/Novosibirsk",
+    "Asia/Vladivostok",
+    "Europe/Berlin",
+    "Europe/London",
+    "UTC",
+)
+
+_TIME = r"([01]\d|2[0-3]):[0-5]\d"
+
+
+def _percent(value: str) -> str | None:
+    return value if value.isdigit() and 1 <= int(value) <= 100 else None
+
+
+def _days(value: str) -> str | None:
+    return value if value.isdigit() and 1 <= int(value) <= 60 else None
+
+
+def _time(value: str) -> str | None:
+    return value if re.fullmatch(_TIME, value) else None
+
+
+def _time_range(value: str) -> str | None:
+    value = value.replace(" ", "").replace("–", "-")
+    return value if re.fullmatch(f"{_TIME}-{_TIME}", value) else None
+
+
+@dataclass(frozen=True)
+class Threshold:
+    key: str
+    default: str
+    # Returns the normalised value, or None when the text is not valid.
+    parse: Callable[[str], str | None]
+
+
+# Notifications (stage 05) read these; the bot only stores them for now.
+THRESHOLDS = (
+    Threshold("balance_days", "5", _days),
+    Threshold("load_percent", "90", _percent),
+    Threshold("disk_percent", "90", _percent),
+    Threshold("quiet_hours", "23:00-08:00", _time_range),
+    Threshold("summary_time", "09:00", _time),
+)
+THRESHOLD_BY_KEY = {item.key: item for item in THRESHOLDS}
+
+
+def valid_timezone(name: str) -> bool:
+    try:
+        ZoneInfo(name)
+    except (ZoneInfoNotFoundError, ValueError):
+        return False
+    return True
+
+
+class Prefs:
+    def __init__(self, settings: SettingsRepository) -> None:
+        self._settings = settings
+
+    @property
+    def onboarded(self) -> bool:
+        return self._settings.get("onboarded") == "1"
+
+    def finish_onboarding(self) -> None:
+        self._settings.set("onboarded", "1")
+
+    @property
+    def lang(self) -> str:
+        value = self._settings.get("lang", DEFAULT_LANG)
+        return value if value in LANGUAGES else DEFAULT_LANG
+
+    @lang.setter
+    def lang(self, value: str) -> None:
+        if value not in LANGUAGES:
+            raise ValueError(f"unknown language {value!r}")
+        self._settings.set("lang", value)
+
+    @property
+    def timezone(self) -> str:
+        value = self._settings.get("timezone") or DEFAULT_TZ[self.lang]
+        return value if valid_timezone(value) else "UTC"
+
+    @timezone.setter
+    def timezone(self, value: str) -> None:
+        if not valid_timezone(value):
+            raise ValueError(f"unknown time zone {value!r}")
+        self._settings.set("timezone", value)
+
+    @property
+    def tz(self) -> ZoneInfo:
+        return ZoneInfo(self.timezone)
+
+    @property
+    def currency(self) -> str:
+        value = self._settings.get("currency", "RUB")
+        return value if value in CURRENCIES else "RUB"
+
+    @currency.setter
+    def currency(self, value: str) -> None:
+        if value not in CURRENCIES:
+            raise ValueError(f"unknown currency {value!r}")
+        self._settings.set("currency", value)
+
+    def threshold(self, key: str) -> str:
+        item = THRESHOLD_BY_KEY[key]
+        return self._settings.get(f"threshold.{key}", item.default) or item.default
+
+    def set_threshold(self, key: str, text: str) -> bool:
+        """Save a threshold typed by the owner. False if the text is not a valid value."""
+        value = THRESHOLD_BY_KEY[key].parse(text.strip())
+        if value is None:
+            return False
+        self._settings.set(f"threshold.{key}", value)
+        return True

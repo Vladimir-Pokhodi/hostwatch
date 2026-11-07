@@ -132,6 +132,24 @@ async def test_loop_polls_on_start(harness: Harness) -> None:
     assert 2 not in harness.poller.schedules
 
 
+async def test_poll_done_resolves_after_a_failed_poll_too(harness: Harness) -> None:
+    account = harness.accounts.add("fake", "a", {"fail": "crash"})
+    done = harness.poller.poll_done(account)
+
+    await harness.poller.poll_account(account)
+
+    assert done.done()
+
+
+async def test_refresh_is_refused_for_a_stopped_account(harness: Harness) -> None:
+    account = harness.accounts.add("fake", "a", {})
+    harness.poller.start_account(account)
+    harness.poller.stop_account(account)
+
+    assert not harness.poller.refresh(account)
+    await harness.poller.stop()
+
+
 def test_schedule_success_uses_interval_with_jitter() -> None:
     schedule = Schedule()
 

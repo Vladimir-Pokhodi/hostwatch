@@ -116,6 +116,7 @@ class Poller:
         self.schedules: dict[int, Schedule] = {}
         self._tasks: dict[int, asyncio.Task[None]] = {}
         self._wake: dict[int, asyncio.Event] = {}
+        self._waiters: dict[int, list[asyncio.Future[None]]] = {}
 
     def start(self) -> None:
         for account in self._accounts.all():
@@ -149,6 +150,8 @@ class Poller:
         now = self._clock()
         if schedule is None or schedule.stopped or schedule.paused:
             return False
+        if account_id not in self._tasks:
+            return False
         if now - schedule.last_refresh < REFRESH_MIN_GAP:
             return False
         schedule.last_refresh = now
@@ -156,8 +159,25 @@ class Poller:
         self._wake[account_id].set()
         return True
 
+    def poll_done(self, account_id: int) -> asyncio.Future[None]:
+        """Resolves when the next poll of the account ends, whatever its result.
+
+        Take it before starting the poll: a fast poll may end before the caller awaits.
+        """
+        waiter: asyncio.Future[None] = asyncio.get_running_loop().create_future()
+        self._waiters.setdefault(account_id, []).append(waiter)
+        return waiter
+
     async def poll_account(self, account_id: int) -> None:
         """One poll. Any error stays inside this account."""
+        try:
+            await self._poll(account_id)
+        finally:
+            for waiter in self._waiters.pop(account_id, []):
+                if not waiter.done():
+                    waiter.set_result(None)
+
+    async def _poll(self, account_id: int) -> None:
         schedule = self.schedules.setdefault(account_id, Schedule())
         started = self._clock()
         with_balance = started >= schedule.next_balance
@@ -204,7 +224,8 @@ class Poller:
         for item in snapshot.usage:
             self._usage.put(account_id, item)
         if snapshot.balance is not None:
-            self._balances.add(account_id, snapshot.balance.money, at)
+            balance = snapshot.balance
+            self._balances.add(account_id, balance.money, at, balance.hours_left)
 
     async def _send(self, event: PollEvent) -> None:
         try:

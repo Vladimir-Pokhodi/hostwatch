@@ -14,6 +14,7 @@ from hostwatch.core.models import (
     Account,
     AccountStatus,
     Autorenew,
+    Balance,
     BillingModel,
     Money,
     Server,
@@ -137,6 +138,12 @@ class ServerRepository:
                 [self._row(account_id, server, at) for server in servers],
             )
 
+    def updated_at(self, account_id: int) -> datetime | None:
+        row = self._conn.execute(
+            "SELECT MAX(updated_at) AS at FROM servers WHERE account_id = ?", (account_id,)
+        ).fetchone()
+        return _dt(row["at"])
+
     def for_account(self, account_id: int) -> list[Server]:
         rows = self._conn.execute(
             "SELECT * FROM servers WHERE account_id = ? ORDER BY name, external_id", (account_id,)
@@ -231,13 +238,26 @@ class BalanceHistoryRepository:
     def __init__(self, conn: sqlite3.Connection) -> None:
         self._conn = conn
 
-    def add(self, account_id: int, money: Money, at: datetime) -> None:
+    def add(
+        self, account_id: int, money: Money, at: datetime, hours_left: float | None = None
+    ) -> None:
         with self._conn:
             self._conn.execute(
-                "INSERT INTO balance_history (account_id, at, amount, currency)"
-                " VALUES (?, ?, ?, ?)",
-                (account_id, _ts(at), str(money.amount), money.currency),
+                "INSERT INTO balance_history (account_id, at, amount, currency, hours_left)"
+                " VALUES (?, ?, ?, ?, ?)",
+                (account_id, _ts(at), str(money.amount), money.currency, hours_left),
             )
+
+    def latest(self, account_id: int) -> tuple[datetime, Balance] | None:
+        row = self._conn.execute(
+            "SELECT at, amount, currency, hours_left FROM balance_history"
+            " WHERE account_id = ? ORDER BY at DESC, id DESC LIMIT 1",
+            (account_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        money = Money(amount=Decimal(row["amount"]), currency=row["currency"])
+        return datetime.fromisoformat(row["at"]), Balance(money=money, hours_left=row["hours_left"])
 
     def since(self, account_id: int, since: datetime) -> list[tuple[datetime, Money]]:
         rows = self._conn.execute(

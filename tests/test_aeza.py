@@ -231,6 +231,26 @@ async def test_actions_follow_service_capabilities(records: list[dict[str, Any]]
     assert servers[0].actions == {ServerAction.AUTORENEW, ServerAction.RENEW}
 
 
+async def test_short_rate_limit_is_waited_out() -> None:
+    with respx.mock:
+        respx.get(BASE_URL + "accounts/me").mock(
+            side_effect=[
+                httpx.Response(429, headers={"Retry-After": "0"}, json={"statusCode": 429}),
+                httpx.Response(200, json={"balance": 1234, "currency": "EUR"}),
+            ]
+        )
+        balance = await aeza().balance()
+    assert balance.money == Money.of("12.34", "EUR")
+
+
+async def test_long_rate_limit_is_an_error() -> None:
+    with respx.mock:
+        respx.get(BASE_URL + "accounts/me").respond(
+            429, headers={"Retry-After": "3600"}, json={"statusCode": 429}
+        )
+        await check_error_mapped(aeza().balance(), RateLimited)
+
+
 @pytest.mark.parametrize(
     ("status", "error"),
     [

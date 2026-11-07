@@ -42,6 +42,9 @@ USAGE_WINDOW = timedelta(minutes=15)
 USAGE_RESOLUTION = 60  # seconds per point
 UNIX_EPOCH_YEAR = 1970
 SUBCENT = Decimal("0.00001")
+# Aeza limits requests per second; a short `Retry-After` is waited out this many times.
+SHORT_LIMIT_RETRIES = 4
+MAX_SHORT_WAIT = 5.0
 
 KINDS = {
     "vps": ServerKind.VPS,
@@ -151,8 +154,21 @@ class AezaPlugin(Plugin):
         return self._account
 
     async def _get(self, model: type[A], path: str, **params: Any) -> A:
+        for _ in range(SHORT_LIMIT_RETRIES):
+            response = await self._request(path, params)
+            wait = _short_wait(response)
+            if wait is None:
+                break
+            await asyncio.sleep(wait)
+        _raise_for_status(response)
         try:
-            response = await self.ctx.http.get(
+            return model.model_validate_json(response.content)
+        except ValidationError:
+            raise LayoutChanged from None
+
+    async def _request(self, path: str, params: dict[str, Any]) -> httpx.Response:
+        try:
+            return await self.ctx.http.get(
                 BASE_URL + path,
                 params=params,
                 headers={"X-API-Key": self.ctx.secrets["api_key"], "Accept": "application/json"},
@@ -161,11 +177,6 @@ class AezaPlugin(Plugin):
             raise TimeoutError from None
         except httpx.TransportError:
             raise HosterError("Aeza is unreachable") from None
-        _raise_for_status(response)
-        try:
-            return model.model_validate_json(response.content)
-        except ValidationError:
-            raise LayoutChanged from None
 
     @staticmethod
     def _server(service: api.Service, currency: str, allowed: set[ServerAction]) -> Server:
@@ -188,6 +199,21 @@ class AezaPlugin(Plugin):
             billing=BillingModel.HOURLY if hourly else BillingModel.PERIODIC,
             actions=frozenset(actions & allowed),
         )
+
+
+def _short_wait(response: httpx.Response) -> float | None:
+    """Seconds to wait before a retry, when Aeza asks for a short pause.
+
+    A poll of four servers already makes more requests a second than Aeza allows, and it
+    answers 429 with `Retry-After: 1`. Longer pauses stay errors and stop the polling.
+    """
+    if response.status_code != 429:
+        return None
+    try:
+        wait = float(response.headers.get("Retry-After", ""))
+    except ValueError:
+        return None
+    return wait if 0 <= wait <= MAX_SHORT_WAIT else None
 
 
 def _raise_for_status(response: httpx.Response) -> None:

@@ -7,11 +7,15 @@ license = "MIT"
 requires-python = ">=3.12,<3.13"
 dependencies = [
     "aiogram>=3.13,<4",
+    # SOCKS proxies for TG_PROXY.
+    "aiohttp-socks",
     "httpx",
     "pydantic>=2",
     "pydantic-settings",
     "cryptography",
     "segno",
+    # Time zone database; Windows has none of its own.
+    "tzdata",
 ]
 
 [project.scripts]

@@ -95,6 +95,10 @@ MIGRATIONS: list[str] = [
         value TEXT NOT NULL
     );
     """,
+    # The hoster's own estimate of how long the balance lasts (Timeweb), kept with the balance.
+    """
+    ALTER TABLE balance_history ADD COLUMN hours_left REAL;
+    """,
 ]
 
 
