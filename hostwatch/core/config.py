@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     tg_proxy: str | None = None
     heartbeat_url: str | None = None
     data_dir: Path = Path("/data")
+    plugins_dir: Path | None = None
 
     @field_validator("hostwatch_key")
     @classmethod
@@ -29,7 +30,7 @@ class Settings(BaseSettings):
         load_key(value.get_secret_value())
         return value
 
-    @field_validator("hostwatch_domain", "tg_proxy", "heartbeat_url", mode="before")
+    @field_validator("hostwatch_domain", "tg_proxy", "heartbeat_url", "plugins_dir", mode="before")
     @classmethod
     def _empty_is_none(cls, value: object) -> object:
         return None if value == "" else value

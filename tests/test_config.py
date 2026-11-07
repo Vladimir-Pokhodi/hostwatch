@@ -13,6 +13,7 @@ ALL_VARS = (
     "TG_PROXY",
     "HEARTBEAT_URL",
     "DATA_DIR",
+    "PLUGINS_DIR",
 )
 
 
