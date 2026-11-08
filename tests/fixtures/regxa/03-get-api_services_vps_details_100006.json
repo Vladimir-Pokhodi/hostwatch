@@ -1,0 +1,41 @@
+{
+  "method": "GET",
+  "url": "https://regxa.com/api/services/vps/details/100006",
+  "query": {},
+  "status": 200,
+  "json": {
+    "vpsid": "100006",
+    "vps_name": "vps_name-2",
+    "uuid": "vps_uuid-1",
+    "time": 1793220300,
+    "edittime": 0,
+    "virt": "kvm",
+    "hostname": "hostname-3",
+    "osid": "1108",
+    "os_name": "ubuntu-24.04-x86_64",
+    "iso": "",
+    "sec_iso": "",
+    "boot": "a:1:{i:0;s:5:\"disk1\";}",
+    "space": 30,
+    "inodes": "0",
+    "ram": 1000,
+    "cores": 1,
+    "bandwidth": 0,
+    "suspended": false,
+    "suspend_reason": null,
+    "nw_suspended": null,
+    "rescue": false,
+    "band_suspend": true,
+    "mg": "1",
+    "used_bandwidth": 62.17,
+    "locked": "",
+    "os_distro": "ubuntu",
+    "stid": [
+      100034
+    ],
+    "ips": {
+      "100035": "2001:db8::b",
+      "100036": "192.0.2.12"
+    }
+  }
+}

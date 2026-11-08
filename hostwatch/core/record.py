@@ -10,7 +10,7 @@ from __future__ import annotations
 import ipaddress
 import json
 import re
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -37,6 +37,8 @@ MONEY = re.compile(r"(?i)(balance|amount|replenished|paid|debt|cost)$")
 FIRST_FAKE_ID = 100001
 FIRST_FAKE_MONEY = 1000
 FAKE_MONEY_STEP = 125
+# A name shorter than this is not replaced inside other texts: it would hit ordinary words.
+MIN_NAME_LENGTH = 4
 MASK = "***"
 PLACEHOLDER_EMAIL = "user@example.com"
 
@@ -68,7 +70,12 @@ class Recorder:
 
 
 class Scrubber:
-    def __init__(self, secrets: Iterable[str], names: Iterable[str] = ()) -> None:
+    def __init__(
+        self,
+        secrets: Iterable[str],
+        names: Iterable[str] = (),
+        text_hook: Callable[[str, Scrubber], str] | None = None,
+    ) -> None:
         self._secrets = sorted(
             (s for s in secrets if len(s) >= MIN_SECRET_LENGTH), key=len, reverse=True
         )
@@ -77,6 +84,8 @@ class Scrubber:
         self._ips: dict[str, str] = {}
         self._labels: dict[str, str] = {}
         self._money: dict[Decimal, int] = {}
+        # The plugin's own scrubbing of a whole answer (`Plugin.record_text`), run first.
+        self._hook = text_hook
 
     def exchanges(self, exchanges: Iterable[Exchange]) -> list[dict[str, Any]]:
         """Scrub all responses. Ids are collected first, so an id that shows up inside
@@ -86,6 +95,9 @@ class Scrubber:
             for part in exchange.url.path.split("/"):
                 if part.isdigit():
                     self.fake_id(part)
+            for key, value in exchange.url.params.multi_items():
+                if _is_id_key((key,)) and _looks_like_id(value):
+                    self.fake_id(value)
             self._collect_ids(_parse(exchange.body), ())
         return [self.exchange(exchange) for exchange in exchanges]
 
@@ -97,10 +109,13 @@ class Scrubber:
             "query": {key: self.text(value) for key, value in url.params.multi_items()},
             "status": exchange.status,
         }
+        body = exchange.body.decode("utf-8", "replace")
+        if self._hook is not None:
+            body = self._hook(body, self)
         try:
-            record["json"] = self.value(json.loads(exchange.body), ())
+            record["json"] = self.value(json.loads(body), ())
         except ValueError:
-            record["text"] = self.text(exchange.body.decode("utf-8", "replace"))
+            record["text"] = self.text(body)
         return record
 
     def path(self, path: str) -> str:
@@ -127,6 +142,8 @@ class Scrubber:
         if _is_id_key(path) and _looks_like_id(value):
             fake = self.fake_id(str(value))
             return fake if isinstance(value, int) else str(fake)
+        if isinstance(value, int) and EMBEDDED_ID.fullmatch(str(value)) and str(value) in self._ids:
+            return self._ids[str(value)]  # a known id under a key we do not know
         if isinstance(value, str):
             return self.text(value)
         return value
@@ -134,6 +151,9 @@ class Scrubber:
     def text(self, text: str) -> str:
         for secret in self._secrets:
             text = text.replace(secret, MASK)
+        for real in sorted(self._labels, key=len, reverse=True):
+            if len(real) >= MIN_NAME_LENGTH:
+                text = text.replace(real, self._labels[real])
         text = EMBEDDED_ID.sub(lambda m: str(self._ids.get(m.group(), m.group())), text)
         text = EMAIL.sub(PLACEHOLDER_EMAIL, text)
         text = IPV4.sub(lambda m: self._fake_ip(m.group()), text)
@@ -190,6 +210,11 @@ class Scrubber:
             return candidate  # a time like 12:30:00, not an address
         # 2001:db8::/32 (RFC 3849) is reserved for documentation.
         return self._ips.setdefault(candidate, f"2001:db8::{10 + len(self._ips):x}")
+
+    def label(self, key: str, real: str) -> str:
+        """A stable placeholder for a name: "beaver" -> "name-1". From now on the name is
+        also replaced inside every text."""
+        return self._label(key, real)
 
     def _label(self, key: str, real: str) -> str:
         return self._labels.setdefault(real, f"{key}-{len(self._labels) + 1}")

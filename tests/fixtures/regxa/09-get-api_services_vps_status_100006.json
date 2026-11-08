@@ -1,0 +1,25 @@
+{
+  "method": "GET",
+  "url": "https://regxa.com/api/services/vps/status/100006",
+  "query": {},
+  "status": 200,
+  "json": {
+    "status": 1,
+    "used_cpu": "0.00",
+    "used_ram": "802",
+    "used_disk": 2.3271484375,
+    "net_in": "55607",
+    "net_out": "27874",
+    "used_inode": "93785",
+    "io_read": 0,
+    "io_write": "13653",
+    "inode": 0,
+    "ram": "1000",
+    "disk": "30",
+    "used_bandwidth": "62.27",
+    "bandwidth": 0,
+    "virt": "kvm",
+    "lock_status": false,
+    "network_status": false
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "method": "GET",
+  "url": "https://regxa.com/api/billing/invoices/100007",
+  "query": {},
+  "status": 200,
+  "json": {
+    "result": "success",
+    "invoiceid": 100007,
+    "invoicenum": "",
+    "userid": 100002,
+    "date": "2026-11-06",
+    "duedate": "2026-11-13",
+    "datepaid": "0000-00-00 00:00:00",
+    "lastcaptureattempt": "0000-00-00 00:00:00",
+    "subtotal": "1500.00",
+    "credit": "0.00",
+    "tax": "0.00",
+    "tax2": "0.00",
+    "total": "1500.00",
+    "balance": "1500.00",
+    "taxrate": "0.000",
+    "taxrate2": "0.000",
+    "status": "Unpaid",
+    "paymentmethod": "stripe",
+    "notes": "phonenumber-6",
+    "ccgateway": true,
+    "items": {
+      "item": [
+        {
+          "id": 100032,
+          "type": "",
+          "relid": 0,
+          "description": "description-15",
+          "amount": "1500.00",
+          "taxed": 0
+        }
+      ]
+    },
+    "transactions": ""
+  }
+}

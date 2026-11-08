@@ -314,7 +314,7 @@ async def _record(registry: Registry, target: str, keys: list[str], out: Path | 
         raise CheckFailed(f"unknown plugin {target!r}; known: {', '.join(registry.ids())}")
     else:
         plugin_cls, secrets = await _record_account(registry, target, recorder)
-    scrubber = Scrubber(secrets.values(), plugin_cls.record_names)
+    scrubber = Scrubber(secrets.values(), plugin_cls.record_names, plugin_cls.record_text)
     records = scrubber.exchanges(recorder.exchanges)
     return write_fixtures(records, out or FIXTURES_DIR / plugin_cls.meta.id)
 

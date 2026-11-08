@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import re
-from collections.abc import Awaitable, Callable
+from collections.abc import Callable
 from html import escape
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 import httpx
 from aiogram.types import InlineKeyboardMarkup
@@ -28,7 +29,7 @@ from hostwatch.locales import t
 from hostwatch.storage.repositories import JournalEntry, NotFound
 from hostwatch.web.login import EndReason, LoginEvents, LoginService, LoginTarget, NotDone
 
-from .callbacks import LoginCb
+from .callbacks import LoginCb, Nav
 from .hub import key_fields
 
 if TYPE_CHECKING:
@@ -36,7 +37,17 @@ if TYPE_CHECKING:
 
 log = logging.getLogger(__name__)
 
-Send = Callable[[str, InlineKeyboardMarkup | None], Awaitable[bool]]
+
+class OwnerChat(Protocol):
+    """The owner's chat: messages the bot can later delete or edit by id."""
+
+    async def post(self, text: str, markup: InlineKeyboardMarkup | None = None) -> int | None:
+        """Send a message; its id, or None if it did not go through."""
+        ...
+
+    async def delete(self, message_id: int) -> bool: ...
+
+    async def edit(self, message_id: int, text: str) -> bool: ...
 
 
 def pick_cookies(cookies: list[dict[str, Any]], auth: BrowserAuth) -> dict[str, str]:
@@ -116,15 +127,19 @@ class BotLogin(LoginEvents):
         self,
         hub: Hub,
         service_factory: Callable[[LoginEvents], LoginService],
-        send: Send,
+        chat: OwnerChat,
         make_http: Callable[[str], httpx.AsyncClient],
         domain: str | None = None,
     ) -> None:
         self.hub = hub
         self.service = service_factory(self)
-        self._send = send
+        self._chat = chat
         self._make_http = make_http
         self._domain = domain
+        # The link message and «link opened» of the current login: they go once it is over.
+        self._shown: list[int] = []
+        self._opened = False
+        self._expiry: asyncio.Task[None] | None = None
 
     # Links
 
@@ -194,12 +209,54 @@ class BotLogin(LoginEvents):
         return text, kb.as_markup()
 
     async def send_link(self, target: LoginTarget) -> str | None:
-        """Issue a link and message it to the owner; the URL, or None without an address."""
+        """Issue a link and message it to the owner; the URL, or None without an address.
+
+        The new link replaces the old one, so the old link's messages go."""
+        if self.base_url() is None:
+            return None
+        await self._drop(target.lang)
         url = await self.link(target)
-        if url is not None:
-            text, markup = self.link_message(target, url)
-            await self._send(text, markup)
+        if url is None:
+            return None
+        text, markup = self.link_message(target, url)
+        await self._show(text, markup)
+        self._opened = False
+        self._expiry = asyncio.get_running_loop().create_task(self._expire(target.lang))
         return url
+
+    async def _expire(self, lang: str) -> None:
+        """A link nobody opened dies after LINK_TTL; its message goes with it."""
+        await asyncio.sleep(self.service.link_ttl)
+        if not self._opened:
+            self._expiry = None
+            await self._drop(lang)
+
+    async def _show(self, text: str, markup: InlineKeyboardMarkup | None) -> None:
+        message_id = await self._chat.post(text, markup)
+        if message_id is not None:
+            self._shown.append(message_id)
+
+    async def _drop(self, lang: str) -> None:
+        """Delete the messages of the current login. Telegram does not delete messages
+        older than 48 hours; those are edited to say the link is dead."""
+        expiry, self._expiry = self._expiry, None
+        if expiry is not None and expiry is not asyncio.current_task():
+            expiry.cancel()
+        shown, self._shown = self._shown, []
+        for message_id in shown:
+            if not await self._chat.delete(message_id):
+                await self._chat.edit(message_id, t("bot.login.link_gone", lang))
+
+    def _home(self, lang: str) -> InlineKeyboardMarkup:
+        kb = InlineKeyboardBuilder()
+        kb.button(text=t("bot.button.home", lang), callback_data=Nav(to="menu"))
+        return kb.as_markup()
+
+    async def close(self) -> None:
+        if self._expiry is not None:
+            self._expiry.cancel()
+            self._expiry = None
+        await self.service.close()
 
     # Events of the login page
 
@@ -214,12 +271,16 @@ class BotLogin(LoginEvents):
             browser=escape(browser_name(user_agent)),
         )
         log.info("login link for %s opened from %s", target.plugin_id, ip)
-        await self._send(text, kb.as_markup())
+        self._opened = True
+        await self._show(text, kb.as_markup())
 
     async def ended(self, target: LoginTarget, reason: EndReason) -> None:
+        # A new link cleans up after the old one itself; «Done» does it in `store`.
         if reason in (EndReason.REPLACED, EndReason.DONE):
             return
-        await self._send(t(f"login.ended.{reason.value}", target.lang, hoster=target.hoster), None)
+        await self._drop(target.lang)
+        text = t(f"login.ended.{reason.value}", target.lang, hoster=escape(target.hoster))
+        await self._chat.post(text, self._home(target.lang))
 
     async def finish(self, target: LoginTarget, cookies: list[dict[str, Any]]) -> str:
         picked = pick_cookies(cookies, target.auth)
@@ -277,13 +338,14 @@ class BotLogin(LoginEvents):
         )
         hub.poller.start_account(account_id)
         lang = target.lang
+        reason = explain(unchecked, lang) if unchecked else ""
         if unchecked:
-            reason = explain(unchecked, lang)
             text = t("login.connected_unchecked", lang, hoster=escape(target.hoster), reason=reason)
-            await self._send(text, None)
-            return reason
-        await self._send(t("login.connected", lang, hoster=escape(target.hoster)), None)
-        return ""
+        else:
+            text = t("login.connected", lang, hoster=escape(target.hoster))
+        await self._chat.post(text, self._home(lang))
+        await self._drop(lang)
+        return reason
 
     def _free_label(self, target: LoginTarget) -> str:
         taken = {a.label for a in self.hub.accounts.all() if a.plugin_id == target.plugin_id}

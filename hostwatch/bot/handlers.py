@@ -13,6 +13,7 @@ from typing import Any
 from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command, CommandStart
+from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import BufferedInputFile, CallbackQuery, InaccessibleMessage, Message
@@ -30,6 +31,7 @@ from .callbacks import (
     AccountCb,
     ActionCb,
     AddCb,
+    HostCb,
     JournalCb,
     LabelCb,
     LoginCb,
@@ -141,11 +143,13 @@ async def screen_for(hub: Hub, to: str) -> Screen:
         rates = await _rates(hub)
         return views.summary(v, accounts, rates, hub.prefs.currency, hub.now())
     if to == "servers":
-        return views.servers(v, hub.load_all(), hub.own_ip)
+        return views.servers(v, hub.load_all())
     if to == "balance":
         return views.balance(v, hub.load_all())
     if to == "integrations":
-        return views.integrations(v, hub.plugins(), hub.load_all())
+        return views.integrations(v, hub.load_all())
+    if to == "connect":
+        return views.connect(v, hub.plugins(), hub.load_all())
     if to == "journal":
         return journal_screen(hub, 0)
     if to == "settings":
@@ -164,6 +168,14 @@ def journal_screen(hub: Hub, page: int) -> Screen:
 def settings_screen(hub: Hub) -> Screen:
     thresholds = {item.key: hub.prefs.threshold(item.key) for item in THRESHOLDS}
     return views.settings(view(hub), hub.prefs.timezone, hub.prefs.currency, thresholds)
+
+
+def host_screen(hub: Hub, account_id: int, page: int = 0) -> Screen | None:
+    try:
+        data = hub.load(account_id)
+    except NotFound:
+        return None
+    return views.host_servers(view(hub), data, page, hub.own_ip)
 
 
 def server_screen(hub: Hub, account_id: int, server_id: str) -> Screen | None:
@@ -239,7 +251,7 @@ async def on_timezone(
     if callback_data.value == "other":
         await state.set_state(EditSetting.timezone)
         await state.update_data(onb=callback_data.onb)
-        await show(query, Screen(v.t("settings.timezone_ask")))
+        await show(query, views.ask_timezone(v, callback_data.onb))
         return
     hub.prefs.timezone = callback_data.value
     await _after_timezone(query, hub, callback_data.onb)
@@ -276,7 +288,7 @@ async def on_currency(query: CallbackQuery, callback_data: SetCb, hub: Hub) -> N
         await show(query, settings_screen(hub))
         return
     hub.prefs.finish_onboarding()
-    screen = views.integrations(v, hub.plugins(), hub.load_all())
+    screen = views.connect(v, hub.plugins(), hub.load_all())
     await show(query, Screen(f"{v.t('onboarding.done')}\n\n{screen.text}", screen.markup))
 
 
@@ -334,12 +346,24 @@ async def on_backup(query: CallbackQuery, hub: Hub) -> None:
 # Sections
 
 
+@on("callback_query", HostCb.filter())
+async def on_host(query: CallbackQuery, callback_data: HostCb, hub: Hub) -> None:
+    screen = host_screen(hub, callback_data.acc, callback_data.page)
+    if screen is None:
+        await answer(query, view(hub).t("account.gone"), alert=True)
+        await show(query, await screen_for(hub, "servers"))
+        return
+    await answer(query)
+    await show(query, screen)
+
+
 @on("callback_query", ServerCb.filter())
 async def on_server(query: CallbackQuery, callback_data: ServerCb, hub: Hub) -> None:
     screen = server_screen(hub, callback_data.acc, callback_data.sid)
     if screen is None:
         await answer(query, view(hub).t("servers.gone"), alert=True)
-        await show(query, await screen_for(hub, "servers"))
+        back = host_screen(hub, callback_data.acc)
+        await show(query, back or await screen_for(hub, "servers"))
         return
     await answer(query)
     await show(query, screen)
@@ -380,6 +404,9 @@ async def on_refresh(query: CallbackQuery, callback_data: RefreshCb, hub: Hub) -
     await _wait(*(done[acc] for acc in started))
     if callback_data.view == "server":
         screen = server_screen(hub, callback_data.acc, callback_data.sid)
+    elif callback_data.view == "host":
+        page = int(callback_data.sid) if callback_data.sid.isdigit() else 0
+        screen = host_screen(hub, callback_data.acc, page)
     elif callback_data.view == "account":
         screen = account_screen(hub, callback_data.acc)
     else:
@@ -413,13 +440,15 @@ async def on_account(
             await answer(query)
             return
         await answer(query)
-        await _send_link(query, hub, hub.login.target(data.plugin, acc))
+        login = hub.login.target(data.plugin, acc)
+        await _send_link(query, hub, login, AccountCb(acc=acc, op="card"))
         return
     await answer(query)
     if op == "key":
         await state.set_state(ChangeKey.key)
         await state.update_data(acc=acc, fields=list(key_fields(data.plugin)), values={})
-        await show(query, views.ask_key(v, data.plugin.meta.name, key_fields(data.plugin)[0]))
+        field = key_fields(data.plugin)[0]
+        await show(query, views.ask_key(v, data.plugin.meta.name, field, _card(acc)))
         return
     if op == "disable":
         hub.poller.stop_account(acc)
@@ -485,7 +514,7 @@ async def _ask_first_key(
         # No key to type: the owner logs in on the hoster's site instead.
         await state.clear()
         if hub.login is not None:
-            await _send_link(target, hub, hub.login.target(plugin, None, label))
+            await _send_link(target, hub, hub.login.target(plugin, None, label), Nav(to="connect"))
         return
     await state.set_state(AddAccount.key)
     await state.update_data(label=label, fields=fields, values={})
@@ -538,7 +567,9 @@ async def on_new_key(message: Message, hub: Hub, state: FSMContext) -> None:
     if len(values) < len(fields):
         await state.update_data(values=values)
         plugin = hub.load(acc).plugin
-        await show(message, views.ask_key(view(hub), plugin.meta.name, fields[len(values)]))
+        await show(
+            message, views.ask_key(view(hub), plugin.meta.name, fields[len(values)], _card(acc))
+        )
         return
     await state.clear()
     try:
@@ -566,14 +597,21 @@ async def _connect(message: Message, hub: Hub, account_id: int) -> None:
 # Browser login
 
 
-async def _send_link(target: Message | CallbackQuery, hub: Hub, login: LoginTarget) -> None:
+def _card(acc: int) -> AccountCb:
+    return AccountCb(acc=acc, op="card")
+
+
+async def _send_link(
+    target: Message | CallbackQuery, hub: Hub, login: LoginTarget, back: CallbackData
+) -> None:
+    """The screen says a link is coming; the link is a message of its own below it,
+    which goes away once the login is over (`BotLogin`)."""
     assert hub.login is not None
-    url = await hub.login.link(login)
-    if url is None:
+    if hub.login.base_url() is None:
         await _send(target, view(hub).t("login.no_address"))
         return
-    text, markup = hub.login.link_message(login, url)
-    await _send(target, Screen(text, markup))
+    await show(target, views.login_sent(view(hub), login.hoster, back))
+    await hub.login.send_link(login)
 
 
 @on("callback_query", LoginCb.filter(F.op == "kill"))

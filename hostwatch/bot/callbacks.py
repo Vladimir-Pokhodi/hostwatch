@@ -6,9 +6,17 @@ from aiogram.filters.callback_data import CallbackData
 
 
 class Nav(CallbackData, prefix="n"):
-    """Open a section: menu, summary, servers, balance, integrations, journal, settings, order."""
+    """Open a section: menu, summary, servers, balance, integrations, connect, journal,
+    settings, order."""
 
     to: str
+
+
+class HostCb(CallbackData, prefix="h"):
+    """Servers of one account, a page of them."""
+
+    acc: int
+    page: int = 0
 
 
 class ServerCb(CallbackData, prefix="s"):

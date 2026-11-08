@@ -7,7 +7,7 @@ from collections.abc import Awaitable, Callable, Iterable, Mapping
 from dataclasses import dataclass
 from enum import StrEnum
 from fnmatch import fnmatchcase
-from typing import ClassVar, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, ClassVar, Protocol, runtime_checkable
 
 import httpx
 
@@ -25,6 +25,9 @@ from hostwatch.core.models import (
     TopupMethod,
     Usage,
 )
+
+if TYPE_CHECKING:
+    from hostwatch.core.record import Scrubber
 
 Secrets = Mapping[str, str]
 
@@ -113,6 +116,13 @@ class Plugin(ABC):
     # JSON paths with names the owner chose, e.g. "items.*.name"; `hostwatch record`
     # replaces their values. Emails, IPs, ids and secrets are replaced without this list.
     record_names: ClassVar[tuple[str, ...]] = ()
+
+    @classmethod
+    def record_text(cls, text: str, scrubber: Scrubber) -> str:
+        """Scrubs a recorded answer before the core does, for what the core cannot spot:
+        names, sums and form tokens inside HTML. Use `scrubber.label`, `fake_id` and
+        `fake_money`, so a value gets the same placeholder in every answer."""
+        return text
 
     def __init__(self, ctx: PluginContext) -> None:
         self.ctx = ctx

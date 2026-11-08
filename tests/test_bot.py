@@ -25,8 +25,19 @@ from aiogram.methods import (
 )
 from aiogram.types import CallbackQuery, Chat, Message, Update, User
 
-from hostwatch.bot.app import bot_properties, build_dispatcher
-from hostwatch.bot.callbacks import AccountCb, ActionCb, AddCb, LabelCb, Nav, RefreshCb, SetCb
+from hostwatch.bot.app import Owner, bot_properties, build_dispatcher
+from hostwatch.bot.callbacks import (
+    AccountCb,
+    ActionCb,
+    AddCb,
+    HostCb,
+    JournalCb,
+    LabelCb,
+    Nav,
+    RefreshCb,
+    ServerCb,
+    SetCb,
+)
 from hostwatch.bot.hub import AccountData, Hub
 from hostwatch.bot.prefs import Prefs
 from hostwatch.bot.views import View, monthly_cost, server_actions, summary_text
@@ -54,6 +65,7 @@ from hostwatch.storage.db import connect
 from hostwatch.storage.repositories import (
     AccountRepository,
     BalanceHistoryRepository,
+    JournalEntry,
     JournalRepository,
     ServerRepository,
     SettingsRepository,
@@ -101,20 +113,24 @@ class RecordingSession(BaseSession):
     def last_text(self) -> str:
         return self.texts()[-1]
 
-    def buttons(self) -> list[str]:
-        """Callback data of the buttons under the last message sent or edited."""
+    def keyboard(self) -> dict[str, str]:
+        """Callback data -> text of the buttons under the last message sent or edited."""
         for call in reversed(self.calls):
             if isinstance(call, SendMessage | EditMessageText):
                 markup = call.reply_markup
                 if markup is None:
-                    return []
-                return [
-                    button.callback_data
+                    return {}
+                return {
+                    button.callback_data: button.text
                     for row in markup.inline_keyboard  # type: ignore[union-attr]
                     for button in row
                     if button.callback_data
-                ]
-        return []
+                }
+        return {}
+
+    def buttons(self) -> list[str]:
+        """Callback data of the buttons under the last message sent or edited."""
+        return list(self.keyboard())
 
 
 class FixedRates:
@@ -256,7 +272,7 @@ async def test_first_run_asks_language_timezone_currency_then_integrations(
     await harness.press(SetCb(key="cur", value="EUR", onb=True))
     text = harness.session.last_text()
     assert "Connect your first hoster" in text
-    assert "Integrations" in text
+    assert "Connect a hoster" in text
     prefs = harness.hub.prefs
     assert (prefs.lang, prefs.timezone, prefs.currency, prefs.onboarded) == (
         "en",
@@ -347,10 +363,12 @@ async def test_server_card_of_fake_has_its_buttons(harness: Harness) -> None:
     await harness.poller.poll_account(account)
 
     await harness.press(Nav(to="servers"))
+    assert HostCb(acc=account).pack() in harness.session.buttons()
+    await harness.press(HostCb(acc=account))
     assert "beaver" in harness.session.last_text()
     assert "Выделенные серверы" in harness.session.last_text()
 
-    await harness.press(f"s:{account}:1")
+    await harness.press(ServerCb(acc=account, sid="1"))
     card = harness.session.last_text()
     assert "<b>beaver</b>" in card
     assert "Нагрузка: CPU 12%, RAM 40%, диск 55%" in card
@@ -469,12 +487,15 @@ async def test_servers_and_cards_of_aeza_and_timeweb(live_like: Harness) -> None
     hub = live_like.hub
 
     await live_like.press(Nav(to="servers"))
-    listing = live_like.session.last_text()
+    hosters = live_like.session.last_text()
 
     for d in hub.load_all():
+        assert f"<b>{d.plugin.meta.name}</b>: {len(d.servers)} servers" in hosters
+        await live_like.press(HostCb(acc=d.account.id))
+        listing = live_like.session.last_text()
         for server in d.servers:
             assert server.name in listing
-            await live_like.press(f"s:{d.account.id}:{server.external_id}")
+            await live_like.press(ServerCb(acc=d.account.id, sid=server.external_id))
             card = live_like.session.last_text()
             assert f"<b>{server.name}</b> · {d.plugin.meta.name}" in card
             assert "Data from" in card
@@ -649,9 +670,9 @@ async def test_own_server_is_marked(harness: Harness) -> None:
     server = harness.hub.load(account).servers[0]
     harness.hub.own_ip = server.ip
 
-    await harness.press(Nav(to="servers"))
+    await harness.press(HostCb(acc=account))
     assert "· hostwatch" in harness.session.last_text()
-    await harness.press(f"s:{account}:{server.external_id}")
+    await harness.press(ServerCb(acc=account, sid=server.external_id))
     assert "Это сервер hostwatch" in harness.session.last_text()
 
 
@@ -667,3 +688,209 @@ async def test_alert_views_carry_usage_and_settings(harness: Harness) -> None:
     config = harness.hub.prefs.alert_settings("203.0.113.7")
     assert config.thresholds.balance_days == 7
     assert config.quiet is not None and config.own_ip == "203.0.113.7"
+
+
+# Navigation: «Back» one level up and «Menu» on every screen, by editing the same message
+
+BACK, HOME = "⬅️ Назад", "🏠 Меню"
+MENU = Nav(to="menu").pack()
+
+
+def _assert_nav(harness: Harness, back: Any = None) -> None:
+    """The last call edited the screen in place and it has «Menu» (and «Back» to `back`)."""
+    assert isinstance(harness.session.calls[-1], EditMessageText)
+    keyboard = harness.session.keyboard()
+    assert keyboard.get(MENU) == HOME
+    if back is not None:
+        assert keyboard.get(back.pack()) == BACK
+
+
+@pytest.mark.parametrize("to", ["summary", "servers", "balance", "integrations", "journal"])
+async def test_sections_of_the_menu_lead_back_to_it(harness: Harness, to: str) -> None:
+    harness.onboard("ru")
+    harness.hub.accounts.add("fake", "main", {})
+
+    await harness.press(Nav(to=to))
+    _assert_nav(harness)
+
+    await harness.press(Nav(to="menu"))
+    assert isinstance(harness.session.calls[-1], EditMessageText)
+    assert "Выберите раздел" in harness.session.last_text()
+
+
+async def test_back_and_menu_on_every_screen(harness: Harness) -> None:
+    harness.onboard("ru")
+    account = harness.hub.accounts.add("fake", "main", {})
+    await harness.poller.poll_account(account)
+    harness.hub.journal.add(
+        JournalEntry(
+            at=NOW, actor="owner", account_id=account, action="x", params={}, response="", ok=True
+        )
+    )
+    screens: list[tuple[Any, Any]] = [
+        (Nav(to="connect"), Nav(to="integrations")),
+        (HostCb(acc=account), Nav(to="servers")),
+        (ServerCb(acc=account, sid="1"), HostCb(acc=account, page=0)),
+        (AccountCb(acc=account, op="card"), Nav(to="integrations")),
+        (AccountCb(acc=account, op="delete"), AccountCb(acc=account, op="card")),
+        (AccountCb(acc=account, op="key"), AccountCb(acc=account, op="card")),
+        (AddCb(plugin="fake"), Nav(to="connect")),
+        (LabelCb(), Nav(to="connect")),
+        (Nav(to="settings"), None),
+        (SetCb(key="lang"), Nav(to="settings")),
+        (SetCb(key="tz"), Nav(to="settings")),
+        (SetCb(key="tz", value="other"), SetCb(key="tz")),
+        (SetCb(key="cur"), Nav(to="settings")),
+        (SetCb(key="th", value="balance_days"), Nav(to="settings")),
+        (JournalCb(page=0), None),
+    ]
+    for pressed, back in screens:
+        await harness.press(pressed)
+        _assert_nav(harness, back)
+
+
+async def test_stub_buttons_keep_the_screen(harness: Harness) -> None:
+    harness.onboard("ru")
+    account = harness.hub.accounts.add("fake", "main", {})
+    await harness.poller.poll_account(account)
+    await harness.press(ServerCb(acc=account, sid="1"))
+    calls = len(harness.session.calls)
+
+    await harness.press(ActionCb(acc=account, sid="1", act="renew"))
+    await harness.press(Nav(to="order"))
+
+    new = harness.session.calls[calls:]
+    assert all(isinstance(call, AnswerCallbackQuery) for call in new)
+    assert harness.alerts()[-2:] == ["Будет на этапе 10.", "Будет на этапе 13."]
+
+
+async def test_menu_command_works_in_the_middle_of_a_question(harness: Harness) -> None:
+    harness.onboard("en")
+    await harness.press(SetCb(key="th", value="quiet_hours"))
+
+    await harness.send("/menu")
+
+    assert "Pick a section" in harness.session.last_text()
+    await harness.send("22:00-07:00")  # no longer an answer to the question
+    assert harness.hub.prefs.threshold("quiet_hours") != "22:00-07:00"
+
+
+# Integrations: connected accounts, hosters to add on a screen of their own
+
+
+async def test_integrations_show_connected_accounts_only(harness: Harness) -> None:
+    harness.onboard("ru")
+
+    await harness.press(Nav(to="integrations"))
+    assert "Пока ничего не подключено" in harness.session.last_text()
+    assert harness.session.keyboard()[Nav(to="connect").pack()] == "+ Подключить"
+    assert not any(b.startswith("add:") for b in harness.session.buttons())
+
+    account = harness.hub.accounts.add("fake", "main", {})
+    await harness.press(Nav(to="integrations"))
+    text = harness.session.last_text()
+    assert "Fake hoster (main): подключено" in text
+    assert "Aeza" not in text and "Timeweb" not in text
+    assert AccountCb(acc=account, op="card").pack() in harness.session.buttons()
+    assert not any(b.startswith("add:") for b in harness.session.buttons())
+
+
+async def test_connect_screen_has_a_button_per_hoster(harness: Harness) -> None:
+    harness.onboard("ru")
+    harness.hub.accounts.add("fake", "main", {})
+
+    await harness.press(Nav(to="connect"))
+
+    keyboard = harness.session.keyboard()
+    assert keyboard[AddCb(plugin="aeza").pack()] == "Aeza"
+    assert keyboard[AddCb(plugin="timeweb").pack()] == "Timeweb Cloud"
+    assert keyboard[AddCb(plugin="fake").pack()] == "+ ещё аккаунт Fake hoster"
+    text = harness.session.last_text()
+    assert "• Aeza — " in text
+    assert "• Fake hoster" not in text
+
+    await harness.press(AddCb(plugin="aeza"))
+    assert "Aeza" in harness.session.last_text()
+
+
+# Servers: hosters first, then the servers of one, page by page
+
+
+def _many_servers(count: int) -> list[Server]:
+    return [
+        _server(
+            external_id=str(n),
+            name=f"srv-{n:02}",
+            kind=ServerKind.DEDICATED if n % 4 == 0 else ServerKind.VPS,
+        )
+        for n in range(1, count + 1)
+    ]
+
+
+async def test_servers_list_hosters_with_counts_and_problems(harness: Harness) -> None:
+    harness.onboard("ru")
+    calm = harness.hub.accounts.add("fake", "calm", {})
+    harness.hub.servers.replace(calm, _many_servers(2), NOW)
+    troubled = harness.hub.accounts.add("fake", "busy", {})
+    stopped = _server(external_id="9", name="down", status=ServerStatus.STOPPED)
+    harness.hub.servers.replace(troubled, [*_many_servers(2), stopped], NOW)
+
+    await harness.press(Nav(to="servers"))
+
+    text = harness.session.last_text()
+    assert "<b>Fake hoster (calm)</b>: серверов 2" in text
+    assert "<b>Fake hoster (busy)</b>: серверов 3 · ⚠ есть проблемы" in text
+    assert "srv-01" not in text  # servers are one level down
+    keyboard = harness.session.keyboard()
+    assert keyboard[HostCb(acc=calm).pack()] == "Fake hoster (calm) · 2"
+    assert keyboard[HostCb(acc=troubled).pack()] == "Fake hoster (busy) · 3 ⚠"
+
+
+async def test_servers_of_a_hoster_split_by_kind_and_turn_pages(harness: Harness) -> None:
+    harness.onboard("ru")
+    account = harness.hub.accounts.add("fake", "main", {})
+    harness.hub.servers.replace(account, _many_servers(11), NOW)
+
+    await harness.press(HostCb(acc=account))
+    first = harness.session.last_text()
+    servers = [b for b in harness.session.buttons() if b.startswith("s:")]
+    assert len(servers) == 8
+    assert "Страница 1 из 2" in first
+    assert "Выделенные серверы" not in first  # eight VPS fill the first page
+    assert HostCb(acc=account, page=1).pack() in harness.session.buttons()
+    assert HostCb(acc=account, page=-1).pack() not in harness.session.buttons()
+
+    await harness.press(HostCb(acc=account, page=1))
+    second = harness.session.last_text()
+    assert len([b for b in harness.session.buttons() if b.startswith("s:")]) == 3
+    assert "Страница 2 из 2" in second
+    assert second.index("<b>VPS</b>") < second.index("<b>Выделенные серверы</b>")
+    assert HostCb(acc=account, page=0).pack() in harness.session.buttons()
+    _assert_nav(harness, Nav(to="servers"))
+
+    # The last dedicated server sits on the second page; «Back» from its card goes there.
+    await harness.press(ServerCb(acc=account, sid="8"))
+    _assert_nav(harness, HostCb(acc=account, page=1))
+
+
+async def test_few_servers_need_no_pages(harness: Harness) -> None:
+    harness.onboard("en")
+    account = harness.hub.accounts.add("fake", "main", {})
+    harness.hub.servers.replace(account, _many_servers(8), NOW)
+
+    await harness.press(HostCb(acc=account))
+
+    assert "Page" not in harness.session.last_text()
+    assert not any(b.startswith("h:") for b in harness.session.buttons())
+
+
+async def test_owner_chat_posts_deletes_and_edits(harness: Harness) -> None:
+    owner = Owner(harness.bot, OWNER)
+
+    message_id = await owner.post("hello")
+
+    assert message_id is not None
+    assert await owner.delete(message_id)
+    assert await owner.edit(message_id, "gone")
+    kinds = [type(call) for call in harness.session.calls]
+    assert kinds == [SendMessage, DeleteMessage, EditMessageText]

@@ -34,6 +34,7 @@ from .callbacks import (
     AccountCb,
     ActionCb,
     AddCb,
+    HostCb,
     JournalCb,
     LabelCb,
     Nav,
@@ -48,6 +49,7 @@ from .prefs import CURRENCIES, DEFAULT_TZ, LANGUAGES, THRESHOLDS, TIMEZONES
 HOURS_PER_MONTH = Decimal(730)
 BAD_STATUSES = (ServerStatus.STOPPED, ServerStatus.SUSPENDED, ServerStatus.UNPAID)
 JOURNAL_PAGE = 20
+SERVERS_PAGE = 8
 LANGUAGE_NAMES = {"ru": "Русский", "en": "English"}
 HOURLY_METHODS = (Method.HOSTER_HOURS, Method.HOURLY_RATE, Method.MIXED)
 
@@ -79,8 +81,13 @@ def _button(text: str, data: CallbackData) -> InlineKeyboardButton:
     return InlineKeyboardButton(text=text, callback_data=data.pack())
 
 
-def _back(v: View, to: str = "menu") -> InlineKeyboardButton:
-    return _button(v.t("button.back"), Nav(to=to))
+def _nav(v: View, back: CallbackData | None = None) -> list[InlineKeyboardButton]:
+    """«Back» one level up and «Menu». A section of the menu gets «Menu» alone:
+    there both would lead to the same place."""
+    home = _button(v.t("bot.button.home"), Nav(to="menu"))
+    if back is None:
+        return [home]
+    return [_button(v.t("bot.button.back"), back), home]
 
 
 # Main menu
@@ -265,26 +272,76 @@ def summary(
     kb = InlineKeyboardBuilder()
     if accounts:
         kb.row(_button(v.t("button.refresh"), RefreshCb(acc=0, view="summary")))
-    kb.row(_back(v))
+    kb.row(*_nav(v))
     return Screen(summary_text(v, accounts, rates, currency, now), kb.as_markup())
 
 
 # Servers
 
 
-def servers(v: View, accounts: list[AccountData], own_ip: str | None = None) -> Screen:
+def _ordered(servers: list[Server]) -> list[Server]:
+    """VPS first, then dedicated servers: the order of the list and of its pages."""
+    return [server for kind in ServerKind for server in servers if server.kind is kind]
+
+
+def _pages(count: int) -> int:
+    return max(1, -(-count // SERVERS_PAGE))
+
+
+def server_page(data: AccountData, server: Server) -> int:
+    """The page of the account's server list the server is on."""
+    ids = [s.external_id for s in _ordered(data.servers)]
+    return ids.index(server.external_id) // SERVERS_PAGE if server.external_id in ids else 0
+
+
+def _troubled(v: View, data: AccountData) -> bool:
+    return _failed(data) or bool(_problems(v, data))
+
+
+def servers(v: View, accounts: list[AccountData]) -> Screen:
+    """First level: the accounts, with their number of servers and a mark for problems."""
     lines = [v.t("servers.title")]
     kb = InlineKeyboardBuilder()
     live = [d for d in accounts if d.account.status is not AccountStatus.DISABLED]
+    if live:
+        lines.append("")
+    for data in live:
+        line = v.t("bot.servers.hoster", title=escape(data.title), count=len(data.servers))
+        mark = " ⚠" if _troubled(v, data) else ""
+        if mark:
+            line += f" · ⚠ {v.t('bot.servers.problems')}"
+        lines.append(line)
+        kb.row(_button(f"{data.title} · {len(data.servers)}{mark}", HostCb(acc=data.account.id)))
+    if not live:
+        lines += ["", v.t("servers.empty")]
+    stale = [d for d in live if _failed(d)]
+    if stale:
+        lines += ["", *(_failed_line(v, d) for d in stale)]
+    if live:
+        kb.row(_button(v.t("button.refresh"), RefreshCb(acc=0, view="servers")))
+    kb.row(*_nav(v))
+    return Screen("\n".join(lines), kb.as_markup())
+
+
+def host_servers(v: View, data: AccountData, page: int, own_ip: str | None = None) -> Screen:
+    """Second level: one account's servers, VPS and dedicated apart, SERVERS_PAGE a page."""
+    ordered = _ordered(data.servers)
+    pages = _pages(len(ordered))
+    page = min(max(page, 0), pages - 1)
+    shown = ordered[page * SERVERS_PAGE : (page + 1) * SERVERS_PAGE]
+    acc = data.account.id
+    lines = [f"<b>{escape(data.title)}</b>"]
+    if pages > 1:
+        lines.append(v.t("bot.servers.page", page=page + 1, pages=pages))
+    kb = InlineKeyboardBuilder()
     for kind in ServerKind:
-        rows = [(d, s) for d in live for s in d.servers if s.kind is kind]
+        rows = [s for s in shown if s.kind is kind]
         if not rows:
             continue
         lines += ["", f"<b>{v.t(f'servers.kind.{kind.value}')}</b>"]
-        for data, server in rows:
+        for server in rows:
             line = v.t(
-                "servers.line",
-                hoster=escape(data.title),
+                "bot.servers.line",
                 name=escape(server.name),
                 status=v.t(f"status.{server.status.value}"),
                 ip=server.ip or "—",
@@ -292,20 +349,21 @@ def servers(v: View, accounts: list[AccountData], own_ip: str | None = None) -> 
             if own_ip is not None and server.ip == own_ip:
                 line += f" · {v.t('servers.own')}"
             lines.append(line)
-            kb.row(
-                _button(
-                    f"{server.name} · {data.title}",
-                    ServerCb(acc=data.account.id, sid=server.external_id),
-                )
-            )
-    if len(lines) == 1:
+            mark = " ⚠" if server.status in BAD_STATUSES else ""
+            kb.row(_button(f"{server.name}{mark}", ServerCb(acc=acc, sid=server.external_id)))
+    if not ordered:
         lines += ["", v.t("servers.empty")]
-    stale = [d for d in live if _failed(d)]
-    if stale:
-        lines += ["", *(_failed_line(v, d) for d in stale)]
-    if live:
-        kb.row(_button(v.t("button.refresh"), RefreshCb(acc=0, view="servers")))
-    kb.row(_back(v))
+    if _failed(data):
+        lines += ["", _failed_line(v, data)]
+    if pages > 1:
+        turn = []
+        if page > 0:
+            turn.append(_button("←", HostCb(acc=acc, page=page - 1)))
+        if page < pages - 1:
+            turn.append(_button("→", HostCb(acc=acc, page=page + 1)))
+        kb.row(*turn)
+    kb.row(_button(v.t("button.refresh"), RefreshCb(acc=acc, view="host", sid=str(page))))
+    kb.row(*_nav(v, Nav(to="servers")))
     return Screen("\n".join(lines), kb.as_markup())
 
 
@@ -408,7 +466,7 @@ def server_card(
         )
     kb.adjust(3)
     kb.row(_button(v.t("button.refresh"), RefreshCb(acc=acc, view="server", sid=sid)))
-    kb.row(_back(v, "servers"))
+    kb.row(*_nav(v, HostCb(acc=acc, page=server_page(data, server))))
     return Screen("\n".join(lines), kb.as_markup())
 
 
@@ -440,7 +498,7 @@ def balance(v: View, accounts: list[AccountData]) -> Screen:
         lines += ["", v.t("summary.empty")]
     else:
         kb.row(_button(v.t("button.refresh"), RefreshCb(acc=0, view="balance")))
-    kb.row(_back(v))
+    kb.row(*_nav(v))
     return Screen("\n".join(lines), kb.as_markup())
 
 
@@ -451,31 +509,45 @@ def account_status(v: View, status: AccountStatus) -> str:
     return v.t(f"account.status.{status.value}")
 
 
-def integrations(v: View, plugins: list[type[Plugin]], accounts: list[AccountData]) -> Screen:
-    lines = [v.t("integrations.title")]
+def integrations(v: View, accounts: list[AccountData]) -> Screen:
+    """Connected accounts only; hosters to add live behind «+ Connect»."""
+    lines = [v.t("integrations.title"), ""]
     kb = InlineKeyboardBuilder()
-    for plugin in plugins:
-        own = [d for d in accounts if d.account.plugin_id == plugin.meta.id]
-        lines.append("")
-        if not own:
-            lines.append(v.t("integrations.not_connected", hoster=escape(plugin.meta.name)))
-        for data in own:
-            lines.append(
-                v.t(
-                    "integrations.account",
-                    title=escape(data.title),
-                    status=account_status(v, data.account.status),
-                )
-            )
-            kb.row(
-                _button(
-                    f"{data.title} · {account_status(v, data.account.status)}",
-                    AccountCb(acc=data.account.id, op="card"),
-                )
-            )
-        add = v.t("integrations.add", hoster=plugin.meta.name)
-        kb.row(_button(add, AddCb(plugin=plugin.meta.id)))
-    kb.row(_back(v))
+    if not accounts:
+        lines.append(v.t("bot.integrations.empty"))
+    for data in accounts:
+        status = account_status(v, data.account.status)
+        lines.append(v.t("integrations.account", title=escape(data.title), status=status))
+        kb.row(_button(f"{data.title} · {status}", AccountCb(acc=data.account.id, op="card")))
+    kb.row(_button(v.t("bot.integrations.connect"), Nav(to="connect")))
+    kb.row(*_nav(v))
+    return Screen("\n".join(lines), kb.as_markup())
+
+
+def connect(v: View, plugins: list[type[Plugin]], accounts: list[AccountData]) -> Screen:
+    """Hosters to add: those not connected yet first, then another account of the others."""
+    connected = {d.account.plugin_id for d in accounts}
+    fresh = [p for p in plugins if p.meta.id not in connected]
+    more = [p for p in plugins if p.meta.id in connected]
+    lines = [v.t("bot.connect.title"), ""]
+    if fresh:
+        lines.append(v.t("bot.connect.choose"))
+        lines += [
+            v.t("bot.connect.line", hoster=escape(p.meta.name), site=escape(p.meta.site))
+            for p in fresh
+        ]
+    else:
+        lines.append(v.t("bot.connect.all_connected"))
+    if more:
+        lines += ["", v.t("bot.connect.more")]
+    kb = InlineKeyboardBuilder()
+    for plugin in fresh:
+        kb.button(text=plugin.meta.name, callback_data=AddCb(plugin=plugin.meta.id))
+    kb.adjust(2)
+    for plugin in more:
+        text = v.t("bot.connect.another", hoster=plugin.meta.name)
+        kb.row(_button(text, AddCb(plugin=plugin.meta.id)))
+    kb.row(*_nav(v, Nav(to="integrations")))
     return Screen("\n".join(lines), kb.as_markup())
 
 
@@ -507,33 +579,39 @@ def account_card(v: View, data: AccountData) -> Screen:
     else:
         kb.row(_button(v.t("account.disable"), AccountCb(acc=acc, op="disable")))
     kb.row(_button(v.t("account.delete"), AccountCb(acc=acc, op="delete")))
-    kb.row(_back(v, "integrations"))
+    kb.row(*_nav(v, Nav(to="integrations")))
     return Screen("\n".join(lines), kb.as_markup())
 
 
 def confirm_delete(v: View, data: AccountData) -> Screen:
     kb = InlineKeyboardBuilder()
-    kb.row(
-        _button(v.t("button.yes_delete"), AccountCb(acc=data.account.id, op="delete_yes")),
-        _button(v.t("button.cancel"), AccountCb(acc=data.account.id, op="card")),
-    )
+    kb.row(_button(v.t("button.yes_delete"), AccountCb(acc=data.account.id, op="delete_yes")))
+    kb.row(*_nav(v, AccountCb(acc=data.account.id, op="card")))
     return Screen(v.t("account.delete_confirm", title=escape(data.title)), kb.as_markup())
 
 
 def ask_label(v: View, plugin_name: str) -> Screen:
     kb = InlineKeyboardBuilder()
     kb.row(_button(v.t("integrations.label_default", name=plugin_name), LabelCb()))
-    kb.row(_button(v.t("button.cancel"), Nav(to="integrations")))
+    kb.row(*_nav(v, Nav(to="connect")))
     return Screen(v.t("integrations.ask_label", hoster=escape(plugin_name)), kb.as_markup())
 
 
-def ask_key(v: View, plugin_name: str, field: str) -> Screen:
+def ask_key(v: View, plugin_name: str, field: str, back: CallbackData | None = None) -> Screen:
+    """`back`: where «Back» leads; the hoster list when a new account is being added."""
     kb = InlineKeyboardBuilder()
-    kb.row(_button(v.t("button.cancel"), Nav(to="integrations")))
+    kb.row(*_nav(v, back or Nav(to="connect")))
     return Screen(
         v.t("integrations.ask_key", hoster=escape(plugin_name), field=escape(field)),
         kb.as_markup(),
     )
+
+
+def login_sent(v: View, hoster: str, back: CallbackData) -> Screen:
+    """In place of the screen the login started from; the link itself comes below it."""
+    kb = InlineKeyboardBuilder()
+    kb.row(*_nav(v, back))
+    return Screen(v.t("bot.login.sent", hoster=escape(hoster)), kb.as_markup())
 
 
 # Journal
@@ -565,7 +643,7 @@ def journal(
         nav.append(_button("→", JournalCb(page=page + 1)))
     if nav:
         kb.row(*nav)
-    kb.row(_back(v))
+    kb.row(*_nav(v))
     return Screen("\n".join(lines), kb.as_markup())
 
 
@@ -593,7 +671,7 @@ def settings(v: View, timezone: str, currency: str, thresholds: dict[str, str]) 
     for item in THRESHOLDS:
         kb.row(_button(v.t(f"threshold.button.{item.key}"), SetCb(key="th", value=item.key)))
     kb.row(_button(v.t("settings.button.backup"), SetCb(key="backup")))
-    kb.row(_back(v))
+    kb.row(*_nav(v))
     return Screen("\n".join(lines), kb.as_markup())
 
 
@@ -602,7 +680,7 @@ def choose_language(v: View, onb: bool) -> Screen:
     for lang in LANGUAGES:
         kb.button(text=LANGUAGE_NAMES[lang], callback_data=SetCb(key="lang", value=lang, onb=onb))
     if not onb:
-        kb.row(_back(v, "settings"))
+        kb.row(*_nav(v, Nav(to="settings")))
     # The owner has not picked a language yet, so the first question is in both.
     text = (
         v.t("onboarding.language")
@@ -622,7 +700,7 @@ def choose_timezone(v: View, onb: bool) -> Screen:
     kb.adjust(2)
     kb.row(_button(v.t("settings.timezone_other"), SetCb(key="tz", value="other", onb=onb)))
     if not onb:
-        kb.row(_back(v, "settings"))
+        kb.row(*_nav(v, Nav(to="settings")))
     return Screen(v.t("onboarding.timezone", suggested=suggested), kb.as_markup())
 
 
@@ -631,11 +709,19 @@ def choose_currency(v: View, onb: bool) -> Screen:
     for currency in CURRENCIES:
         kb.button(text=currency, callback_data=SetCb(key="cur", value=currency, onb=onb))
     if not onb:
-        kb.row(_back(v, "settings"))
+        kb.row(*_nav(v, Nav(to="settings")))
     return Screen(v.t("onboarding.currency"), kb.as_markup())
+
+
+def ask_timezone(v: View, onb: bool) -> Screen:
+    """A time zone to type. On the first run there is nowhere to go back to yet."""
+    kb = InlineKeyboardBuilder()
+    if not onb:
+        kb.row(*_nav(v, SetCb(key="tz")))
+    return Screen(v.t("settings.timezone_ask"), kb.as_markup())
 
 
 def ask_threshold(v: View, key: str, current: str) -> Screen:
     kb = InlineKeyboardBuilder()
-    kb.row(_button(v.t("button.cancel"), Nav(to="settings")))
+    kb.row(*_nav(v, Nav(to="settings")))
     return Screen(v.t(f"threshold.ask.{key}", value=current), kb.as_markup())

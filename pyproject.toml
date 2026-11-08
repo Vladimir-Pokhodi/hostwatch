@@ -18,6 +18,8 @@ dependencies = [
     "tzdata",
     # Must match the `browser` image tag in docker-compose.yml.
     "playwright==1.64.1",
+    # HTML parsing for cabinets without an API (AdminVPS).
+    "selectolax>=1.0.2",
 ]
 
 [project.scripts]

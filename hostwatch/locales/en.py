@@ -21,10 +21,28 @@ MESSAGES: dict[str, str] = {
         " The forecast may be off."
     ),
     # Bot
-    "button.back": "← Back",
     "button.cancel": "Cancel",
     "button.refresh": "Refresh",
     "button.yes_delete": "Yes, delete",
+    "bot.button.back": "⬅️ Back",
+    "bot.button.home": "🏠 Menu",
+    "bot.servers.hoster": "<b>{title}</b>: {count} servers",
+    "bot.servers.problems": "needs attention",
+    "bot.servers.page": "Page {page} of {pages}",
+    "bot.servers.line": "{name} — {status}, {ip}",
+    "bot.integrations.empty": "Nothing is connected yet. Press «+ Connect».",
+    "bot.integrations.connect": "+ Connect",
+    "bot.connect.title": "<b>Connect a hoster</b>",
+    "bot.connect.choose": "Pick one to connect:",
+    "bot.connect.line": "• {hoster} — {site}",
+    "bot.connect.all_connected": "Every hoster is connected already.",
+    "bot.connect.more": "You can add another account of a hoster that is already connected.",
+    "bot.connect.another": "+ another {hoster} account",
+    "bot.login.sent": (
+        "The {hoster} login link is in the message below. It works for 10 minutes"
+        " and goes away once the login is over."
+    ),
+    "bot.login.link_gone": "This link no longer works.",
     "stub": "Coming at stage {stage}.",
     "menu.title": "<b>hostwatch</b>\nPick a section.",
     "menu.summary": "Summary",
@@ -97,7 +115,6 @@ MESSAGES: dict[str, str] = {
     "servers.gone": "The hoster no longer lists this server.",
     "servers.kind.vps": "VPS",
     "servers.kind.dedicated": "Dedicated servers",
-    "servers.line": "{hoster}: {name} — {status}, {ip}",
     "price.hourly": "{amount} per hour",
     "price.month": "{amount} per month",
     "price.months": "{amount} per {months} months",
@@ -130,9 +147,7 @@ MESSAGES: dict[str, str] = {
     "balance.hours_left": "The hoster says it lasts {hours} h.",
     "balance.topup": "Top up {title}",
     "integrations.title": "<b>Integrations</b>",
-    "integrations.not_connected": "{hoster}: connect",
     "integrations.account": "{title}: {status}",
-    "integrations.add": "+ Connect {hoster}",
     "integrations.ask_label": (
         "A label for the {hoster} account, e.g. «personal». It tells accounts apart"
         " when a hoster has several. Type it or press the button."

@@ -110,3 +110,39 @@ def test_account_sums_become_made_up_numbers_of_the_same_type() -> None:
         ],
         "finances": {"totalReplenished": 1500.5, "permittedDebt": None},
     }
+
+
+def test_plugin_hook_query_ids_and_names_inside_texts() -> None:
+    def hook(text: str, scrubber: Scrubber) -> str:
+        # What a plugin does with HTML: names it found become labels, sums become fake.
+        if text.startswith("<p>"):
+            scrubber.label("hostname", "my-node.example")
+            text = text.replace("499.00", str(scrubber.fake_money("499.00")))
+        return text
+
+    scrubber = Scrubber([], names=["data.hostname"], text_hook=hook)
+    page = Exchange(
+        "GET",
+        httpx.URL("https://h.test/clientarea.php?action=productdetails&id=731904"),
+        200,
+        b"<p>my-node.example costs 499.00, service 731904</p>",
+    )
+    data = exchange(
+        "https://h.test/client_data.php?vserverid=642511",
+        {
+            "serviceid": 731904,
+            "data": {"hostname": "my-node.example"},
+            "note": "at my-node.example",
+        },
+    )
+
+    page_out, data_out = scrubber.exchanges([page, data])
+
+    assert page_out["query"] == {"action": "productdetails", "id": "100001"}
+    assert page_out["text"] == "<p>hostname-1 costs 1000.00, service 100001</p>"
+    # A known id under an unknown key, and the name in plain text, are replaced too.
+    assert data_out["json"] == {
+        "serviceid": 100001,
+        "data": {"hostname": "hostname-1"},
+        "note": "at hostname-1",
+    }

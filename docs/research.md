@@ -77,6 +77,11 @@ QRATOR запросы из Python пропустил. С IP дата-центр�
 - `GET /api/services/vps/details/{vpsid}` — IP, ресурсы, флаг `suspended`.
 - Питание: `POST /api/services/vps/power/{start|stop|restart|poweroff}/{vpsid}`.
 - Счета: `GET /api/billing/invoices`. Оплатить счёт с баланса: `POST /api/billing/invoices/apply-credit` `{"invoiceid", "amount"}`.
+  - Список (WHMCS GetInvoices) отдаёт 25 последних, новые сверху, без строк счёта. Сайт показывает те же 25.
+  - Строки счёта: `GET /api/billing/invoices/{id}` → `items.item[]` с `type` и `relid`. У продления `type = "Hosting"`, `relid` = ID услуги из `getservices`. У пополнения `type = ""`, `relid = 0`.
+- Сессия (проверено 08.11 на этапе 07): каждый `GET /api/auth/session` выдаёт новый `rgx.session-token` со сроком +24 ч. Плагин сохраняет его, поэтому сессия живёт, пока идёт опрос. ID клиента — `user.client_id` из того же ответа.
+- Без сессии: `/api/auth/session` → `{}`, остальное → 401 или 403 с `{"error": "..."}`.
+- Нагрузка в `vps/status`: `used_cpu` в %, `used_ram` / `ram` в МБ, `used_disk` / `disk` в ГБ, `used_bandwidth` в ГБ за месяц (`bandwidth = 0` — без лимита). Состояние `status`: 1 включён, 0 выключен, 2 приостановлен. Пока VPS создаётся, вместо объекта приходит одно число.
 - Автопродления как функции нет. Сайт сам выставляет счёт перед окончанием срока.
 - Пополнение:
   1. `POST /api/billing/addfunds` `{"amount": 5}` → `data.invoiceid`.
@@ -88,10 +93,12 @@ QRATOR запросы из Python пропустил. С IP дата-центр�
 
 Личный кабинет на WHMCS, перед ним защита DDoS-Guard. Данные отдаёт готовым HTML. Авторизация — cookie сессии WHMCS, сколько она живёт, пока неизвестно.
 
-- Баланс — в шапке любой страницы, ссылка на `/payments.php`.
-- Услуги — таблица на `clientarea.php?action=services`: название, цена и период, дата следующего платежа, статус, ID услуги.
-- Карточка услуги: `clientarea.php?action=productdetails&id={id}`.
-  - IP, статус и трафик: `GET modules/servers/solusvmpro/get_client_data.php?vserverid=...` отдаёт JSON (`state`, `mainip`, `bandwidthused`).
+- DDoS-Guard (проверено 08.11 на этапе 08): обычный `httpx` с сервера бота с cookie входа через трансляцию проходит. На каждый ответ приходят новые `__ddg8_`, `__ddg9_`, `__ddg10_`. Гость получает редирект на вход.
+- Баланс — в шапке любой страницы: `a.balance-link`, текст «4321.09 руб.», ссылка на `/payments.php`.
+- Услуги — таблица `#tableServicesList` на `clientarea.php?action=services`, все строки сразу (DataTables на клиенте): название в `<strong>`, под ним hostname ссылкой; цена в `data-order` и период («ежемесячно»); дата следующего платежа в `<span class="hidden">ГГГГ-ММ-ДД</span>`; статус классом `status-active|suspended|pending|terminated|cancelled`; ID услуги в ссылке `productdetails&id=`. Удалённые и отменённые услуги остаются в списке.
+- Карточка услуги: `clientarea.php?action=productdetails&id={id}`, ~280 КБ. ID сервера SolusVM — в скрипте `var vserverid = N;`, IP — `input#dedicatedip-hidden`.
+  - IP, статус и трафик: `GET modules/servers/solusvmpro/get_client_data.php?vserverid=...` отдаёт JSON (`state`: `online`/`offline`, `mainip`, `bandwidthused` вида «417.7 MB»). Иногда отвечает дольше 20 с.
+  - Каждый запрос к кабинету идёт ~1,3 с, поэтому опрос 6 услуг (1 + 2 × 6 запросов) занимает ~18 с.
   - CPU и RAM есть только картинками графиков.
 - Питание: POST на карточку услуги, поля `token` (CSRF со страницы), `id`, `modop=custom`, `a=boot|shutdown|reboot`.
 - Автопродление: модуль ModulesGarden HostingRenewals.

@@ -111,21 +111,41 @@ class Owner:
         self._failing = False
 
     async def send(self, text: str, markup: InlineKeyboardMarkup | None = None) -> bool:
+        return await self.post(text, markup) is not None
+
+    async def post(self, text: str, markup: InlineKeyboardMarkup | None = None) -> int | None:
+        """Send a message; the id of its last part, or None if it did not go through."""
         try:
             chunks = split_text(text)
+            message_id = None
             for n, chunk in enumerate(chunks):
                 last = n == len(chunks) - 1
-                await self._bot.send_message(
+                message = await self._bot.send_message(
                     self._owner_id, chunk, reply_markup=markup if last else None
                 )
+                message_id = message.message_id
         except TelegramAPIError as exc:
             if not self._failing:
                 log.warning("cannot message the owner: %s", exc.message)
             self._failing = True
-            return False
+            return None
         if self._failing:
             log.info("messages reach the owner again")
         self._failing = False
+        return message_id
+
+    async def delete(self, message_id: int) -> bool:
+        """False when Telegram refuses, e.g. for messages older than 48 hours."""
+        try:
+            return await self._bot.delete_message(self._owner_id, message_id)
+        except TelegramAPIError:
+            return False
+
+    async def edit(self, message_id: int, text: str) -> bool:
+        try:
+            await self._bot.edit_message_text(text, chat_id=self._owner_id, message_id=message_id)
+        except TelegramAPIError:
+            return False
         return True
 
 
@@ -194,7 +214,7 @@ async def run(settings: Settings) -> None:
         def login_service(events: LoginEvents) -> LoginService:
             return LoginService(launcher, events)
 
-        hub.login = BotLogin(hub, login_service, owner.send, make_client, settings.hostwatch_domain)
+        hub.login = BotLogin(hub, login_service, owner, make_client, settings.hostwatch_domain)
         web = await serve(hub.login.service)
         admin = await serve_admin(hub.login.resolve, hub.login.send_link)
         jobs = _jobs(hub, owner, settings, http, AlertRepository(conn), settings_repo)
@@ -206,7 +226,7 @@ async def run(settings: Settings) -> None:
             for task in tasks:
                 task.cancel()
             await asyncio.gather(*tasks, return_exceptions=True)
-            await hub.login.service.close()
+            await hub.login.close()
             await web.cleanup()
             await admin.cleanup()
             await poller.stop()

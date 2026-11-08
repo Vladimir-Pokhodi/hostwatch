@@ -1,0 +1,37 @@
+{
+  "method": "GET",
+  "url": "https://regxa.com/api/services/getservices",
+  "query": {
+    "clientId": "100002"
+  },
+  "status": 200,
+  "json": [
+    {
+      "id": 100003,
+      "name": "Cloud VPS X1 - Europe",
+      "groupName": "Cloud VPS",
+      "domain": "",
+      "status": "Active",
+      "nextDueDate": "2026-11-28",
+      "amount": 1000.5,
+      "billingCycle": "monthly",
+      "serverLocation": "Poland - Warsaw",
+      "customfields": {
+        "customfield": [
+          {
+            "id": 100004,
+            "name": "vpsid",
+            "translated_name": "vpsid",
+            "value": "100006"
+          },
+          {
+            "id": 100005,
+            "name": "vps_uuid",
+            "translated_name": "vps_uuid",
+            "value": "vps_uuid-1"
+          }
+        ]
+      }
+    }
+  ]
+}

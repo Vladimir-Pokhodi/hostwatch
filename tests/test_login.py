@@ -16,7 +16,6 @@ from hostwatch.bot.login import BotLogin, browser_name, parse_cookie_text, pick_
 from hostwatch.core.errors import AuthExpired
 from hostwatch.core.models import AccountStatus
 from hostwatch.core.plugin import BrowserAuth, PluginContext, cookie_header
-from hostwatch.plugins.adminvps import AdminVpsPlugin
 from hostwatch.plugins.regxa import RegxaPlugin
 from hostwatch.plugins.timeweb import TimewebPlugin
 from hostwatch.storage.repositories import AccountRepository
@@ -229,21 +228,47 @@ async def test_regxa_login_check() -> None:
             await plugin.check_login()
 
 
-def test_stub_plugins_are_login_only() -> None:
-    assert RegxaPlugin.login_only and AdminVpsPlugin.login_only
-    assert not TimewebPlugin.login_only
+def test_written_plugins_are_not_login_only() -> None:
+    assert not TimewebPlugin.login_only and not RegxaPlugin.login_only
 
 
 # The bot's side
 
 
 class Sent:
+    """The owner's chat as `BotLogin` sees it: posted, deleted and edited messages."""
+
     def __init__(self) -> None:
         self.texts: list[str] = []
+        self.by_id: dict[int, str] = {}
+        self.deleted: list[int] = []
+        self.edited: dict[int, str] = {}
+        # Telegram refuses to delete messages older than 48 hours.
+        self.can_delete = True
 
-    async def __call__(self, text: str, markup: object = None) -> bool:
+    async def post(self, text: str, markup: object = None) -> int:
         self.texts.append(text)
+        message_id = 100 + len(self.texts)
+        self.by_id[message_id] = text
+        return message_id
+
+    async def delete(self, message_id: int) -> bool:
+        if not self.can_delete:
+            return False
+        self.deleted.append(message_id)
         return True
+
+    async def edit(self, message_id: int, text: str) -> bool:
+        self.edited[message_id] = text
+        return True
+
+    def visible(self) -> list[str]:
+        """Texts still in the chat as they read now."""
+        return [
+            self.edited.get(message_id, text)
+            for message_id, text in self.by_id.items()
+            if message_id not in self.deleted
+        ]
 
 
 @pytest.fixture
@@ -261,19 +286,21 @@ async def login_harness(
         domain="hw.example",
     )
     yield h, sent
-    await h.hub.login.service.close()
+    await h.hub.login.close()
     await h.poller.stop()
     await h.bot.session.close()
 
 
 async def test_relogin_button_sends_a_link(login_harness: tuple[Harness, Sent]) -> None:
-    h, _ = login_harness
+    h, sent = login_harness
     h.onboard("ru")
     account = h.hub.accounts.add("timeweb", "main", {"api_token": "tw-token-1"})
 
     await h.press(AccountCb(acc=account, op="relogin"))
 
-    assert "https://hw.example/login/" in h.session.last_text()
+    assert "в сообщении ниже" in h.session.last_text()
+    assert AccountCb(acc=account, op="card").pack() in h.session.buttons()
+    assert "https://hw.example/login/" in sent.texts[-1]
     assert h.hub.login is not None
     assert h.hub.login.service._links  # a link waits to be opened
 
@@ -281,13 +308,14 @@ async def test_relogin_button_sends_a_link(login_harness: tuple[Harness, Sent]) 
 async def test_add_browser_plugin_asks_label_then_sends_link(
     login_harness: tuple[Harness, Sent],
 ) -> None:
-    h, _ = login_harness
+    h, sent = login_harness
     h.onboard("en")
 
     await h.press(AddCb(plugin="regxa"))
     await h.press(LabelCb())
 
-    assert "https://hw.example/login/" in h.session.last_text()
+    assert "message below" in h.session.last_text()
+    assert "https://hw.example/login/" in sent.texts[-1]
     assert h.hub.accounts.all() == []  # the account appears once the login is done
 
 
@@ -371,3 +399,116 @@ async def test_plugin_with_api_key_needs_an_account_first(
     account = h.hub.accounts.add("timeweb", "main", {"api_token": "tw-token-1"})
     found = h.hub.login.resolve("timeweb")
     assert found is not None and found.account_id == account
+
+
+# The link message (and «link opened») goes once the login is over
+
+
+async def _issue(h: Harness, target: LoginTarget) -> str:
+    """Send a link the way the bot and `hostwatch login` do; its token."""
+    assert h.hub.login is not None
+    url = await h.hub.login.send_link(target)
+    assert url is not None
+    return url.rsplit("/", 1)[1]
+
+
+async def test_link_messages_go_when_the_login_is_done(
+    login_harness: tuple[Harness, Sent],
+) -> None:
+    h, sent = login_harness
+    h.onboard("ru")
+    assert h.hub.login is not None
+    account = h.hub.accounts.add("timeweb", "main", {"api_token": "tw-token-1"})
+    target = h.hub.login.target(TimewebPlugin, account)
+    token = await _issue(h, target)
+    await h.hub.login.service.open(token, "198.51.100.1", "Firefox/150 Android")
+    assert len(sent.visible()) == 2
+
+    cookies = [
+        {"name": "refresh_token", "value": "new-refresh-1", "domain": "timeweb.cloud"},
+        {"name": "device_token", "value": "device-1", "domain": ".timeweb.cloud"},
+    ]
+    await h.hub.login.finish(target, cookies)
+
+    assert sent.visible() == ["✅ Timeweb Cloud (main) подключён."]
+
+
+@pytest.mark.parametrize(
+    ("reason", "text"),
+    [
+        (EndReason.CANCELLED, "Вход в Regxa отменён."),
+        (EndReason.IDLE, "Вход в Regxa закрыт: 15 минут без действий."),
+        (EndReason.REJECTED, "Вход в Regxa закрыт кнопкой «Это не я»."),
+    ],
+)
+async def test_link_messages_go_when_the_login_ends(
+    login_harness: tuple[Harness, Sent], reason: EndReason, text: str
+) -> None:
+    h, sent = login_harness
+    h.onboard("ru")
+    assert h.hub.login is not None
+    target = h.hub.login.target(RegxaPlugin, None, "Regxa")
+    service = h.hub.login.service
+    await service.open(await _issue(h, target), "198.51.100.1", "Firefox/150 Android")
+
+    await service.end(reason)
+
+    assert sent.visible() == [text]
+
+
+async def test_unopened_link_message_goes_when_the_link_expires(
+    login_harness: tuple[Harness, Sent],
+) -> None:
+    h, sent = login_harness
+    h.onboard("ru")
+    assert h.hub.login is not None
+    h.hub.login.service.link_ttl = 0.05
+    await _issue(h, h.hub.login.target(RegxaPlugin, None, "Regxa"))
+    assert len(sent.visible()) == 1
+
+    await asyncio.sleep(0.2)
+
+    assert sent.visible() == []
+
+
+async def test_opened_link_outlives_its_ttl(login_harness: tuple[Harness, Sent]) -> None:
+    h, sent = login_harness
+    h.onboard("ru")
+    assert h.hub.login is not None
+    h.hub.login.service.link_ttl = 0.05
+    token = await _issue(h, h.hub.login.target(RegxaPlugin, None, "Regxa"))
+    await h.hub.login.service.open(token, "198.51.100.1", "Firefox/150 Android")
+
+    await asyncio.sleep(0.2)
+
+    assert len(sent.visible()) == 2  # the session runs; its end cleans up
+
+
+async def test_new_link_replaces_the_old_messages(login_harness: tuple[Harness, Sent]) -> None:
+    h, sent = login_harness
+    h.onboard("ru")
+    assert h.hub.login is not None
+    target = h.hub.login.target(RegxaPlugin, None, "Regxa")
+    await h.hub.login.service.open(await _issue(h, target), "198.51.100.1", "Firefox/150 Android")
+
+    await _issue(h, target)
+
+    [left] = sent.visible()
+    assert "https://hw.example/login/" in left
+    assert left == sent.texts[-1]
+
+
+async def test_old_link_message_is_edited_when_it_cannot_be_deleted(
+    login_harness: tuple[Harness, Sent],
+) -> None:
+    h, sent = login_harness
+    h.onboard("ru")
+    assert h.hub.login is not None
+    sent.can_delete = False
+    target = h.hub.login.target(RegxaPlugin, None, "Regxa")
+    await _issue(h, target)
+
+    await _issue(h, target)
+
+    assert sent.visible()[0] == "Ссылка больше не действует."
+    assert "https://hw.example/login/" in sent.visible()[1]

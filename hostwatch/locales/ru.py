@@ -20,10 +20,28 @@ MESSAGES: dict[str, str] = {
         "Реальный расход за 14 дней {actual}, по прогнозу {predicted}. Прогноз может быть неточным."
     ),
     # Bot
-    "button.back": "← Назад",
     "button.cancel": "Отмена",
     "button.refresh": "Обновить",
     "button.yes_delete": "Да, удалить",
+    "bot.button.back": "⬅️ Назад",
+    "bot.button.home": "🏠 Меню",
+    "bot.servers.hoster": "<b>{title}</b>: серверов {count}",
+    "bot.servers.problems": "есть проблемы",
+    "bot.servers.page": "Страница {page} из {pages}",
+    "bot.servers.line": "{name} — {status}, {ip}",
+    "bot.integrations.empty": "Пока ничего не подключено. Нажмите «+ Подключить».",
+    "bot.integrations.connect": "+ Подключить",
+    "bot.connect.title": "<b>Подключить хостера</b>",
+    "bot.connect.choose": "Выберите, кого подключить:",
+    "bot.connect.line": "• {hoster} — {site}",
+    "bot.connect.all_connected": "Все хостеры уже подключены.",
+    "bot.connect.more": "Можно добавить ещё один аккаунт у уже подключённого хостера.",
+    "bot.connect.another": "+ ещё аккаунт {hoster}",
+    "bot.login.sent": (
+        "Ссылка для входа в {hoster} — в сообщении ниже. Она действует 10 минут"
+        " и исчезнет, когда вход закончится."
+    ),
+    "bot.login.link_gone": "Ссылка больше не действует.",
     "stub": "Будет на этапе {stage}.",
     "menu.title": "<b>hostwatch</b>\nВыберите раздел.",
     "menu.summary": "Сводка",
@@ -96,7 +114,6 @@ MESSAGES: dict[str, str] = {
     "servers.gone": "Этого сервера больше нет в данных хостера.",
     "servers.kind.vps": "VPS",
     "servers.kind.dedicated": "Выделенные серверы",
-    "servers.line": "{hoster}: {name} — {status}, {ip}",
     "price.hourly": "{amount} в час",
     "price.month": "{amount} в месяц",
     "price.months": "{amount} за {months} мес.",
@@ -129,9 +146,7 @@ MESSAGES: dict[str, str] = {
     "balance.hours_left": "Хостер считает, что хватит на {hours} ч.",
     "balance.topup": "Пополнить {title}",
     "integrations.title": "<b>Интеграции</b>",
-    "integrations.not_connected": "{hoster}: подключить",
     "integrations.account": "{title}: {status}",
-    "integrations.add": "+ Подключить {hoster}",
     "integrations.ask_label": (
         "Подпись для аккаунта {hoster}, например «личный». Она нужна, если аккаунтов"
         " у хостера несколько. Напишите её или нажмите кнопку."

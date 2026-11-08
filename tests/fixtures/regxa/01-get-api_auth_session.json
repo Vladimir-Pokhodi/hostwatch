@@ -1,0 +1,17 @@
+{
+  "method": "GET",
+  "url": "https://regxa.com/api/auth/session",
+  "query": {},
+  "status": 200,
+  "json": {
+    "user": {
+      "email": "***",
+      "id": "100001",
+      "client_id": "100002",
+      "role": "user",
+      "ip": "192.0.2.10",
+      "isOAuth": false
+    },
+    "expires": "2026-11-09T15:23:17.363Z"
+  }
+}
