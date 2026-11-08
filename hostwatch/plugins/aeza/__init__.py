@@ -1,4 +1,9 @@
-"""Aeza (aeza.net) through its API key. Read-only for now: servers, balance, load, charges."""
+"""Aeza (aeza.net) through its API key: servers, balance, load, charges and top-up invoices.
+
+A top-up invoice is `POST /billing/invoices`. For SBP it carries a ЮKassa page, which
+`core.payments.yookassa` turns into a `qr.nspk.ru` link; for crypto (`pawnow:*`) it carries
+the address, the amount in the coin and the QR text right away.
+"""
 
 from __future__ import annotations
 
@@ -10,7 +15,13 @@ from typing import Any, TypeVar
 import httpx
 from pydantic import BaseModel, ValidationError
 
-from hostwatch.core.errors import AuthExpired, Blocked, HosterError, LayoutChanged, RateLimited
+from hostwatch.core.errors import (
+    AuthExpired,
+    Blocked,
+    HosterError,
+    LayoutChanged,
+    RateLimited,
+)
 from hostwatch.core.models import (
     Autorenew,
     Balance,
@@ -18,12 +29,16 @@ from hostwatch.core.models import (
     Invoice,
     InvoiceStatus,
     Money,
+    Payment,
     Server,
     ServerAction,
     ServerKind,
     ServerStatus,
+    TopupKind,
+    TopupMethod,
     Usage,
 )
+from hostwatch.core.payments import yookassa
 from hostwatch.core.plugin import (
     ACTION_CAPABILITY,
     ApiKeyAuth,
@@ -67,6 +82,8 @@ SERVICE_ACTIONS = {
 ALWAYS_ACTIONS = {ServerAction.AUTORENEW, ServerAction.RENEW}
 TRANSACTION_STATUSES = {"performed": InvoiceStatus.PAID, "cancelled": InvoiceStatus.CANCELLED}
 REPLENISHMENT = "replenishment"
+SBP_METHOD = "yookassa:sbp"
+CRYPTO_PREFIX = "pawnow:"
 
 A = TypeVar("A", bound=BaseModel)
 
@@ -80,6 +97,7 @@ class AezaPlugin(Plugin):
         currency="EUR",
     )
     record_names = ("items.*.name", "items.*.payload.name")
+    topup_page = "https://my.aeza.net/billing"
 
     def __init__(self, ctx: PluginContext) -> None:
         super().__init__(ctx)
@@ -148,6 +166,61 @@ class AezaPlugin(Plugin):
         ]
         return sorted(charges, key=lambda c: c.due_at or datetime.min.replace(tzinfo=UTC))[::-1]
 
+    async def topup_methods(self) -> list[TopupMethod]:
+        """SBP and the coins of `pawnow`; Aeza lists cards and others too, the bot does not."""
+        currency = (await self._me()).currency
+        methods = await self._get(api.PaymentMethods, "billing/payment-methods")
+        return [
+            TopupMethod(
+                id=method.slug,
+                name=method.name,
+                kind=TopupKind.SBP if method.slug == SBP_METHOD else TopupKind.CRYPTO,
+                minimum=_money(Decimal(method.min), currency),
+            )
+            for method in methods.items
+            if method.slug == SBP_METHOD or method.slug.startswith(CRYPTO_PREFIX)
+        ]
+
+    async def topup(self, amount: Money, method_id: str) -> Payment:
+        currency = (await self._me()).currency.upper()
+        if amount.currency != currency:
+            raise HosterError(f"the account is in {currency}")
+        cents = amount.amount * 100
+        if cents != cents.to_integral_value() or cents <= 0:
+            raise HosterError("the amount must be in whole cents")
+        response = await self._send(
+            "POST", "billing/invoices", json={"method": method_id, "amount": int(cents)}
+        )
+        _raise_for_status(response)
+        try:
+            invoice = api.CreatedInvoice.model_validate_json(response.content)
+        except ValidationError:
+            raise LayoutChanged from None
+        payload = invoice.payload
+        paid = _money(Decimal(invoice.amount), currency)
+        if payload.address:
+            return Payment(
+                id=str(invoice.id),
+                amount=paid,
+                method=method_id,
+                created_at=invoice.createdAt,
+                address=payload.address,
+                qr_data=payload.qr or payload.address,
+                pay_amount=payload.amount,
+                pay_currency=payload.currency,
+            )
+        if not payload.url:
+            raise LayoutChanged
+        url, qr = await yookassa.link_or_page(self.ctx.http, payload.url)
+        return Payment(
+            id=str(invoice.id),
+            amount=paid,
+            method=method_id,
+            created_at=invoice.createdAt,
+            url=url,
+            qr_data=qr,
+        )
+
     async def _me(self) -> api.Account:
         if self._account is None:
             self._account = await self._get(api.Account, "accounts/me")
@@ -167,10 +240,21 @@ class AezaPlugin(Plugin):
             raise LayoutChanged from None
 
     async def _request(self, path: str, params: dict[str, Any]) -> httpx.Response:
+        return await self._send("GET", path, params=params)
+
+    async def _send(
+        self,
+        method: str,
+        path: str,
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
+    ) -> httpx.Response:
         try:
-            return await self.ctx.http.get(
+            return await self.ctx.http.request(
+                method,
                 BASE_URL + path,
                 params=params,
+                json=json,
                 headers={"X-API-Key": self.ctx.secrets["api_key"], "Accept": "application/json"},
             )
         except httpx.TimeoutException:

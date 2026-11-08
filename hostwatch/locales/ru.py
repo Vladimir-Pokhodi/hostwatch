@@ -61,6 +61,7 @@ MESSAGES: dict[str, str] = {
     "error.rate_limited": "хостер просит обращаться реже",
     "error.blocked": "хостер заблокировал запрос",
     "error.layout_changed": "хостер изменил ответ, плагин устарел",
+    "error.browser_busy": "браузер занят входом, попробуйте через несколько минут",
     "error.hoster_error": "хостер отказал",
     "error.plugin_error": "ошибка плагина",
     "error.timeout": "хостер не ответил вовремя",
@@ -145,6 +146,48 @@ MESSAGES: dict[str, str] = {
     "balance.line": "<b>{title}</b>: {amount} (на {date})",
     "balance.hours_left": "Хостер считает, что хватит на {hours} ч.",
     "balance.topup": "Пополнить {title}",
+    "topup.title": "<b>Пополнение: {title}</b>",
+    "topup.balance": "Баланс: {amount}",
+    "topup.choose_method": "Как платить?",
+    "topup.choose_network": "Какая монета и сеть?",
+    "topup.sbp": "СБП ({name})",
+    "topup.crypto": "Криптовалюта",
+    "topup.crypto_one": "Криптовалюта ({name})",
+    "topup.method": "Способ: {name}",
+    "topup.minimum": "Минимум: {amount}",
+    "topup.choose_amount": "Какую сумму?",
+    "topup.amount_minimum": "Минимум: {amount}",
+    "topup.amount_until": "До конца следующего месяца: {amount}",
+    "topup.amount_custom": "Своя сумма",
+    "topup.ask_amount": "Напишите сумму в {currency}, например 500 или 12.50.",
+    "topup.below_minimum": "Это меньше минимума ({amount}). Напишите сумму побольше.",
+    "topup.creating": "Создаю счёт у хостера…",
+    "topup.invoice_title": "<b>Счёт на пополнение: {title}</b>",
+    "topup.invoice_line": "Сумма: {amount}, способ: {method}",
+    "topup.invoice_id": "Номер счёта у хостера: {id}",
+    "topup.pay_sbp": (
+        '<a href="{url}">Оплатить по СБП</a>: на телефоне откроется выбор банка.'
+        " С другого устройства отсканируйте QR. Ссылка живёт около 10 минут."
+    ),
+    "topup.pay_page": '<a href="{url}">Страница оплаты</a>. Там же можно выбрать способ.',
+    "topup.send_exactly": "Переведите ровно {amount} на адрес:",
+    "topup.expires": "Адрес действует до {date}.",
+    "topup.press_paid": "Когда оплатите, нажмите «Оплатил»: я проверю баланс.",
+    "topup.open": "Открыть оплату",
+    "topup.paid": "✅ Оплатил",
+    "topup.page": "Страница пополнения у хостера",
+    "topup.need_login": (
+        "Чтобы выставить счёт в {title}, нужен вход в кабинет. Войдите заново"
+        " или пополните на странице хостера."
+    ),
+    "topup.failed": "Счёт не создался: {reason}. Можно пополнить на странице хостера.",
+    "topup.will_check": "Проверю баланс через 2, 5 и 10 минут.",
+    "topup.already_checking": "Уже проверяю баланс по этому счёту.",
+    "topup.arrived": "<b>Пополнение дошло: {title}</b>\nБаланс: {amount}",
+    "topup.not_seen": (
+        "{title}: за {minutes} минут пополнение не видно. Если деньги списались,"
+        " они придут позже: баланс я продолжу читать по расписанию."
+    ),
     "integrations.title": "<b>Интеграции</b>",
     "integrations.account": "{title}: {status}",
     "integrations.ask_label": (

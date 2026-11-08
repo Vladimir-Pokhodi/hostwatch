@@ -121,6 +121,13 @@ class LoginService:
         self._links[token] = Link(target, self._clock())
         return token
 
+    def busy(self) -> bool:
+        """A login runs or a fresh link may be opened any moment: the browser is spoken for."""
+        if self.session is not None:
+            return True
+        now = self._clock()
+        return any(now - link.created <= self.link_ttl for link in self._links.values())
+
     def redeem(self, token: str) -> LoginTarget | None:
         """Burn the token. None if it is unknown, used or too old."""
         link = self._links.pop(token, None)

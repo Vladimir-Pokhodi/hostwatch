@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable, Iterable, Mapping
+from contextlib import AbstractAsyncContextManager
 from dataclasses import dataclass
 from enum import StrEnum
 from fnmatch import fnmatchcase
-from typing import TYPE_CHECKING, ClassVar, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, ClassVar, Protocol, runtime_checkable
 
 import httpx
 
@@ -89,17 +90,31 @@ class PluginMeta:
     currency: str
 
 
+class Pages(Protocol):
+    """A headless browser tab for pages that only work in a browser (Cryptomus at Regxa).
+
+    `open` yields a Playwright `Page` that may only reach `allowed_domains` and their
+    subdomains. It raises `BrowserBusy` while the one Chromium the server can afford is
+    taken, e.g. by a login.
+    """
+
+    def open(self, allowed_domains: tuple[str, ...]) -> AbstractAsyncContextManager[Any]: ...
+
+
 class PluginContext:
-    """What the core gives a plugin for one call: account secrets and an HTTP client."""
+    """What the core gives a plugin for one call: account secrets, an HTTP client and,
+    when the `browser` container is there, a headless browser tab."""
 
     def __init__(
         self,
         secrets: Secrets,
         http: httpx.AsyncClient,
         save_secrets: Callable[[Secrets], Awaitable[None]],
+        pages: Pages | None = None,
     ) -> None:
         self.secrets: Secrets = dict(secrets)
         self.http = http
+        self.pages = pages
         self._save_secrets = save_secrets
 
     async def rotate_secrets(self, secrets: Secrets) -> None:
@@ -116,6 +131,8 @@ class Plugin(ABC):
     # JSON paths with names the owner chose, e.g. "items.*.name"; `hostwatch record`
     # replaces their values. Emails, IPs, ids and secrets are replaced without this list.
     record_names: ClassVar[tuple[str, ...]] = ()
+    # The hoster's top-up page: the bot gives it when an invoice cannot be made by requests.
+    topup_page: ClassVar[str | None] = None
 
     @classmethod
     def record_text(cls, text: str, scrubber: Scrubber) -> str:

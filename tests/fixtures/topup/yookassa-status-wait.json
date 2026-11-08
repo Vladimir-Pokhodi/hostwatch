@@ -1,0 +1,7 @@
+{
+  "status": "success",
+  "payload": {
+    "status": "SbpPaymentStarting",
+    "canBeRestarted": false
+  }
+}

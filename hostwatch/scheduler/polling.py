@@ -149,6 +149,16 @@ class Poller:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
 
+    @property
+    def runner(self) -> AccountRunner:
+        return self._runner
+
+    async def read_balance(self, account_id: int) -> Balance:
+        """Read the balance now and keep it in the history, e.g. after a top-up."""
+        balance = await self._runner.call(account_id, lambda plugin: plugin.balance())
+        self._balances.add(account_id, balance.money, self._now(), balance.hours_left)
+        return balance
+
     def refresh(self, account_id: int) -> bool:
         """The «Refresh» button: poll now, at most once a minute. False if it was refused."""
         schedule = self.schedules.get(account_id)

@@ -1,0 +1,14 @@
+[
+  {
+    "address": "",
+    "customer_id": "00000001",
+    "fio": "fio-1",
+    "hidden": false,
+    "id": 100003,
+    "passport_number": "",
+    "passport_series": "",
+    "payer_info": "",
+    "resident": true,
+    "type": "person"
+  }
+]

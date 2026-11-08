@@ -31,6 +31,12 @@ class LayoutChanged(PluginError):
     code = "layout_changed"
 
 
+class BrowserBusy(PluginError):
+    """The headless browser is taken (a login is running): try again in a few minutes."""
+
+    code = "browser_busy"
+
+
 class HosterError(PluginError):
     """The hoster refused with a reason that is safe to show to the owner."""
 
@@ -60,6 +66,7 @@ ERROR_CODES = (
     "rate_limited",
     "blocked",
     "layout_changed",
+    "browser_busy",
     "hoster_error",
     "plugin_error",
     "timeout",

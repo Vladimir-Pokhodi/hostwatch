@@ -99,6 +99,11 @@ MIGRATIONS: list[str] = [
     """
     ALTER TABLE balance_history ADD COLUMN hours_left REAL;
     """,
+    # Top-up invoices: the hoster's invoice id, and the balance when «Paid» was pressed.
+    """
+    ALTER TABLE payments ADD COLUMN external_id TEXT NOT NULL DEFAULT '';
+    ALTER TABLE payments ADD COLUMN balance_before TEXT;
+    """,
 ]
 
 

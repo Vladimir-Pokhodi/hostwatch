@@ -1,4 +1,4 @@
-"""AdminVPS (my.adminvps.ru): servers, balance and traffic from the cabinet's HTML. Read-only.
+"""AdminVPS (my.adminvps.ru): servers, balance and traffic from the cabinet's HTML; SBP top-up.
 
 The cabinet is WHMCS behind DDoS-Guard. The WHMCS session cookie is `WHMCS<random>`;
 DDoS-Guard sets `__ddg*` cookies tied to the visitor's IP. A session made by the
@@ -8,6 +8,8 @@ browser login on the bot's server passes DDoS-Guard with plain httpx (checked
 One poll reads the services list, then for every live service its page (SolusVM server
 id, IP, autorenewal buttons) and the SolusVM module's JSON (state, traffic): 1 + 2N
 requests, one after another, like a person clicking through.
+
+Top-up by SBP goes through WHMCS «Add funds» and the PayMaster gateway (`paymaster.py`).
 """
 
 from __future__ import annotations
@@ -15,24 +17,36 @@ from __future__ import annotations
 import logging
 import re
 from datetime import UTC, datetime
+from decimal import Decimal
 from fnmatch import fnmatchcase
 
 import httpx
 
-from hostwatch.core.errors import AuthExpired, Blocked, HosterError, RateLimited, describe
+from hostwatch.core.errors import (
+    AuthExpired,
+    Blocked,
+    HosterError,
+    LayoutChanged,
+    PluginError,
+    RateLimited,
+    describe,
+)
 from hostwatch.core.models import (
     Autorenew,
     Balance,
     BillingModel,
     Money,
+    Payment,
     Server,
     ServerKind,
     ServerStatus,
+    TopupKind,
+    TopupMethod,
     Usage,
 )
 from hostwatch.core.plugin import BrowserAuth, Plugin, PluginContext, PluginMeta, cookie_header
 from hostwatch.core.record import Scrubber
-from hostwatch.plugins.adminvps import pages
+from hostwatch.plugins.adminvps import pages, paymaster
 from hostwatch.plugins.adminvps.scrub import scrub_page
 
 SITE = "https://my.adminvps.ru"
@@ -63,12 +77,18 @@ SOLUSVM_STATES = {
     "disabled": ServerStatus.SUSPENDED,
 }
 DEDICATED = re.compile(r"(?i)выделенн|dedicated")
+SBP_METHOD = "paymaster_sbp"
+# The add-funds page says: from 100 to 200 000 ₽.
+MIN_TOPUP = Decimal(100)
+MAX_TOPUP = Decimal(200_000)
+FORM_HEADERS = {**HTML_HEADERS, "Origin": SITE, "Referer": f"{CLIENTAREA}?action=addfunds"}
 
 log = logging.getLogger(__name__)
 
 
 class AdminVpsPlugin(Plugin):
     meta = PluginMeta(id="adminvps", name="AdminVPS", site=SITE, auth=(AUTH,), currency=CURRENCY)
+    topup_page = f"{CLIENTAREA}?action=addfunds"
     record_names = (
         "vserverData.hostname",
         "vserverData.mac",
@@ -110,6 +130,106 @@ class AdminVpsPlugin(Plugin):
             measured_at=datetime.now(UTC),
             traffic_gb=pages.traffic_gb(data.bandwidthused) if data else None,
         )
+
+    async def topup_methods(self) -> list[TopupMethod]:
+        minimum = Money(amount=MIN_TOPUP, currency=CURRENCY)
+        return [TopupMethod(id=SBP_METHOD, name="СБП", kind=TopupKind.SBP, minimum=minimum)]
+
+    async def topup(self, amount: Money, method_id: str) -> Payment:
+        if method_id != SBP_METHOD:
+            raise HosterError(f"unknown method {method_id}")
+        value = amount.amount
+        if amount.currency != CURRENCY or not MIN_TOPUP <= value <= MAX_TOPUP:
+            raise HosterError(f"the amount must be from {MIN_TOPUP} to {MAX_TOPUP} ₽")
+        if value != value.quantize(Decimal("0.01")):
+            raise HosterError("the amount must be in whole kopecks")
+        token = pages.form_token(pages.parse(await self._page({"action": "addfunds"})))
+        fields = {"token": token, "amount": f"{value:f}", "paymentmethod": SBP_METHOD}
+        form = paymaster.gateway_form(
+            await self._post_form(f"{CLIENTAREA}?action=addfunds", fields)
+        )
+        if form.amount != value:
+            raise LayoutChanged
+        payment = Payment(
+            id=form.invoice_id,
+            amount=amount,
+            method=method_id,
+            created_at=datetime.now(UTC),
+            url=f"{SITE}/viewinvoice.php?id={form.invoice_id}",
+        )
+        try:
+            link = await self._paymaster(form)
+        except (PluginError, TimeoutError) as exc:
+            # The invoice is made; its page in the cabinet still pays it.
+            log.warning("adminvps: no SBP link from PayMaster: %s", describe(exc))
+            return payment
+        return payment.model_copy(update={"url": link, "qr_data": link})
+
+    async def _paymaster(self, form: paymaster.GatewayForm) -> str:
+        """What the browser does after WHMCS: post the form, open the page, choose SBP."""
+        accept = {"Accept": HTML_HEADERS["Accept"]}
+        init = await self._outside(
+            "POST", form.action, data=form.fields, headers={**accept, "Referer": f"{SITE}/"}
+        )
+        page = init.headers.get("location", "")
+        public_id = paymaster.payment_id(page)
+        page_url = page if page.startswith("https://") else paymaster.SITE + page
+        await self._outside("GET", page_url, headers=accept)
+        auth = await self._outside(
+            "POST",
+            paymaster.AUTH,
+            json={"paymentMethodAlias": "SBP"},
+            headers={
+                "Accept": "application/json",
+                "Origin": paymaster.SITE,
+                "Referer": page_url,
+                "x-public-id": public_id,
+            },
+        )
+        return paymaster.sbp_link(auth.content)
+
+    async def _outside(
+        self,
+        method: str,
+        url: str,
+        data: dict[str, str] | None = None,
+        json: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> httpx.Response:
+        """A request to the payment gateway: no cabinet cookies, no redirects followed."""
+        try:
+            response = await self.ctx.http.request(
+                method, url, data=data, json=json, headers=headers, follow_redirects=False
+            )
+        except httpx.TimeoutException:
+            raise TimeoutError from None
+        except httpx.TransportError as exc:
+            raise HosterError(f"network: {type(exc).__name__}") from None
+        if response.status_code >= 400:
+            raise HosterError(f"PayMaster: HTTP {response.status_code}")
+        return response
+
+    async def _post_form(self, url: str, fields: dict[str, str]) -> str:
+        """POST a cabinet form. WHMCS answers with the next page, or a redirect to it."""
+        try:
+            response = await self.ctx.http.post(
+                url,
+                data=fields,
+                headers={**FORM_HEADERS, "Cookie": cookie_header(self._cookies, AUTH)},
+                follow_redirects=False,
+            )
+        except httpx.TimeoutException:
+            raise TimeoutError from None
+        except httpx.TransportError as exc:
+            raise HosterError(f"network: {type(exc).__name__}") from None
+        await self._keep_cookies(response)
+        location = response.headers.get("location", "")
+        found = pages.INVOICE_LINK.search(location)
+        if response.is_redirect and found:
+            return await self._page_at(f"{SITE}/viewinvoice.php", {"id": found.group(1)})
+        _check_status(response)
+        _check_page(response.text)
+        return response.text
 
     async def _server(self, row: pages.ServiceRow) -> Server:
         details = pages.ServiceDetails(None, None, Autorenew.NOT_AVAILABLE)
@@ -167,7 +287,10 @@ class AdminVpsPlugin(Plugin):
         return data
 
     async def _page(self, params: dict[str, str]) -> str:
-        html = (await self._get(CLIENTAREA, params, HTML_HEADERS)).text
+        return await self._page_at(CLIENTAREA, params)
+
+    async def _page_at(self, url: str, params: dict[str, str]) -> str:
+        html = (await self._get(url, params, HTML_HEADERS)).text
         _check_page(html)
         return html
 
@@ -186,15 +309,7 @@ class AdminVpsPlugin(Plugin):
         except httpx.TransportError as exc:
             raise HosterError(f"network: {type(exc).__name__}") from None
         await self._keep_cookies(response)
-        status = response.status_code
-        if status in (301, 302, 303, 307, 308):
-            raise AuthExpired  # WHMCS sends a guest to the login page
-        if status == 403:
-            raise Blocked
-        if status == 429:
-            raise RateLimited
-        if status >= 400:
-            raise HosterError(f"HTTP {status}")
+        _check_status(response)
         return response
 
     async def _keep_cookies(self, response: httpx.Response) -> None:
@@ -211,6 +326,18 @@ class AdminVpsPlugin(Plugin):
     @classmethod
     def record_text(cls, text: str, scrubber: Scrubber) -> str:
         return scrub_page(text, scrubber)
+
+
+def _check_status(response: httpx.Response) -> None:
+    status = response.status_code
+    if status in (301, 302, 303, 307, 308):
+        raise AuthExpired  # WHMCS sends a guest to the login page
+    if status == 403:
+        raise Blocked
+    if status == 429:
+        raise RateLimited
+    if status >= 400:
+        raise HosterError(f"HTTP {status}")
 
 
 def _check_page(html: str) -> None:

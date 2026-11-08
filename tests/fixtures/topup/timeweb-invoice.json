@@ -1,0 +1,24 @@
+{
+  "invoice_chksum": "00000000000000000000000000000000",
+  "invoice_id": 100004,
+  "payment_info": {
+    "amount": {
+      "currency": "RUB",
+      "value": "500.00"
+    },
+    "confirmation": {
+      "confirmation_url": "https://yoomoney.ru/checkout/payments/v2/contract/sbp?orderId=30000000-000f-5000-8000-000000000001",
+      "type": "redirect"
+    },
+    "created_at": "2026-11-08T12:10:00.000Z",
+    "description": "{100004}",
+    "id": "30000000-000f-5000-8000-000000000001",
+    "metadata": {
+      "invoice_id": "100004"
+    },
+    "paid": false,
+    "status": "pending",
+    "test": false
+  },
+  "pdf_url": null
+}

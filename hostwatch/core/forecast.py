@@ -116,6 +116,31 @@ def forecast(
     )
 
 
+def needed_until(
+    balance: Balance,
+    servers: Sequence[Server],
+    now: datetime,
+    until: datetime,
+    autopay: frozenset[str] = frozenset(),
+) -> Money:
+    """How much to add so that the money lasts until `until`; zero if it already does."""
+    currency = balance.money.currency
+    spend = _hourly_rate(servers, currency) * _hours(max(until - now, timedelta(0)))
+    renewing = [s for s in servers if _renews(s, autopay) and _priced(s, currency)]
+    for charge in _future_charges(renewing, now):
+        if charge.at <= until:
+            spend += charge.amount
+    missing = spend - balance.money
+    return missing if missing.amount > 0 else Money(amount=Decimal(0), currency=currency)
+
+
+def end_of_next_month(now: datetime, tz: tzinfo) -> datetime:
+    """Midnight that starts the month after next, in the owner's time zone."""
+    local = now.astimezone(tz)
+    first = local.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    return add_months(first, 2)
+
+
 def add_months(value: datetime, months: int) -> datetime:
     month_index = value.month - 1 + months
     year, month = value.year + month_index // 12, month_index % 12 + 1

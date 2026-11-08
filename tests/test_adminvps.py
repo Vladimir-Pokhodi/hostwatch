@@ -70,7 +70,7 @@ async def test_adminvps_passes_contract(hoster: respx.MockRouter) -> None:
 
 
 def test_capabilities() -> None:
-    assert capabilities(AdminVpsPlugin) == {Capability.USAGE}
+    assert capabilities(AdminVpsPlugin) == {Capability.USAGE, Capability.TOPUP}
     assert not AdminVpsPlugin.login_only
 
 

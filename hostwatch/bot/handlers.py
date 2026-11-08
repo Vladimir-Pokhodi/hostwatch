@@ -39,7 +39,6 @@ from .callbacks import (
     RefreshCb,
     ServerCb,
     SetCb,
-    TopupCb,
 )
 from .hub import AccountData, Hub, key_fields
 from .login import parse_cookie_text
@@ -63,7 +62,9 @@ def on(event: str, *filters: Any) -> Callable[[Handler], Handler]:
 
 def make_router() -> Router:
     router = Router(name="hostwatch")
-    for event, handler, filters in _ROUTES:
+    # The catch-all for text goes last, whichever module registered its handlers first.
+    routes = sorted(_ROUTES, key=lambda route: route[1] is on_other_text)
+    for event, handler, filters in routes:
         getattr(router, event).register(handler, *filters)
     return router
 
@@ -375,11 +376,6 @@ async def on_action(query: CallbackQuery, callback_data: ActionCb, hub: Hub) -> 
     await answer(query, view(hub).t("stub", stage=stage), alert=True)
 
 
-@on("callback_query", TopupCb.filter())
-async def on_topup(query: CallbackQuery, hub: Hub) -> None:
-    await answer(query, view(hub).t("stub", stage=9), alert=True)
-
-
 @on("callback_query", JournalCb.filter())
 async def on_journal_page(query: CallbackQuery, callback_data: JournalCb, hub: Hub) -> None:
     await answer(query)
@@ -683,3 +679,7 @@ async def on_cookie_text(message: Message, hub: Hub, state: FSMContext) -> None:
 @on("message", F.text & ~F.text.startswith("/"))
 async def on_other_text(message: Message, hub: Hub) -> None:
     await show(message, await screen_for(hub, "menu"))
+
+
+# Top-up handlers live in their own module; importing it registers them.
+from . import topup  # noqa: E402, F401

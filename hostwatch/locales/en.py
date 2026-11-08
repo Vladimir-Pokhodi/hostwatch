@@ -62,6 +62,7 @@ MESSAGES: dict[str, str] = {
     "error.rate_limited": "the hoster asks to slow down",
     "error.blocked": "the hoster blocked the request",
     "error.layout_changed": "the hoster changed its answers; the plugin is outdated",
+    "error.browser_busy": "the browser is busy with a login; try again in a few minutes",
     "error.hoster_error": "the hoster refused",
     "error.plugin_error": "plugin error",
     "error.timeout": "the hoster did not answer in time",
@@ -146,6 +147,48 @@ MESSAGES: dict[str, str] = {
     "balance.line": "<b>{title}</b>: {amount} (as of {date})",
     "balance.hours_left": "The hoster says it lasts {hours} h.",
     "balance.topup": "Top up {title}",
+    "topup.title": "<b>Top up: {title}</b>",
+    "topup.balance": "Balance: {amount}",
+    "topup.choose_method": "How do you pay?",
+    "topup.choose_network": "Which coin and network?",
+    "topup.sbp": "SBP ({name})",
+    "topup.crypto": "Crypto",
+    "topup.crypto_one": "Crypto ({name})",
+    "topup.method": "Method: {name}",
+    "topup.minimum": "Minimum: {amount}",
+    "topup.choose_amount": "How much?",
+    "topup.amount_minimum": "Minimum: {amount}",
+    "topup.amount_until": "To the end of next month: {amount}",
+    "topup.amount_custom": "Other amount",
+    "topup.ask_amount": "Type the amount in {currency}, e.g. 500 or 12.50.",
+    "topup.below_minimum": "That is below the minimum ({amount}). Type a larger amount.",
+    "topup.creating": "Creating the invoice at the hoster…",
+    "topup.invoice_title": "<b>Top-up invoice: {title}</b>",
+    "topup.invoice_line": "Amount: {amount}, method: {method}",
+    "topup.invoice_id": "Invoice number at the hoster: {id}",
+    "topup.pay_sbp": (
+        '<a href="{url}">Pay by SBP</a>: on a phone it opens the choice of bank.'
+        " From another device, scan the QR. The link lives about 10 minutes."
+    ),
+    "topup.pay_page": '<a href="{url}">Payment page</a>. You can choose the method there.',
+    "topup.send_exactly": "Send exactly {amount} to this address:",
+    "topup.expires": "The address is valid until {date}.",
+    "topup.press_paid": "When you have paid, press «Paid»: I will check the balance.",
+    "topup.open": "Open the payment",
+    "topup.paid": "✅ Paid",
+    "topup.page": "Hoster's top-up page",
+    "topup.need_login": (
+        "To make an invoice at {title} the bot needs a cabinet login. Log in again"
+        " or top up on the hoster's page."
+    ),
+    "topup.failed": "The invoice was not created: {reason}. You can top up on the hoster's page.",
+    "topup.will_check": "I will check the balance in 2, 5 and 10 minutes.",
+    "topup.already_checking": "Already checking the balance for this invoice.",
+    "topup.arrived": "<b>The top-up arrived: {title}</b>\nBalance: {amount}",
+    "topup.not_seen": (
+        "{title}: no top-up seen in {minutes} minutes. If the money left your account,"
+        " it will arrive later; the balance is still read on schedule."
+    ),
     "integrations.title": "<b>Integrations</b>",
     "integrations.account": "{title}: {status}",
     "integrations.ask_label": (

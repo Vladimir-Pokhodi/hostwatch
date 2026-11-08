@@ -66,3 +66,38 @@ class Problem(Answer):
     """Error body: {"statusCode": 400, "message": "...", ...}."""
 
     message: str = ""
+
+
+class PaymentMethod(Answer):
+    """One item of `GET /billing/payment-methods`; `min` is in cents."""
+
+    slug: str
+    name: str
+    group: str
+    min: int
+
+
+class PaymentMethods(Answer):
+    items: list[PaymentMethod]
+
+
+class InvoicePayload(Answer):
+    """`url` of the ЮKassa page for SBP; address, amount and QR text for crypto."""
+
+    model_config = ConfigDict(frozen=True, extra="ignore", strict=False)
+
+    url: str | None = None
+    address: str | None = None
+    amount: Decimal | None = None
+    currency: str | None = None
+    qr: str | None = None
+
+
+class CreatedInvoice(Answer):
+    """Answer of `POST /billing/invoices`."""
+
+    id: int
+    status: str
+    amount: int
+    createdAt: AwareDatetime
+    payload: InvoicePayload

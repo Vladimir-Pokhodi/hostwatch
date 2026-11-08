@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "payload": {
+    "status": "SbpConfirmationRequired",
+    "qrCodeData": "https://qr.nspk.ru/AD10000000000000000000000000TEST",
+    "qrcId": "AD10000000000000000000000000TEST",
+    "canBeRestarted": true,
+    "hasPaymentStarted": false
+  }
+}

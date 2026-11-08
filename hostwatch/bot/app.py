@@ -34,11 +34,13 @@ from hostwatch.storage.repositories import (
     AlertRepository,
     BalanceHistoryRepository,
     JournalRepository,
+    PaymentRepository,
     ServerRepository,
     SettingsRepository,
     UsageRepository,
 )
 from hostwatch.web.browser import remote_launcher
+from hostwatch.web.headless import HeadlessPages
 from hostwatch.web.login import LoginEvents, LoginService
 from hostwatch.web.server import serve, serve_admin
 
@@ -179,7 +181,15 @@ async def run(settings: Settings) -> None:
     conn = connect(settings.data_dir / DB_NAME)
     registry = discover(settings.plugins_dir)
     accounts = AccountRepository(conn, settings.encryption_key)
-    runner = AccountRunner(accounts, registry, make_client)
+    launcher = remote_launcher(settings.browser_url)
+    login: list[BotLogin] = []
+
+    def browser_busy() -> bool:
+        return bool(login) and login[0].service.busy()
+
+    runner = AccountRunner(
+        accounts, registry, make_client, pages=HeadlessPages(launcher, browser_busy)
+    )
     poller = Poller(
         runner,
         accounts,
@@ -203,18 +213,19 @@ async def run(settings: Settings) -> None:
             prefs=prefs,
             poller=poller,
             rates=CbrRates(rates_http),
+            payments=PaymentRepository(conn),
             own_ip=settings.hostwatch_ip,
             backups=Backups(conn, settings.data_dir / "backups", settings_repo, lambda: prefs.tz),
         )
         bot = await make_bot(settings.bot_token.get_secret_value(), settings.tg_proxy)
         dp = build_dispatcher(hub, settings.owner_id)
         owner = Owner(bot, settings.owner_id)
-        launcher = remote_launcher(settings.browser_url)
 
         def login_service(events: LoginEvents) -> LoginService:
             return LoginService(launcher, events)
 
         hub.login = BotLogin(hub, login_service, owner, make_client, settings.hostwatch_domain)
+        login.append(hub.login)
         web = await serve(hub.login.service)
         admin = await serve_admin(hub.login.resolve, hub.login.send_link)
         jobs = _jobs(hub, owner, settings, http, AlertRepository(conn), settings_repo)
@@ -226,6 +237,8 @@ async def run(settings: Settings) -> None:
             for task in tasks:
                 task.cancel()
             await asyncio.gather(*tasks, return_exceptions=True)
+            for task in list(hub.background):
+                task.cancel()
             await hub.login.close()
             await web.cleanup()
             await admin.cleanup()

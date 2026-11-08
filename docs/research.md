@@ -17,7 +17,7 @@
 | Крипта | нет | да, адрес отдаёт сам API | да, через Cryptomus | нет |
 | Автопродление | не нужно, оплата почасовая | да | нет | да |
 | Питание | API | да | да | да |
-| Минимальное пополнение | больше 100 ₽ (500 ₽ проходит) | €0.50 СБП, €5 крипта | $5 | 100 ₽ |
+| Минимальное пополнение | 500 ₽ (101 и 200 ₽ не проходят) | €0.50 СБП, €5–10 крипта | $5 | 100 ₽ |
 
 ## Timeweb Cloud
 
@@ -30,7 +30,8 @@
 
 - Cookie `refresh_token` живёт 30 дней. Cookie `device_token` живёт год.
 - `POST https://timeweb.cloud/api/v1/auth/update-token` с этими cookie отдаёт `tokens.access_token` на 15 минут и новый `refresh_token`. **Старый refresh-токен после этого недействителен.** Новый нужно сохранять каждый раз, иначе сессия пропадёт. По той же причине бот и браузер человека не могут делить одну сессию.
-- Плательщик: `GET /portal/v1/accounts/<логин аккаунта>/payers?type=person`, нужен `id`.
+- Запросы панели идут на `https://timeweb.cloud/portal/...` с заголовком `Authorization: Bearer <access_token>`. Логин аккаунта — claim `user` в access-токене (это JWT).
+- Плательщик: `GET /portal/v1/accounts/<логин аккаунта>/payers?type=person` — голый список, нужен `id` (проверено 08.11).
 - Счёт: `POST /portal/v4/invoices`
 
 ```json
@@ -45,9 +46,10 @@
 }
 ```
 
-  В ответе `payment_info.confirmation.confirmation_url` — ссылка на страницу ЮKassa. Как из неё получить ссылку СБП, описано ниже в разделе «ЮKassa». Если сумма меньше минимальной, приходит `amount_less_minimal`; 100 ₽ сайт уже не принимает.
+  В ответе `invoice_id` (номер счёта) и `payment_info.confirmation.confirmation_url` — ссылка на страницу ЮKassa. Как из неё получить ссылку СБП, описано ниже в разделе «ЮKassa». Если сумма меньше минимальной, приходит 400 `{"error_code": "amount_less_minimal"}`: 08.11 так отказали 101 и 200 ₽, 500 ₽ прошли.
+- `update-token` (проверено 08.11 с сервера бота): 201, новые `refresh_token` и `device_token` приходят в `Set-Cookie`, access-токен — в теле. Плагин сохраняет cookie сразу, до разбора тела.
 
-QRATOR запросы из Python пропустил. С IP дата-центра это ещё не проверялось.
+QRATOR пропускает запросы из Python и с IP сервера бота (2.56.122.88, проверено 08.11).
 
 ## Aeza
 
@@ -64,6 +66,8 @@ QRATOR запросы из Python пропустил. С IP дата-центр�
 - Счёт: `POST /billing/invoices` `{"method": "...", "amount": <центы>}`.
   - Для СБП в `payload.url` приходит ссылка ЮKassa.
   - Для крипты в `payload` сразу приходят `address`, `amount`, `currency` и строка для QR вида `адрес?amount=6.51`. Сумма в крипте больше суммы в евро на комиссию.
+  - В ответе ещё `id` счёта, `status: "created"`, `amount` в центах, `createdAt`. Списка счетов (`GET /billing/invoices`) нет: 404.
+  - Минимумы — поле `min` (в центах) в `/billing/payment-methods`: СБП 50, большинство монет 500, BTC/ETH/USDT ERC20 1000.
 
 Управление (автопродление, продление, питание) я нашёл в коде страниц, но не вызывал.
 
@@ -87,7 +91,9 @@ QRATOR запросы из Python пропустил. С IP дата-центр�
   1. `POST /api/billing/addfunds` `{"amount": 5}` → `data.invoiceid`.
   2. `POST /api/billing/cryptomus/create-payment` `{"invoiceId", "returnUrl"}` → ссылка `https://pay.cryptomus.com/pay/<uuid>`.
 
-**Адрес кошелька Cryptomus без браузера не получить.** Страница выбирает сеть запросом `POST https://api-pay.cryptomus.com/v1/payment/method`, а в нём зашифрованный «отпечаток браузера». Поэтому адрес достаёт только браузер без окна на сервере. Запасной вариант — отправить человеку ссылку.
+  Ответы (08.11): `addfunds` → `{"success": true, "data": {"invoiceid", "total", "status"}}`; `create-payment` → `{"success": true, "url": "https://pay.cryptomus.com/pay/<uuid>"}`.
+
+**Адрес кошелька Cryptomus без браузера не получить.** Страница выбирает сеть запросом `POST https://api-pay.cryptomus.com/v1/payment/method`, а в нём зашифрованный «отпечаток браузера». Поэтому адрес достаёт браузер без окна в контейнере `browser` (проверено 08.11): «Select currency» → монета → «Select network» → сеть («TRON (TRC-20)», «BSC (BEP-20)», «TON») → «Proceed to the payment». Ответ `payment/method` содержит `address`, `payer_amount`, `payer_currency`, `network` (`tron`, `bsc`, `ton`), `expired_at` (час). Если сеть уже выбрана, адрес есть сразу в `payment/info` при загрузке. Названия сетей страница пишет через CSS заглавными («Ton» → «TON»), искать текст надо без учёта регистра. Запасной вариант — отправить человеку ссылку.
 
 ## AdminVPS
 
@@ -105,9 +111,9 @@ QRATOR запросы из Python пропустил. С IP дата-центр�
   - Состояние видно по тому, какая из кнопок `mg-hosting-renewals-turn-on-button` / `turn-off-button` не скрыта.
   - Действие открывается модальным окном: `loadModal(... 'turnOnRenewals' | 'turnOffRenewals' | 'renewService' ...)`. Как отправляется форма подтверждения, ещё нужно посмотреть на тестовом сервере.
 - Пополнение:
-  1. `POST clientarea.php?action=addfunds` с полями `token`, `amount` (от 100) и `paymentmethod=paymaster_sbp`. Появляется счёт `viewinvoice.php?id=N`.
-  2. На странице счёта есть форма PayMaster (`https://paymaster.ru/Payment/Init`). Бот отправляет её сам и получает редирект на `https://paymaster.ru/cpay/<id>`.
-  3. `POST https://paymaster.ru/cpay/api/Auth/AuthPaymentExternal` с заголовком `x-public-id: <id с дефисами>` и телом `{"paymentMethodAlias": "SBP"}`. После этого страница показывает ссылку `qr.nspk.ru`. Шаги 1 и 2 проверены из Python; шаг 3 пока только в браузере.
+  1. `POST clientarea.php?action=addfunds` с полями `token`, `amount` (от 100 до 200 000) и `paymentmethod=paymaster_sbp`. Ответ 200 — страница с формой PayMaster (`https://paymaster.ru/Payment/Init`, поля `LMI_*`; номер счёта — `LMI_PAYMENT_NO`). Счёт виден как `viewinvoice.php?id=N`, там та же форма.
+  2. Бот отправляет форму сам и получает `302` на `https://paymaster.ru/cpay/<id>` (32 hex без дефисов).
+  3. `POST https://paymaster.ru/cpay/api/Auth/AuthPaymentExternal` с заголовком `x-public-id: <id>` (как в ссылке, без дефисов) и телом `{"paymentMethodAlias": "SBP"}` → `data.authorizationResultExt.externalConfirmationInfoExt.paymentUrl` = ссылка `qr.nspk.ru`, `status: "AwaitingPayment"`. Все три шага проверены из Python с сервера бота 08.11.
 
 ## ЮKassa: как получить ссылку СБП
 
@@ -115,6 +121,8 @@ QRATOR запросы из Python пропустил. С IP дата-центр�
 
 1. `GET https://yoomoney.ru/checkout/payments/v2/contract/sbp?orderId=<id>`. В HTML страницы есть CSRF-токен вида `<40 hex>:<13 цифр>`.
 2. `POST https://yoomoney.ru/checkout/payments/v2/payment/sbp/start` `{"orderId": ...}` с заголовком `x-csrf-token`.
-3. `POST https://yoomoney.ru/checkout/payments/v2/payment/status` `{"orderId": ...}`. Повторять, пока в ответе не появится `payload.qrCodeData`. Это и есть ссылка `https://qr.nspk.ru/...`.
+3. `POST https://yoomoney.ru/checkout/payments/v2/payment/status` `{"orderId": ...}`. Повторять, пока в ответе не появится `payload.qrCodeData`. Это и есть ссылка `https://qr.nspk.ru/...`. 08.11 она пришла с первого опроса (`payload.status: "SbpConfirmationRequired"`).
+
+Ссылка ЮKassa от хостера имеет вид `https://yoomoney.ru/checkout/payments/v2/contract/sbp?orderId=<id>` (Aeza и Timeweb).
 
 Ссылка `qr.nspk.ru` открывает выбор банка прямо на телефоне. Из неё же рисуется QR-картинка для оплаты с другого устройства. Оплата через ЮKassa живёт около 10 минут, поэтому ссылку стоит запрашивать в момент, когда человек нажал «Пополнить», а не заранее.

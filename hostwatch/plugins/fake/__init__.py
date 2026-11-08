@@ -14,6 +14,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 
 from hostwatch.core.errors import AuthExpired, Blocked, HosterError, LayoutChanged, RateLimited
 from hostwatch.core.models import (
@@ -32,6 +33,7 @@ from hostwatch.core.models import (
     ServerAction,
     ServerKind,
     ServerStatus,
+    TopupKind,
     TopupMethod,
     Usage,
 )
@@ -116,15 +118,34 @@ class FakePlugin(Plugin):
 
     async def topup_methods(self) -> list[TopupMethod]:
         await self._behave()
-        return [TopupMethod(id="sbp", name="SBP", minimum=eur("0.50"))]
+        return [
+            TopupMethod(id="sbp", name="SBP", kind=TopupKind.SBP, minimum=eur("0.50")),
+            TopupMethod(id="usdt", name="USDT (TRC-20)", kind=TopupKind.CRYPTO, minimum=eur("5")),
+            TopupMethod(id="btc", name="Bitcoin", kind=TopupKind.CRYPTO, minimum=eur("10")),
+        ]
 
     async def topup(self, amount: Money, method_id: str) -> Payment:
+        """SBP gives a link; crypto an address, the way Aeza does."""
         await self._behave()
+        if method_id == "sbp":
+            link = "https://qr.nspk.ru/FAKE0000000000000000000000000000"
+            return Payment(
+                id="200",
+                amount=amount,
+                method=method_id,
+                url=link,
+                qr_data=link,
+                created_at=datetime.now(UTC),
+            )
+        address = "TFakeAddress000000000000000000000"
         return Payment(
-            id="200",
+            id="201",
             amount=amount,
             method=method_id,
-            url="https://fake.invalid/pay/200",
+            address=address,
+            qr_data=f"{address}?amount=5.45",
+            pay_amount=Decimal("5.45"),
+            pay_currency="USDT (TRC-20)",
             created_at=datetime.now(UTC),
         )
 

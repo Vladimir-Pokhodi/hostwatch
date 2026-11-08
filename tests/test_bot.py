@@ -67,6 +67,7 @@ from hostwatch.storage.repositories import (
     BalanceHistoryRepository,
     JournalEntry,
     JournalRepository,
+    PaymentRepository,
     ServerRepository,
     SettingsRepository,
     UsageRepository,
@@ -161,6 +162,7 @@ class Harness:
             prefs=Prefs(SettingsRepository(conn)),
             poller=self.poller,
             rates=FixedRates(),
+            payments=PaymentRepository(conn),
             now=lambda: NOW,
             hidden_plugins=frozenset(),
         )

@@ -1,0 +1,21 @@
+{
+  "state": 0,
+  "result": {
+    "success": true,
+    "payment": {
+      "uuid": "00000000-0000-4000-8000-000000000006",
+      "amount": "5",
+      "payer_amount": "5.02",
+      "payer_currency": "USDT",
+      "currency": "USD",
+      "network": "tron",
+      "token_standard": "TRC-20",
+      "address": "TTestAddressForFixtures00000000000",
+      "payment_status": "check",
+      "status": "check",
+      "is_final": false,
+      "expired_at": "2026-11-08T16:00:00+03:00",
+      "created_at": "2026-11-08T15:00:00+03:00"
+    }
+  }
+}

@@ -22,6 +22,7 @@ from hostwatch.core.models import Autorenew
 TZ = ZoneInfo("Europe/Moscow")
 NUMBER = re.compile(r"-?\d[\d\s]*(?:[.,]\d+)?")
 SERVICE_ID = re.compile(r"[?&](?:amp;)?id=(\d+)")
+INVOICE_LINK = re.compile(r"viewinvoice\.php\?id=(\d+)")
 VSERVER_ID = re.compile(r"\bvar\s+vserverid\s*=\s*['\"]?(\d+)")
 TRAFFIC = re.compile(r"^\s*([\d.,]+)\s*([KMGTP]?)i?B\s*$", re.IGNORECASE)
 TRAFFIC_UNITS = {"": 1 / 1024**3, "K": 1 / 1024**2, "M": 1 / 1024, "G": 1, "T": 1024, "P": 1024**2}
@@ -219,6 +220,15 @@ def traffic_gb(text: str | None) -> float | None:
         raise LayoutChanged
     number, unit = found.groups()
     return float(number.replace(",", ".")) * TRAFFIC_UNITS[unit.upper()]
+
+
+def form_token(page: LexborHTMLParser) -> str:
+    """CSRF `token` of the «Add funds» form."""
+    field = page.css_first('form[action*="addfunds"] input[name="token"]')
+    token = (field.attributes.get("value") or "") if field is not None else ""
+    if not token:
+        raise LayoutChanged
+    return token
 
 
 def is_logged_in(html: str) -> bool:

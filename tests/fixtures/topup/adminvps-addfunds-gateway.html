@@ -1,0 +1,14 @@
+<!doctype html><html><head><title>Панель клиента - AdminVPS</title></head><body>
+<a class="balance-link" href="/payments.php">1000.00 руб.</a>
+<a href="/logout.php">Выход</a>
+<p><a href="viewinvoice.php?id=100007">#100007</a></p>
+<form method="post" action="https://paymaster.ru/Payment/Init">
+<input type="hidden" name="LMI_MERCHANT_ID" value="00000000-0000-4000-8000-000000000008"/>
+<input type="hidden" name="LMI_PAYMENT_DESC_BASE64" value="dGVzdA=="/>
+<input type="hidden" name="LMI_PAYMENT_NO" value="100007"/>
+<input type="hidden" name="LMI_PAYMENT_AMOUNT" value="100.00"/>
+<input type="hidden" name="LMI_PAYMENT_METHOD" value="SBP"/>
+<input type="hidden" name="LMI_CURRENCY" value="RUB"/>
+<input type="hidden" name="LMI_PAYER_EMAIL" value="owner@example.com"/>
+<input type="submit" value="Оплатить"/>
+</form></body></html>

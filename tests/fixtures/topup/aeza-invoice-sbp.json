@@ -1,0 +1,13 @@
+{
+  "id": 100001,
+  "status": "created",
+  "amount": 50,
+  "scenario": null,
+  "externalId": "30000000-000f-5000-8000-000000000001",
+  "payload": {
+    "url": "https://yoomoney.ru/checkout/payments/v2/contract/sbp?orderId=30000000-000f-5000-8000-000000000001"
+  },
+  "receiptUrl": null,
+  "createdAt": "2026-11-08T12:00:00.000Z",
+  "performedAt": null
+}

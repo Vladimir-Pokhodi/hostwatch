@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -19,6 +20,7 @@ from hostwatch.storage.repositories import (
     AccountRepository,
     BalanceHistoryRepository,
     JournalRepository,
+    PaymentRepository,
     ServerRepository,
     UsageRepository,
 )
@@ -68,6 +70,7 @@ class Hub:
     prefs: Prefs
     poller: Poller
     rates: RatesSource
+    payments: PaymentRepository
     now: Callable[[], datetime] = field(default=lambda: datetime.now(UTC))
     hidden_plugins: frozenset[str] = HIDDEN_PLUGINS
     # Public IP of the server the bot runs on, once known (spec, decision 17).
@@ -75,6 +78,9 @@ class Hub:
     backups: Backups | None = None
     # Browser login (stage 06); None when the login page is not running.
     login: BotLogin | None = None
+    # After «Paid» the balance is read this many seconds later.
+    paid_checks: tuple[float, ...] = (120.0, 300.0, 600.0)
+    background: set[asyncio.Task[None]] = field(default_factory=set)
 
     def plugins(self) -> list[type[Plugin]]:
         ids = [pid for pid in self.registry.ids() if pid not in self.hidden_plugins]

@@ -1,0 +1,17 @@
+{
+  "id": 100002,
+  "status": "created",
+  "amount": 500,
+  "scenario": "crypto",
+  "externalId": "000000000000000000000002",
+  "payload": {
+    "qr": "TTestAddressForFixtures00000000000?amount=6.52",
+    "amount": 6.52,
+    "address": "TTestAddressForFixtures00000000000",
+    "currency": "USDT (TRC20)",
+    "strategy": "crypto"
+  },
+  "receiptUrl": null,
+  "createdAt": "2026-11-08T12:05:00.000Z",
+  "performedAt": null
+}

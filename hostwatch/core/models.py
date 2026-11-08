@@ -8,7 +8,7 @@ from decimal import Decimal
 from enum import StrEnum
 from typing import Annotated, Self
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, Strict
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, Strict, model_validator
 
 _SYMBOLS_BEFORE = {"EUR": "€", "USD": "$"}
 _SYMBOLS_AFTER = {"RUB": "₽"}
@@ -157,21 +157,46 @@ class Invoice(Model):
     server_id: str | None = None
 
 
+class TopupKind(StrEnum):
+    SBP = "sbp"
+    CRYPTO = "crypto"
+
+
 class TopupMethod(Model):
-    id: str
+    """A way to top up the balance. `id` goes into callback data: keep it under 30 bytes."""
+
+    id: str = Field(max_length=30)
     name: str
+    kind: TopupKind
+    # In the account currency.
     minimum: Money | None = None
 
 
 class Payment(Model):
-    """A top-up invoice the hoster created; the owner pays it by the link."""
+    """A top-up invoice the hoster created; the owner pays it by the link or the address.
+
+    `url` opens the payment: a `qr.nspk.ru` link for SBP, the payment page otherwise.
+    For crypto paid by hand there may be only `address` with the amount to send.
+    """
 
     id: str
     amount: Money
     method: str
-    url: str
     created_at: AwareDatetime
+    url: str | None = None
+    # What the QR picture encodes; a crypto QR holds the address and the amount.
     qr_data: str | None = None
+    address: str | None = None
+    # How much to send in the payment's own currency ("6.52", "USDT (TRC20)").
+    pay_amount: Decimal | None = None
+    pay_currency: str | None = None
+    expires_at: AwareDatetime | None = None
+
+    @model_validator(mode="after")
+    def _payable(self) -> Self:
+        if not self.url and not self.address:
+            raise ValueError("a payment needs a link or an address")
+        return self
 
 
 class Offer(Model):

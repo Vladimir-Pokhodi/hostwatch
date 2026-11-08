@@ -1,0 +1,10 @@
+<!doctype html><html><head><title>Панель клиента - AdminVPS</title></head><body>
+<a class="balance-link" href="/payments.php">1000.00 руб.</a>
+<a href="/logout.php">Выход</a>
+<p>Минимальная сумма 100.00 руб. Максимальная сумма 200000.00 руб.</p>
+<form method="post" action="/clientarea.php?action=addfunds">
+<input type="hidden" name="token" value="0000000000000000000000000000000000000001" />
+<input type="text" name="amount" value="100.00" />
+<select name="paymentmethod"><option value="paymaster_sbp">СБП</option></select>
+<input type="submit" value="Пополнить" />
+</form></body></html>

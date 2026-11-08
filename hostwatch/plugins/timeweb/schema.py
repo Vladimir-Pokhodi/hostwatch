@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, RootModel
 
 
 class Schema(BaseModel):
@@ -119,3 +119,42 @@ class StatisticsAnswer(Schema):
 
     def series(self, name: str) -> list[Point]:
         return [point for stat in self.statistics if stat.name == name for point in stat.points]
+
+
+# The panel's own API (timeweb.cloud/portal/...), used for top-up invoices only.
+# Checked on a live account 2026-11-08.
+
+
+class PanelTokens(Schema):
+    access_token: str
+    refresh_token: str | None = None
+
+
+class PanelTokensAnswer(Schema):
+    """`POST /api/v1/auth/update-token`; the new refresh token also comes as a cookie."""
+
+    tokens: PanelTokens
+
+
+class Payer(Schema):
+    id: int
+    hidden: bool = False
+
+
+class PayersAnswer(RootModel[list[Payer]]):
+    """`GET /portal/v1/accounts/<login>/payers?type=person`: a bare list (checked 2026-11-08)."""
+
+
+class Confirmation(Schema):
+    confirmation_url: str
+
+
+class PaymentInfo(Schema):
+    confirmation: Confirmation
+
+
+class InvoiceAnswer(Schema):
+    """`POST /portal/v4/invoices`: `payment_info.confirmation.confirmation_url` is ЮKassa."""
+
+    invoice_id: int
+    payment_info: PaymentInfo

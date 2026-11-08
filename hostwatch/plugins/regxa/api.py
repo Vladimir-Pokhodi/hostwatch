@@ -142,3 +142,23 @@ class InvoiceDetails(Answer):
 
     def lines(self) -> list[InvoiceItem]:
         return self.items.item if isinstance(self.items, InvoiceItems) else []
+
+
+class AddedFunds(Answer):
+    invoiceid: int
+
+
+class AddFunds(Answer):
+    """`POST /api/billing/addfunds {"amount"}`: a WHMCS "Add Funds" invoice."""
+
+    success: bool
+    message: str = ""
+    data: AddedFunds | None = None
+
+
+class CryptomusLink(Answer):
+    """`POST /api/billing/cryptomus/create-payment {"invoiceId", "returnUrl"}`."""
+
+    success: bool
+    url: str | None = None
+    message: str = ""

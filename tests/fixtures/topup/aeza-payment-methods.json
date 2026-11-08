@@ -1,0 +1,79 @@
+{
+  "groups": [
+    {
+      "slug": "online",
+      "name": "Online"
+    },
+    {
+      "slug": "crypto",
+      "name": "Crypto"
+    }
+  ],
+  "items": [
+    {
+      "icon": "https://io.aeza.net/icons/payment/x.svg",
+      "payload": {
+        "lang": [
+          "ru"
+        ],
+        "exchangeNotice": false
+      },
+      "min": 50,
+      "max": 100000000,
+      "order": 0,
+      "group": "online",
+      "fee": 1,
+      "slug": "yookassa:sbp",
+      "name": "СБП"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/x.svg",
+      "payload": {
+        "lang": [
+          "ru"
+        ],
+        "exchangeNotice": false
+      },
+      "min": 500,
+      "max": 100000000,
+      "order": 0,
+      "group": "crypto",
+      "fee": 1,
+      "slug": "pawnow:usdt_trc20",
+      "name": "USDT (TRC20)"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/x.svg",
+      "payload": {
+        "lang": [
+          "ru"
+        ],
+        "exchangeNotice": false
+      },
+      "min": 50,
+      "max": 100000000,
+      "order": 0,
+      "group": "card",
+      "fee": 1,
+      "slug": "yookassa:bank_card",
+      "name": "Bank cards"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/x.svg",
+      "payload": {
+        "lang": [
+          "ru"
+        ],
+        "exchangeNotice": false
+      },
+      "min": 1000,
+      "max": 100000000,
+      "order": 0,
+      "group": "crypto",
+      "fee": 1,
+      "slug": "pawnow:btc_btc",
+      "name": "Bitcoin"
+    }
+  ],
+  "total": 4
+}

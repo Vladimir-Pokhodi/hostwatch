@@ -92,7 +92,7 @@ def test_meta_has_token_and_panel_login() -> None:
     browser = auth[1]
     assert isinstance(browser, BrowserAuth)
     assert "refresh_token" in browser.cookies
-    assert capabilities(TimewebPlugin) == {Capability.USAGE}
+    assert capabilities(TimewebPlugin) == {Capability.USAGE, Capability.TOPUP}
 
 
 async def test_servers_from_recording(api: respx.MockRouter, plugin: TimewebPlugin) -> None:

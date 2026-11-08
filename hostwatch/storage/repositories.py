@@ -17,6 +17,7 @@ from hostwatch.core.models import (
     Balance,
     BillingModel,
     Money,
+    Payment,
     Server,
     ServerAction,
     ServerKind,
@@ -374,6 +375,80 @@ class JournalRepository:
         with self._conn:
             cursor = self._conn.execute("DELETE FROM journal WHERE at < ?", (_ts(before),))
         return cursor.rowcount
+
+
+PaymentStatus = Literal["created", "waiting", "arrived", "not_seen"]
+
+
+@dataclass(frozen=True)
+class PaymentRecord:
+    id: int
+    account_id: int
+    external_id: str
+    amount: Money
+    method: str
+    url: str
+    created_at: datetime
+    status: PaymentStatus
+    balance_before: Money | None
+
+
+class PaymentRepository:
+    """Top-up invoices the bot made (spec, decision 4). `url` is the link or the address."""
+
+    def __init__(self, conn: sqlite3.Connection) -> None:
+        self._conn = conn
+
+    def add(self, account_id: int, payment: Payment) -> int:
+        with self._conn:
+            cursor = self._conn.execute(
+                "INSERT INTO payments (account_id, external_id, amount, currency, method, url,"
+                " created_at, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'created')",
+                (
+                    account_id,
+                    payment.id,
+                    str(payment.amount.amount),
+                    payment.amount.currency,
+                    payment.method,
+                    payment.url or payment.address or "",
+                    _ts(payment.created_at),
+                ),
+            )
+        assert cursor.lastrowid is not None
+        return cursor.lastrowid
+
+    def get(self, payment_id: int) -> PaymentRecord:
+        row = self._conn.execute("SELECT * FROM payments WHERE id = ?", (payment_id,)).fetchone()
+        if row is None:
+            raise NotFound(payment_id)
+        before = row["balance_before"]
+        return PaymentRecord(
+            id=row["id"],
+            account_id=row["account_id"],
+            external_id=row["external_id"],
+            amount=Money(amount=Decimal(row["amount"]), currency=row["currency"]),
+            method=row["method"],
+            url=row["url"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+            status=row["status"],
+            balance_before=None
+            if before is None
+            else Money(amount=Decimal(before), currency=row["currency"]),
+        )
+
+    def set_status(
+        self, payment_id: int, status: PaymentStatus, balance_before: Money | None = None
+    ) -> None:
+        with self._conn:
+            if balance_before is None:
+                self._conn.execute(
+                    "UPDATE payments SET status = ? WHERE id = ?", (status, payment_id)
+                )
+            else:
+                self._conn.execute(
+                    "UPDATE payments SET status = ?, balance_before = ? WHERE id = ?",
+                    (status, str(balance_before.amount), payment_id),
+                )
 
 
 class SettingsRepository:

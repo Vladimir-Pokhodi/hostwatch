@@ -14,7 +14,7 @@ import httpx
 from hostwatch.core.errors import AuthExpired, describe
 from hostwatch.core.logs import register_secrets
 from hostwatch.core.models import AccountStatus
-from hostwatch.core.plugin import Plugin, PluginContext, Secrets
+from hostwatch.core.plugin import Pages, Plugin, PluginContext, Secrets
 from hostwatch.core.registry import Registry
 from hostwatch.storage.repositories import AccountRepository
 
@@ -34,8 +34,10 @@ class AccountRunner:
         registry: Registry,
         make_http: Callable[[str], httpx.AsyncClient],
         now: Callable[[], datetime] = lambda: datetime.now(UTC),
+        pages: Pages | None = None,
     ) -> None:
         self._accounts = accounts
+        self._pages = pages
         self._registry = registry
         self._make_http = make_http
         self._now = now
@@ -45,7 +47,14 @@ class AccountRunner:
     def plugin_of(self, account_id: int) -> type[Plugin]:
         return self._registry.get(self._accounts.get(account_id).plugin_id)
 
-    async def call(self, account_id: int, action: Callable[[Plugin], Awaitable[T]]) -> T:
+    async def call(
+        self,
+        account_id: int,
+        action: Callable[[Plugin], Awaitable[T]],
+        track_status: bool = True,
+    ) -> T:
+        """Run `action` on the account's plugin. With `track_status` an error sets the
+        account status and success marks it ok; a top-up does not: polling owns the status."""
         async with self._locks[account_id]:
             account = self._accounts.get(account_id)
             plugin_cls = self._registry.get(account.plugin_id)
@@ -58,11 +67,14 @@ class AccountRunner:
 
             try:
                 async with self._make_http(account.plugin_id) as http:
-                    plugin = plugin_cls(PluginContext(secrets, http, save))
+                    plugin = plugin_cls(PluginContext(secrets, http, save, self._pages))
                     result = await action(plugin)
             except Exception as error:
+                if not track_status:
+                    raise
                 self._accounts.set_status(account_id, status_for(error), describe(error))
                 log.warning("account %s (%s): %s", account_id, account.plugin_id, describe(error))
                 raise
-            self._accounts.mark_ok(account_id, self._now())
+            if track_status:
+                self._accounts.mark_ok(account_id, self._now())
             return result

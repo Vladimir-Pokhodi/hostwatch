@@ -1,0 +1,16 @@
+{
+  "error": null,
+  "data": {
+    "authorizationResultExt": {
+      "status": "AwaitingPayment",
+      "paymentMethodAlias": "SBP",
+      "userMessage": "Откройте приложение банка и отсканируйте QR",
+      "externalConfirmationInfoExt": {
+        "paymentUrl": "https://qr.nspk.ru/AD10000000000000000000000000TEST",
+        "universalLink": true,
+        "instruction": "Откройте приложение банка"
+      },
+      "tdsConfirmationInfoExt": null
+    }
+  }
+}

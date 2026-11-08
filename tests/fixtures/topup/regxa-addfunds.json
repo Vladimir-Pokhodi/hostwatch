@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "message": "Invoice created successfully",
+  "data": {
+    "invoiceid": 100005,
+    "total": 5,
+    "status": "Unpaid"
+  }
+}

@@ -53,8 +53,26 @@ class LabelCb(CallbackData, prefix="lbl"):
     """Add the account under the hoster's name instead of a typed label."""
 
 
-class TopupCb(CallbackData, prefix="tu"):
+class TopupCb(CallbackData, prefix="tu", sep="|"):
+    """Top up an account: `m` empty lists the methods, `*crypto` the crypto networks,
+    a method id asks for the amount. `|` separates: Aeza's method ids hold colons."""
+
     acc: int
+    m: str = ""
+
+
+class TopupAmountCb(CallbackData, prefix="ta", sep="|"):
+    """Make the invoice for `amt` (a plain decimal); empty `amt` asks for a typed sum."""
+
+    acc: int
+    m: str
+    amt: str
+
+
+class PaidCb(CallbackData, prefix="pd"):
+    """«Paid» under an invoice: `pay` is the row id in `payments`."""
+
+    pay: int
 
 
 class JournalCb(CallbackData, prefix="j"):

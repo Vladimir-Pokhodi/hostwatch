@@ -2,10 +2,18 @@
 
 Billing is hourly: the money is taken from the balance every hour, and the hoster
 computes itself how many hours the balance lasts.
+
+A top-up invoice cannot be made with the API token: only the panel makes it, with its own
+session (the `refresh_token` and `device_token` cookies of a browser login). Every use of
+the session swaps the refresh token for a new one and kills the old, so the new one is
+saved before anything else happens. The bot and the owner's browser therefore cannot
+share one session.
 """
 
 from __future__ import annotations
 
+import base64
+import binascii
 import json
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
@@ -21,11 +29,15 @@ from hostwatch.core.models import (
     Balance,
     BillingModel,
     Money,
+    Payment,
     Server,
     ServerKind,
     ServerStatus,
+    TopupKind,
+    TopupMethod,
     Usage,
 )
+from hostwatch.core.payments import yookassa
 from hostwatch.core.plugin import ApiKeyAuth, BrowserAuth, Plugin, PluginMeta
 from hostwatch.plugins.timeweb.schema import (
     CloudServer,
@@ -34,6 +46,9 @@ from hostwatch.plugins.timeweb.schema import (
     DedicatedServer,
     DedicatedServersAnswer,
     FinancesAnswer,
+    InvoiceAnswer,
+    PanelTokensAnswer,
+    PayersAnswer,
     ServiceCost,
     ServiceCostsAnswer,
     StatisticsAnswer,
@@ -47,6 +62,13 @@ HOURLY_PRECISION = Decimal("0.0001")
 USAGE_WINDOW = timedelta(minutes=15)
 CPU_KEY = "system.cpu.util"
 DEDICATED_PREFIX = "dedicated-"
+PANEL = "https://timeweb.cloud/"
+UPDATE_TOKEN = PANEL + "api/v1/auth/update-token"
+FINANCES_PAGE = PANEL + "my/finances"
+SESSION_COOKIES = ("refresh_token", "device_token")
+SBP = "sbp"
+# The panel refuses 101 and 200 ₽ with `amount_less_minimal` and takes 500 (2026-11-08).
+MIN_TOPUP = Decimal(500)
 
 CLOUD_STATUSES = {
     "on": ServerStatus.RUNNING,
@@ -68,7 +90,7 @@ class TimewebPlugin(Plugin):
         site="https://timeweb.cloud",
         auth=(
             ApiKeyAuth(fields=("api_token",)),
-            # The panel session is needed for top-up invoices only; not used yet.
+            # The panel session is needed for top-up invoices only.
             BrowserAuth(
                 start_url="https://timeweb.cloud/my/login",
                 allowed_domains=("timeweb.cloud",),
@@ -77,6 +99,7 @@ class TimewebPlugin(Plugin):
         ),
         currency="RUB",
     )
+    topup_page = FINANCES_PAGE
     record_names = (
         "servers.*.name",
         "server.name",
@@ -141,6 +164,109 @@ class TimewebPlugin(Plugin):
             disk_percent=_disk_percent(server),
         )
 
+    async def topup_methods(self) -> list[TopupMethod]:
+        minimum = Money(amount=MIN_TOPUP, currency="RUB")
+        return [TopupMethod(id=SBP, name="СБП", kind=TopupKind.SBP, minimum=minimum)]
+
+    async def topup(self, amount: Money, method_id: str) -> Payment:
+        if method_id != SBP:
+            raise HosterError(f"unknown method {method_id}")
+        if amount.currency != "RUB" or amount.amount != amount.amount.to_integral_value():
+            raise HosterError("the amount must be in whole rubles")
+        access = await self._panel_token()
+        login = _jwt_claim(access, "user") or _jwt_claim(self.ctx.secrets["api_token"], "user")
+        if not login:
+            raise LayoutChanged
+        payers = await self._panel(
+            "GET",
+            f"portal/v1/accounts/{login}/payers",
+            PayersAnswer,
+            access,
+            params={"type": "person"},
+        )
+        payer = next((payer for payer in payers.root if not payer.hidden), None)
+        if payer is None:
+            raise HosterError("the account has no payer")
+        body = {
+            "total_amount": int(amount.amount),
+            "payer": {"id": payer.id},
+            "payment_method": {
+                "type": SBP,
+                "params": {"bind": False, "return_url": FINANCES_PAGE, "fail_url": FINANCES_PAGE},
+            },
+            "items": [],
+        }
+        invoice = await self._panel("POST", "portal/v4/invoices", InvoiceAnswer, access, json=body)
+        page = invoice.payment_info.confirmation.confirmation_url
+        url, qr = await yookassa.link_or_page(self.ctx.http, page)
+        return Payment(
+            id=str(invoice.invoice_id),
+            amount=amount,
+            method=SBP,
+            created_at=datetime.now(UTC),
+            url=url,
+            qr_data=qr,
+        )
+
+    async def _panel_token(self) -> str:
+        """A 15-minute access token of the panel. The rotated refresh token is saved first."""
+        secrets = self.ctx.secrets
+        if not all(secrets.get(name) for name in SESSION_COOKIES):
+            raise AuthExpired
+        cookie = "; ".join(f"{name}={secrets[name]}" for name in SESSION_COOKIES)
+        try:
+            response = await self.ctx.http.post(
+                UPDATE_TOKEN,
+                headers={"Cookie": cookie, "Accept": "application/json", "Origin": PANEL[:-1]},
+            )
+        except httpx.TimeoutException:
+            raise TimeoutError from None
+        except httpx.TransportError:
+            raise HosterError("Timeweb is unreachable") from None
+        # Whatever comes next, a reissued token is saved first: the old one is dead now.
+        fresh = {name: value for name in SESSION_COOKIES if (value := response.cookies.get(name))}
+        if fresh:
+            await self.ctx.rotate_secrets({**secrets, **fresh})
+        if response.status_code in (401, 403) and _is_json(response):
+            raise AuthExpired  # the session is dead; QRATOR's 403 is an HTML page
+        _raise_for_status(response)
+        try:
+            tokens = PanelTokensAnswer.model_validate_json(response.content).tokens
+        except ValidationError:
+            raise LayoutChanged from None
+        if "refresh_token" not in fresh:
+            if not tokens.refresh_token:
+                raise LayoutChanged  # the old token is dead already, and there is no new one
+            await self.ctx.rotate_secrets({**secrets, "refresh_token": tokens.refresh_token})
+        return tokens.access_token
+
+    async def _panel[M: BaseModel](
+        self,
+        method: str,
+        path: str,
+        model: type[M],
+        access: str,
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
+    ) -> M:
+        try:
+            response = await self.ctx.http.request(
+                method,
+                PANEL + path,
+                params=params,
+                json=json,
+                headers={"Authorization": f"Bearer {access}", "Accept": "application/json"},
+            )
+        except httpx.TimeoutException:
+            raise TimeoutError from None
+        except httpx.TransportError:
+            raise HosterError("Timeweb is unreachable") from None
+        _raise_for_status(response)
+        try:
+            return model.model_validate_json(response.content)
+        except ValidationError:
+            raise LayoutChanged from None
+
     async def _cloud_servers(self) -> list[CloudServer]:
         servers: list[CloudServer] = []
         while True:
@@ -184,6 +310,23 @@ def _raise_for_status(response: httpx.Response) -> None:
     if status == 429:
         raise RateLimited
     raise HosterError(_error_code(response))
+
+
+def _is_json(response: httpx.Response) -> bool:
+    return "json" in response.headers.get("content-type", "")
+
+
+def _jwt_claim(token: str, name: str) -> str | None:
+    """A claim of a JWT, signature unchecked: the token came from Timeweb itself."""
+    parts = token.split(".")
+    if len(parts) != 3:
+        return None
+    try:
+        claims = json.loads(base64.urlsafe_b64decode(parts[1] + "=" * (-len(parts[1]) % 4)))
+    except (binascii.Error, ValueError):
+        return None
+    value = claims.get(name) if isinstance(claims, dict) else None
+    return value if isinstance(value, str) and value else None
 
 
 def _error_code(response: httpx.Response) -> str:

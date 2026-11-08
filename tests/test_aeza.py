@@ -78,7 +78,7 @@ async def test_aeza_passes_contract(hoster: respx.MockRouter) -> None:
 
 
 def test_capabilities() -> None:
-    assert capabilities(AezaPlugin) == {Capability.USAGE, Capability.INVOICES}
+    assert capabilities(AezaPlugin) == {Capability.USAGE, Capability.INVOICES, Capability.TOPUP}
 
 
 async def test_servers_skip_domains_and_map_fields(hoster: respx.MockRouter) -> None:
@@ -297,7 +297,7 @@ def test_check_aeza_cli(hoster: respx.MockRouter, capsys: pytest.CaptureFixture[
 
     out = capsys.readouterr().out
     assert "Balance: €10.00" in out
-    assert "Capabilities: invoices, usage" in out
+    assert "Capabilities: invoices, topup, usage" in out
     assert "Servers: 4" in out
     assert "name-2 [100006] vps running (active) ip 192.0.2.10 plan CLTs-1 €5.93/1 mo" in out
 
