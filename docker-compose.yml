@@ -1,4 +1,7 @@
-# Run: docker compose up -d --build
+# install.sh puts this file into /opt/hostwatch next to .env and Caddyfile.
+# Update: docker compose pull && docker compose up -d
+# Build from a checkout instead of pulling:
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
 # The data folder must belong to the container user: mkdir -p data && chown 10001:10001 data
 
 x-logging: &logging
@@ -9,8 +12,8 @@ x-logging: &logging
 
 services:
   hostwatch:
-    build: .
-    image: hostwatch:local
+    # HOSTWATCH_VERSION in .env pins a release, e.g. 1.0.0. The default follows 1.x.
+    image: ghcr.io/vladimir-pokhodi/hostwatch:${HOSTWATCH_VERSION:-1}
     restart: unless-stopped
     env_file: .env
     environment:

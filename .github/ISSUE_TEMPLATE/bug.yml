@@ -1,0 +1,43 @@
+name: Bug
+description: The bot does something wrong or fails.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not attach** the database or its backups, `.env`, cookies, API keys, login
+        links or full logs. Replace names, IPs, emails and sums with placeholders.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: "Output of `docker compose exec hostwatch python -c \"import importlib.metadata as m; print(m.version('hostwatch'))\"`"
+    validations:
+      required: true
+  - type: input
+    id: hoster
+    attributes:
+      label: Hoster
+      description: Which hoster's account is involved, if any.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, what you got. Bot messages as text.
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log lines
+      description: |
+        The lines around the error from `docker compose logs hostwatch`, cleaned of
+        personal data. The bot does not log keys or cookies, but check anyway.
+      render: text
+  - type: checkboxes
+    id: clean
+    attributes:
+      label: Before sending
+      options:
+        - label: Nothing above contains a cookie, key, token, login link or the database.
+          required: true

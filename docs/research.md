@@ -49,7 +49,7 @@
   В ответе `invoice_id` (номер счёта) и `payment_info.confirmation.confirmation_url` — ссылка на страницу ЮKassa. Как из неё получить ссылку СБП, описано ниже в разделе «ЮKassa». Если сумма меньше минимальной, приходит 400 `{"error_code": "amount_less_minimal"}`: 08.11 так отказали 101 и 200 ₽, 500 ₽ прошли.
 - `update-token` (проверено 08.11 с сервера бота): 201, новые `refresh_token` и `device_token` приходят в `Set-Cookie`, access-токен — в теле. Плагин сохраняет cookie сразу, до разбора тела.
 
-QRATOR пропускает запросы из Python и с IP сервера бота (2.56.122.88, проверено 08.11).
+QRATOR пропускает запросы из Python и с IP сервера бота (<server-ip>, проверено 08.11).
 
 Питание (этап 10, по справочнику API `https://timeweb.cloud/api-docs-data/bundle.json`, вживую не вызывалось): `POST /api/v1/servers/{id}/start`, `/shutdown`, `/reboot` с токеном API, ответ 204 без тела. Ошибки — JSON с `error_code`. Старый `POST /servers/{id}/action {"action": ...}` в справочнике помечен устаревшим. У выделенных серверов в API питания нет.
 

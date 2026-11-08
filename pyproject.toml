@@ -1,6 +1,6 @@
 [project]
 name = "hostwatch"
-version = "0.0.1"
+version = "1.0.0"
 description = "Telegram bot that watches servers and balances across hosting providers"
 readme = "README.md"
 license = "MIT"

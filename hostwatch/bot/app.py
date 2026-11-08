@@ -98,7 +98,11 @@ async def make_bot(token: str, proxy: str | None) -> Bot:
             log.info("connected to Telegram through TG_PROXY as @%s", me.username)
             return bot
     bot = Bot(token, default=bot_properties())
-    me = await bot.get_me()
+    try:
+        me = await bot.get_me()
+    except BaseException:
+        await bot.session.close()
+        raise
     log.info("connected to Telegram as @%s", me.username)
     return bot
 

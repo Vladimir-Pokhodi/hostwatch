@@ -1,0 +1,6 @@
+# The hostwatch image built from this checkout instead of the published one:
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+services:
+  hostwatch:
+    build: .
+    image: hostwatch:local

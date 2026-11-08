@@ -1,0 +1,42 @@
+name: Hoster
+description: A new hoster, or a hoster whose cabinet changed.
+labels: [hoster]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Do not attach** cookies, API keys, HAR files with requests, the database or
+        `.env`. Describe requests by URL and the fields they use, with values replaced.
+  - type: input
+    id: hoster
+    attributes:
+      label: Hoster and site
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is it about
+      options:
+        - A new hoster
+        - A plugin broke (layout changed, wrong data)
+        - A feature is missing for a supported hoster
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: |
+        For a new hoster: is there an official API, what does the cabinet load (JSON or
+        HTML), how does the login work (captcha, 2FA). For a broken plugin: the output of
+        `hostwatch check <account>` with personal data replaced.
+    validations:
+      required: true
+  - type: checkboxes
+    id: clean
+    attributes:
+      label: Before sending
+      options:
+        - label: Nothing above contains a cookie, key, token, login link or the database.
+          required: true

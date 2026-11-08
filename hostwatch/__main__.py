@@ -5,7 +5,8 @@
 `python -m hostwatch record <plugin_or_account> [--key ...]` saves scrubbed test fixtures;
 `python -m hostwatch login <plugin_or_account>` asks the running bot for a login link;
 `python -m hostwatch autopay <account>` shows what the autopay rule would do now, paying nothing;
-`python -m hostwatch catalog <account>` reads what the hoster sells, ordering nothing.
+`python -m hostwatch catalog <account>` reads what the hoster sells, ordering nothing;
+`python -m hostwatch new-plugin <id>` copies the plugin template for a new hoster.
 """
 
 from __future__ import annotations
@@ -49,6 +50,10 @@ from hostwatch.storage.repositories import AccountRepository, BalanceHistoryRepo
 T = TypeVar("T")
 DB_NAME = "hostwatch.sqlite3"
 FIXTURES_DIR = Path("tests/fixtures")
+BAD_TOKEN = (
+    "error: Telegram does not accept BOT_TOKEN. Copy the token from @BotFather into .env"
+    " and restart: docker compose up -d"
+)
 
 
 class CheckFailed(Exception):
@@ -79,6 +84,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _autopay_dry_run(args)
     if args.command == "catalog":
         return _catalog(args)
+    if args.command == "new-plugin":
+        return _new_plugin(args)
     handler = setup_logging(logging.DEBUG if args.verbose else logging.WARNING, stream=sys.stderr)
     try:
         registry = discover(_plugins_dir())
@@ -160,7 +167,29 @@ def _parser() -> argparse.ArgumentParser:
     )
     catalog.add_argument("target", help="account label/id from the database")
     catalog.add_argument("-v", "--verbose", action="store_true", help="log HTTP requests")
+    new_plugin = commands.add_parser(
+        "new-plugin",
+        help="create a plugin folder, its test and fixtures from the template (in the repository)",
+    )
+    new_plugin.add_argument("id", help="plugin id: lowercase letters, digits and _")
+    new_plugin.add_argument("--name", help="name the bot shows, default from the id")
+    new_plugin.add_argument(
+        "--root", type=Path, default=Path("."), help="repository folder, default the current one"
+    )
     return parser
+
+
+def _new_plugin(args: argparse.Namespace) -> int:
+    from hostwatch.new_plugin import NewPluginFailed, create
+
+    try:
+        written = create(args.root, args.id, args.name)
+    except NewPluginFailed as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    print("\n".join(str(path) for path in written))
+    print(f"next: uv run pytest tests/test_{args.id}.py, then docs/adding-a-hoster.md")
+    return 0
 
 
 def _catalog(args: argparse.Namespace) -> int:
@@ -216,6 +245,9 @@ def _login_link(target: str) -> int:
 
 
 def _run_bot() -> int:
+    from aiogram.exceptions import TelegramUnauthorizedError
+    from aiogram.utils.token import TokenValidationError
+
     from hostwatch.bot.app import run
 
     try:
@@ -225,8 +257,12 @@ def _run_bot() -> int:
         return 1
     setup_logging(logging.INFO)
     # Ctrl+C is the normal way to stop the bot when it runs in a terminal.
-    with contextlib.suppress(KeyboardInterrupt):
-        asyncio.run(run(settings))
+    try:
+        with contextlib.suppress(KeyboardInterrupt):
+            asyncio.run(run(settings))
+    except (TelegramUnauthorizedError, TokenValidationError):
+        print(BAD_TOKEN, file=sys.stderr)
+        return 1
     return 0
 
 

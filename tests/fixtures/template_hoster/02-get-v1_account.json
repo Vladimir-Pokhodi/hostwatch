@@ -1,0 +1,10 @@
+{
+  "method": "GET",
+  "url": "https://api.hoster.example/v1/account",
+  "query": {},
+  "status": 200,
+  "json": {
+    "balance": "1000.00",
+    "currency": "eur"
+  }
+}

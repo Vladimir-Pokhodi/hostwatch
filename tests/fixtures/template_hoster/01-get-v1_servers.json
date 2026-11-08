@@ -1,0 +1,30 @@
+{
+  "method": "GET",
+  "url": "https://api.hoster.example/v1/servers",
+  "query": {},
+  "status": 200,
+  "json": {
+    "servers": [
+      {
+        "id": 100001,
+        "name": "name-1",
+        "ip": "192.0.2.1",
+        "status": "active",
+        "plan": "VPS-1",
+        "price_monthly": "4.50",
+        "paid_until": "2026-12-01T00:00:00Z",
+        "auto_renew": true
+      },
+      {
+        "id": 100002,
+        "name": "name-2",
+        "ip": null,
+        "status": "installing",
+        "plan": "VPS-2",
+        "price_monthly": "9.00",
+        "paid_until": null,
+        "auto_renew": false
+      }
+    ]
+  }
+}
