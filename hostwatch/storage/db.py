@@ -113,6 +113,26 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (account_id, server_id)
     );
     """,
+    # 5. Autopay (stage 11): servers the owner marked, and invoices autopay told the owner
+    # about, so a held invoice is reported once, not every hour.
+    """
+    CREATE TABLE autopay_servers (
+        account_id INTEGER NOT NULL REFERENCES accounts (id) ON DELETE CASCADE,
+        server_id TEXT NOT NULL,
+        at TEXT NOT NULL,
+        PRIMARY KEY (account_id, server_id)
+    );
+
+    CREATE TABLE autopay_notices (
+        account_id INTEGER NOT NULL REFERENCES accounts (id) ON DELETE CASCADE,
+        invoice_id TEXT NOT NULL,
+        reason TEXT NOT NULL,
+        amount TEXT NOT NULL,
+        currency TEXT NOT NULL,
+        at TEXT NOT NULL,
+        PRIMARY KEY (account_id, invoice_id)
+    );
+    """,
 ]
 
 

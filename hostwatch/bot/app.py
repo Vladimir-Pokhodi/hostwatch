@@ -23,11 +23,13 @@ from hostwatch.core.config import Settings
 from hostwatch.core.http import make_client
 from hostwatch.core.logs import register_secrets
 from hostwatch.core.rates import CbrRates, RatesUnavailable
-from hostwatch.core.registry import discover
+from hostwatch.core.registry import Registry, discover
 from hostwatch.locales import t
 from hostwatch.scheduler.alerts import AlertService, DailySummary
+from hostwatch.scheduler.autopay import AutopayJob
 from hostwatch.scheduler.maintenance import Backups, ReleaseCheck, every, ping, public_ip
 from hostwatch.scheduler.polling import Poller, PollEvent
+from hostwatch.storage.autopay import AutopayStore
 from hostwatch.storage.db import connect
 from hostwatch.storage.repositories import (
     AccountRepository,
@@ -46,6 +48,7 @@ from hostwatch.web.login import LoginEvents, LoginService
 from hostwatch.web.server import serve, serve_admin
 
 from . import views
+from .autopay import Reporter
 from .handlers import make_router
 from .hub import Hub
 from .login import BotLogin
@@ -59,6 +62,7 @@ DB_NAME = "hostwatch.sqlite3"
 MINUTE = 60.0
 DAY = 24 * 60 * MINUTE
 HEARTBEAT_EVERY = 5 * MINUTE
+AUTOPAY_EVERY = 60 * MINUTE
 MESSAGE_LIMIT = 4000
 ALIVE_FILE = Path("/tmp/hostwatch.alive")
 
@@ -172,6 +176,21 @@ def split_text(text: str, limit: int = MESSAGE_LIMIT) -> list[str]:
     return chunks
 
 
+def autopay_job(hub: Hub, runner: AccountRunner, owner: Owner, registry: Registry) -> AutopayJob:
+    """The hourly autopay run (stage 11); it reports to the owner through `owner`."""
+    assert hub.autopay is not None
+    return AutopayJob(
+        runner,
+        hub.accounts,
+        hub.servers,
+        hub.autopay,
+        registry,
+        Reporter(hub, owner.send),
+        lambda: hub.prefs.tz,
+        refresh=hub.poller.refresh,
+    )
+
+
 def touch_alive() -> None:
     """The container health check looks at this file's age."""
     ALIVE_FILE.touch()
@@ -216,6 +235,7 @@ async def run(settings: Settings) -> None:
             rates=CbrRates(rates_http),
             payments=PaymentRepository(conn),
             owner_stops=OwnerStopRepository(conn),
+            autopay=AutopayStore(conn),
             own_ip=settings.hostwatch_ip,
             backups=Backups(conn, settings.data_dir / "backups", settings_repo, lambda: prefs.tz),
         )
@@ -228,6 +248,7 @@ async def run(settings: Settings) -> None:
 
         hub.login = BotLogin(hub, login_service, owner, make_client, settings.hostwatch_domain)
         login.append(hub.login)
+        hub.autopay_job = autopay_job(hub, runner, owner, registry)
         web = await serve(hub.login.service)
         admin = await serve_admin(hub.login.resolve, hub.login.send_link)
         jobs = _jobs(hub, owner, settings, http, AlertRepository(conn), settings_repo)
@@ -299,6 +320,8 @@ def _jobs(
     }
     if hub.backups is not None:
         jobs["backups"] = every(MINUTE, hub.backups.tick, "backups")
+    if hub.autopay_job is not None:
+        jobs["autopay"] = every(AUTOPAY_EVERY, hub.autopay_job.tick, "autopay")
     url = settings.heartbeat_url
     if url:
         jobs["heartbeat"] = every(HEARTBEAT_EVERY, lambda: ping(http, url), "heartbeat")

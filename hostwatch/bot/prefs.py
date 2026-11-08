@@ -6,6 +6,7 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import time
+from decimal import Decimal, InvalidOperation
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from hostwatch.core.alerts import AlertSettings, QuietHours, Thresholds
@@ -157,3 +158,28 @@ class Prefs:
             value = THRESHOLD_BY_KEY["summary_time"].default
         hours, minutes = value.split(":")
         return time(int(hours), int(minutes))
+
+    @property
+    def order_limit(self) -> Decimal:
+        """Orders a month in the owner's currency; above it an order takes a second «Yes».
+        0 by default: every order is asked twice until the owner sets a limit."""
+        try:
+            value = Decimal(self._settings.get("order.limit") or "0")
+        except InvalidOperation:
+            return Decimal(0)
+        return value if value.is_finite() and value >= 0 else Decimal(0)
+
+    @order_limit.setter
+    def order_limit(self, value: Decimal) -> None:
+        if not value.is_finite() or value < 0:
+            raise ValueError("the limit must be a sum of 0 or more")
+        self._settings.set("order.limit", str(value))
+
+    @property
+    def ssh_key(self) -> str | None:
+        """The owner's public SSH key, put on new servers where the hoster can."""
+        return self._settings.get("order.ssh_key") or None
+
+    @ssh_key.setter
+    def ssh_key(self, value: str | None) -> None:
+        self._settings.set("order.ssh_key", value or "")

@@ -12,13 +12,12 @@ from typing import TYPE_CHECKING, Any, ClassVar, Protocol, runtime_checkable
 
 import httpx
 
+from hostwatch.core.catalog import Catalog, OrderRequest, OrderResult, OrderTemplate
 from hostwatch.core.models import (
     ActionResult,
     Balance,
     Invoice,
     Money,
-    Offer,
-    OrderRequest,
     Payment,
     PowerAction,
     Server,
@@ -216,9 +215,28 @@ class SupportsPower(Protocol):
 
 @runtime_checkable
 class SupportsOrder(Protocol):
-    async def catalog(self) -> list[Offer]: ...
+    """Orders a new server, paid from the balance at the hoster (spec, decision 11).
 
-    async def order(self, request: OrderRequest) -> ActionResult: ...
+    `quote` asks the hoster what the request costs now, bypassing any cache; the bot shows
+    it before the owner confirms, and the core asks it once more right before `order`.
+    `order` sends the order once: no retries, a second attempt could buy a second server.
+    `order_template` tells what it can about an existing server, for «Order the same».
+    """
+
+    async def catalog(self) -> Catalog: ...
+
+    async def quote(self, request: OrderRequest) -> Money: ...
+
+    async def order(self, request: OrderRequest) -> OrderResult: ...
+
+    async def order_template(self, server_id: str) -> OrderTemplate: ...
+
+
+@runtime_checkable
+class SupportsRootPassword(Protocol):
+    """The root password of a server as the hoster tells it. The bot never stores it."""
+
+    async def root_password(self, server_id: str) -> str: ...
 
 
 class Capability(StrEnum):
@@ -230,6 +248,7 @@ class Capability(StrEnum):
     RENEW = "renew"
     POWER = "power"
     ORDER = "order"
+    ROOT_PASSWORD = "root_password"
 
 
 PROTOCOLS: dict[Capability, type] = {
@@ -241,6 +260,7 @@ PROTOCOLS: dict[Capability, type] = {
     Capability.RENEW: SupportsRenew,
     Capability.POWER: SupportsPower,
     Capability.ORDER: SupportsOrder,
+    Capability.ROOT_PASSWORD: SupportsRootPassword,
 }
 
 # Which plugin capability a per-server action needs.

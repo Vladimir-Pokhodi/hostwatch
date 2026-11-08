@@ -7,7 +7,10 @@ Secrets it understands:
 - `sleep`: seconds to wait before answering;
 - `token`: with `rotate` set to any value, every call replaces it with `<token>+`,
   the way Timeweb rotates its refresh token, before failing or answering;
-- `renew_price`: what a renewal costs, default 4.50; the invoice of server 1 is 4.50.
+- `renew_price`: what a renewal costs, default 4.50; the invoice of server 1 is 4.50;
+- `order_price`: what the hoster asks for a month of «Fake Small» when the order is
+  confirmed, default 4.50, the catalog price;
+- `password`: the root password the hoster tells, default `Fake-Root-Pass-1`.
 """
 
 from __future__ import annotations
@@ -18,6 +21,16 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import ClassVar
 
+from hostwatch.core.catalog import (
+    Catalog,
+    Location,
+    OperatingSystem,
+    OrderRequest,
+    OrderResult,
+    OrderTemplate,
+    Plan,
+    Price,
+)
 from hostwatch.core.errors import AuthExpired, Blocked, HosterError, LayoutChanged, RateLimited
 from hostwatch.core.models import (
     ActionResult,
@@ -27,8 +40,6 @@ from hostwatch.core.models import (
     Invoice,
     InvoiceStatus,
     Money,
-    Offer,
-    OrderRequest,
     Payment,
     PowerAction,
     Server,
@@ -166,22 +177,66 @@ class FakePlugin(Plugin):
             created_at=datetime.now(UTC),
         )
 
-    async def catalog(self) -> list[Offer]:
+    async def catalog(self) -> Catalog:
         await self._behave()
-        return [
-            Offer(
-                id="small",
-                name="Fake Small",
-                location="nowhere",
-                price=eur("4.50"),
-                period_months=1,
-                os=("debian-12",),
-            )
-        ]
+        return Catalog(
+            locations=(Location(id="nw", name="Nowhere"), Location(id="sw", name="Somewhere")),
+            plans=(
+                Plan(
+                    id="small",
+                    name="Fake Small",
+                    location_id="nw",
+                    specs="1 CPU · 1 GB",
+                    prices=(
+                        Price(period_months=1, amount=eur("4.50")),
+                        Price(period_months=12, amount=eur("45.00")),
+                    ),
+                ),
+                Plan(
+                    id="big",
+                    name="Fake Big",
+                    location_id="nw",
+                    specs="8 CPU · 32 GB",
+                    prices=(Price(period_months=1, amount=eur("40.00")),),
+                    os_ids=("debian-12",),
+                ),
+            ),
+            systems=(
+                OperatingSystem(id="debian-12", name="Debian 12"),
+                OperatingSystem(id="ubuntu-24", name="Ubuntu 24.04"),
+            ),
+            ssh_keys=True,
+        )
 
-    async def order(self, request: OrderRequest) -> ActionResult:
+    async def quote(self, request: OrderRequest) -> Money:
         await self._behave()
-        return ActionResult(ok=True, detail=f"ordered {request.offer_id}")
+        plan = (await self.catalog()).plan(request.plan_id)
+        price = plan.price(request.period_months) if plan else None
+        if price is None:
+            raise HosterError("no such plan")
+        if request.plan_id == "small" and request.period_months == 1:
+            return eur(self.ctx.secrets.get("order_price", "4.50"))
+        return price
+
+    async def order(self, request: OrderRequest) -> OrderResult:
+        await self._behave()
+        key = " with key" if request.ssh_key else ""
+        self.calls.append(f"order {request.plan_id} {request.os_id} {request.period_months}{key}")
+        return OrderResult(
+            ok=True,
+            detail=f"ordered {request.plan_id}",
+            server_id="9",
+            password=self.ctx.secrets.get("password", "Fake-Root-Pass-1"),
+        )
+
+    async def order_template(self, server_id: str) -> OrderTemplate:
+        await self._behave()
+        return OrderTemplate(location_id="nw", plan_id="small", os_id="debian-12")
+
+    async def root_password(self, server_id: str) -> str:
+        await self._behave()
+        self.calls.append(f"root_password {server_id}")
+        return self.ctx.secrets.get("password", "Fake-Root-Pass-1")
 
     async def _behave(self) -> None:
         secrets = self.ctx.secrets

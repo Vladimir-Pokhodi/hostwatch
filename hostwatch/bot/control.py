@@ -12,6 +12,7 @@ import logging
 from collections.abc import Awaitable, Callable
 from html import escape
 
+from aiogram import F
 from aiogram.types import CallbackQuery, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -31,7 +32,7 @@ from .views import _nav as nav
 log = logging.getLogger(__name__)
 
 # Card buttons that belong to later stages.
-LATER = {"autopay": 11, "order_same": 13}
+LATER: dict[str, int] = {}
 # How long the bot waits for the hoster before it says the result is unknown.
 ACTION_TIMEOUT = 90.0
 
@@ -138,7 +139,8 @@ def _what(v: View, request: Request) -> str:
 # Handlers
 
 
-@on("callback_query", ActionCb.filter())
+# Autopay marks have their own handler in `autopay.py`; orders and passwords in `order.py`.
+@on("callback_query", ActionCb.filter(F.act.not_in({"autopay", "order_same", "password"})))
 async def on_action(query: CallbackQuery, callback_data: ActionCb, hub: Hub) -> None:
     v = view(hub)
     if callback_data.act in LATER:

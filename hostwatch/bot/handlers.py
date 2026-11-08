@@ -151,6 +151,8 @@ async def screen_for(hub: Hub, to: str) -> Screen:
         return journal_screen(hub, 0)
     if to == "settings":
         return settings_screen(hub)
+    if to == "order":
+        return await order.order_entry(hub)
     return views.menu(v, _can_order(hub, hub.load_all()))
 
 
@@ -216,9 +218,6 @@ async def on_menu(message: Message, hub: Hub, state: FSMContext) -> None:
 @on("callback_query", Nav.filter())
 async def on_nav(query: CallbackQuery, callback_data: Nav, hub: Hub, state: FSMContext) -> None:
     await state.clear()
-    if callback_data.to == "order":
-        await answer(query, view(hub).t("stub", stage=13), alert=True)
-        return
     await answer(query)
     await show(query, await screen_for(hub, callback_data.to))
 
@@ -672,4 +671,4 @@ async def on_other_text(message: Message, hub: Hub) -> None:
 
 
 # Top-up and control handlers live in their own modules; importing them registers them.
-from . import control, topup  # noqa: E402, F401
+from . import autopay, control, order, topup  # noqa: E402, F401

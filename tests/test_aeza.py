@@ -83,6 +83,8 @@ def test_capabilities() -> None:
         Capability.POWER,
         Capability.AUTORENEW,
         Capability.RENEW,
+        Capability.ORDER,
+        Capability.ROOT_PASSWORD,
     }
 
 
@@ -306,7 +308,8 @@ def test_check_aeza_cli(hoster: respx.MockRouter, capsys: pytest.CaptureFixture[
 
     out = capsys.readouterr().out
     assert "Balance: €10.00" in out
-    assert "Capabilities: autorenew, invoices, power, renew, topup, usage" in out
+    caps = "autorenew, invoices, order, power, renew, root_password, topup, usage"
+    assert f"Capabilities: {caps}" in out
     assert "Servers: 4" in out
     assert "name-2 [100006] vps running (active) ip 192.0.2.10 plan CLTs-1 €5.93/1 mo" in out
 

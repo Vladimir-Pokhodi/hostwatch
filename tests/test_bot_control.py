@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator
 
 import pytest
 import respx
-from aiogram.methods import AnswerCallbackQuery, SendMessage
+from aiogram.methods import SendMessage
 
 from hostwatch.bot.callbacks import (
     ActionCb,
@@ -15,7 +15,6 @@ from hostwatch.bot.callbacks import (
     InvoicesCb,
     Nav,
     PayCb,
-    ServerCb,
 )
 from hostwatch.core.models import Autorenew, ServerStatus
 from hostwatch.plugins.aeza import BASE_URL, AezaPlugin
@@ -273,14 +272,3 @@ async def test_journal_keeps_no_secrets(harness: Harness) -> None:
     assert entry.ok
     assert key not in entry.response and "***" in entry.response
     assert all(key not in t for t in harness.session.texts())
-
-
-async def test_stub_buttons_answer_with_their_stage(harness: Harness) -> None:
-    acc = await _account(harness)
-    await harness.press(ServerCb(acc=acc, sid="1"))
-    calls = len(harness.session.calls)
-
-    await harness.press(ActionCb(acc=acc, sid="1", act="order_same"))
-
-    assert all(isinstance(c, AnswerCallbackQuery) for c in harness.session.calls[calls:])
-    assert harness.alerts()[-1] == "Будет на этапе 13."

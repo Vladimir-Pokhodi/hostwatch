@@ -33,6 +33,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 import httpx
 from pydantic import BaseModel, ValidationError
 
+from hostwatch.core.catalog import Catalog, OrderRequest, OrderResult, OrderTemplate
 from hostwatch.core.errors import AuthExpired, Blocked, HosterError, LayoutChanged, RateLimited
 from hostwatch.core.models import (
     ActionResult,
@@ -53,7 +54,7 @@ from hostwatch.core.models import (
     Usage,
 )
 from hostwatch.core.plugin import BrowserAuth, Plugin, PluginContext, PluginMeta, cookie_header
-from hostwatch.plugins.regxa import api, cryptomus
+from hostwatch.plugins.regxa import api, cryptomus, ordering
 
 if TYPE_CHECKING:
     from hostwatch.core.record import Scrubber
@@ -253,6 +254,21 @@ class RegxaPlugin(Plugin):
         after = await self._get(api.InvoiceDetails, path)
         detail = f"credit applied; the invoice is {after.status or 'unknown'} now"
         return ActionResult(ok=after.status == "Paid", detail=detail)
+
+    async def catalog(self) -> Catalog:
+        return await ordering.catalog(self)
+
+    async def quote(self, request: OrderRequest) -> Money:
+        return await ordering.quote(self, request)
+
+    async def order(self, request: OrderRequest) -> OrderResult:
+        return await ordering.order(self, request)
+
+    async def order_template(self, server_id: str) -> OrderTemplate:
+        return await ordering.template(self, server_id)
+
+    async def root_password(self, server_id: str) -> str:
+        return await ordering.root_password(self, server_id)
 
     async def topup_methods(self) -> list[TopupMethod]:
         minimum = Money(amount=MIN_TOPUP, currency=self.meta.currency)

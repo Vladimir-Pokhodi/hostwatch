@@ -26,6 +26,7 @@ from typing import Any, TypeVar
 import httpx
 from pydantic import BaseModel, ValidationError
 
+from hostwatch.core.catalog import Catalog, OrderRequest, OrderResult, OrderTemplate
 from hostwatch.core.errors import (
     AuthExpired,
     Blocked,
@@ -60,7 +61,7 @@ from hostwatch.core.plugin import (
     PluginMeta,
     capabilities,
 )
-from hostwatch.plugins.aeza import api
+from hostwatch.plugins.aeza import api, ordering
 
 BASE_URL = "https://my.aeza.net/api/v2/"
 PAGE = 50
@@ -264,6 +265,21 @@ class AezaPlugin(Plugin):
         body = {"method": "balance", "paymentTerm": service.paymentTerm, "count": 1}
         response = await self._send("POST", f"services/{service.id}/prolong", json=body)
         return _done(response)
+
+    async def catalog(self) -> Catalog:
+        return await ordering.catalog(self)
+
+    async def quote(self, request: OrderRequest) -> Money:
+        return await ordering.quote(self, request)
+
+    async def order(self, request: OrderRequest) -> OrderResult:
+        return await ordering.order(self, request)
+
+    async def order_template(self, server_id: str) -> OrderTemplate:
+        return await ordering.template(self, server_id)
+
+    async def root_password(self, server_id: str) -> str:
+        return await ordering.root_password(self, server_id)
 
     async def _service(self, server_id: str) -> api.Service:
         services = await self._get(api.Services, "services", offset=0, limit=PAGE)

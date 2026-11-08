@@ -12,11 +12,14 @@ from hostwatch.core.alerts import AccountView
 from hostwatch.core.control import Confirmations, Request, finished_stops
 from hostwatch.core.forecast import RECONCILE_WINDOW, Forecast, forecast
 from hostwatch.core.models import Account, Balance, Server, Usage
+from hostwatch.core.order import CatalogCache, Draft
 from hostwatch.core.plugin import ApiKeyAuth, Capability, Plugin, capabilities
 from hostwatch.core.rates import Rates
 from hostwatch.core.registry import Registry
+from hostwatch.scheduler.autopay import AutopayJob
 from hostwatch.scheduler.maintenance import Backups
 from hostwatch.scheduler.polling import Poller
+from hostwatch.storage.autopay import AutopayStore
 from hostwatch.storage.repositories import (
     AccountRepository,
     BalanceHistoryRepository,
@@ -50,6 +53,8 @@ class AccountData:
     balance: Balance | None
     balance_at: datetime | None
     forecast: Forecast | None
+    # Servers the owner marked for the bot's autopay (stage 11).
+    autopay: frozenset[str] = frozenset()
 
     @property
     def caps(self) -> set[Capability]:
@@ -86,6 +91,12 @@ class Hub:
     background: set[asyncio.Task[None]] = field(default_factory=set)
     # «Yes» buttons of server and money actions waiting for the owner (stage 10).
     confirmations: Confirmations[Request] = field(default_factory=Confirmations)
+    # Autopay marks and rule (stage 11); None: autopay is off and nothing is marked.
+    autopay: AutopayStore | None = None
+    autopay_job: AutopayJob | None = None
+    # Orders (stage 13): catalogs read within the hour, and orders waiting for «Yes».
+    catalogs: CatalogCache = field(default_factory=CatalogCache)
+    order_confirmations: Confirmations[Draft] = field(default_factory=Confirmations)
 
     def plugins(self) -> list[type[Plugin]]:
         ids = [pid for pid in self.registry.ids() if pid not in self.hidden_plugins]
@@ -108,9 +119,10 @@ class Hub:
         latest = self.balances.latest(account_id)
         balance_at, balance = latest if latest is not None else (None, None)
         result_forecast = None
+        autopay = self.autopay.marked(account_id) if self.autopay is not None else frozenset()
         if balance is not None and balance_at is not None:
             history = self.balances.since(account_id, balance_at - RECONCILE_WINDOW)
-            result_forecast = forecast(balance, servers, balance_at, history)
+            result_forecast = forecast(balance, servers, balance_at, history, autopay)
         return AccountData(
             account=account,
             plugin=plugin,
@@ -119,6 +131,7 @@ class Hub:
             balance=balance,
             balance_at=balance_at,
             forecast=result_forecast,
+            autopay=autopay,
         )
 
     def usage_of(self, account_id: int, server_id: str) -> Usage | None:
@@ -147,6 +160,7 @@ class Hub:
                     usage=usage,
                     failures=0 if schedule is None else schedule.failures,
                     owner_stopped=self._owner_stopped(acc, data.servers),
+                    autopay=data.autopay,
                 )
             )
         return views

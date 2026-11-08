@@ -100,6 +100,8 @@ def test_capabilities() -> None:
         Capability.TOPUP,
         Capability.POWER,
         Capability.PAY_INVOICE,
+        Capability.ORDER,
+        Capability.ROOT_PASSWORD,
     }
     assert not RegxaPlugin.login_only
 
@@ -397,7 +399,7 @@ def test_check_regxa_cli(hoster: respx.MockRouter, capsys: pytest.CaptureFixture
 
     out = capsys.readouterr().out
     assert "Balance: $1 125.00" in out
-    assert "Capabilities: invoices, pay_invoice, power, topup, usage" in out
+    assert "Capabilities: invoices, order, pay_invoice, power, root_password, topup, usage" in out
     assert "Servers: 1" in out
     assert (
         "hostname-3 [100003] vps running (Active) ip 192.0.2.12 plan Cloud VPS X1 - Europe"

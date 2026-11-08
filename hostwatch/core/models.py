@@ -199,21 +199,6 @@ class Payment(Model):
         return self
 
 
-class Offer(Model):
-    id: str
-    name: str
-    location: str
-    price: Money
-    period_months: int = Field(ge=1)
-    os: tuple[str, ...]
-
-
-class OrderRequest(Model):
-    offer_id: str
-    os: str
-    period_months: int = Field(ge=1)
-
-
 class ActionResult(Model):
     ok: bool
     # The hoster's answer without secrets, for the journal.

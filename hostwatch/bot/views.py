@@ -12,6 +12,7 @@ from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from hostwatch.core.autopay import eligible as autopay_eligible
 from hostwatch.core.errors import explain
 from hostwatch.core.forecast import Method
 from hostwatch.core.models import (
@@ -402,6 +403,17 @@ def _renews(server: Server) -> bool:
     return server.billing is BillingModel.PERIODIC and server.autorenew is Autorenew.ON
 
 
+def autopay_lines(v: View, data: AccountData, server: Server) -> list[str]:
+    """The bot's autopay for this server, or a hint to use the hoster's own autorenewal."""
+    if autopay_eligible(data.caps, server):
+        on = server.external_id in data.autopay
+        return [v.t("autopay.card.on" if on else "autopay.card.off")]
+    native = ServerAction.AUTORENEW in server.actions and Capability.AUTORENEW in data.caps
+    if native and server.autorenew is Autorenew.OFF and server.billing is BillingModel.PERIODIC:
+        return [v.t("autopay.card.native_hint")]
+    return []
+
+
 def server_actions(data: AccountData, server: Server) -> list[str]:
     """Action buttons the plugin and this server both allow, in display order.
 
@@ -423,7 +435,7 @@ def server_actions(data: AccountData, server: Server) -> list[str]:
     if ServerAction.RENEW in allowed:
         shown.append("renew")
     # The bot's own autopay is for hosters without autorenewal (spec, decision 10).
-    if Capability.PAY_INVOICE in caps and ServerAction.AUTORENEW not in allowed:
+    if autopay_eligible(caps, server):
         shown.append("autopay")
     if Capability.ORDER in caps:
         shown.append("order_same")
@@ -448,9 +460,11 @@ def server_card(
         v.t("card.price", price=_price(v, server)),
     ]
     if server.next_charge_at is not None:
-        key = "card.next_charge" if _renews(server) else "card.ends"
+        renews = _renews(server) or server.external_id in data.autopay
+        key = "card.next_charge" if renews else "card.ends"
         lines.append(v.t(key, date=v.day(server.next_charge_at)))
     lines.append(v.t("card.autorenew", value=autorenew))
+    lines += autopay_lines(v, data, server)
     lines.append(v.t("card.usage", value=_usage(v, data, usage)))
     if data.servers_at is not None:
         lines.append(v.t("card.data_at", date=v.moment(data.servers_at)))
@@ -462,10 +476,13 @@ def server_card(
     kb = InlineKeyboardBuilder()
     acc, sid = data.account.id, server.external_id
     for action in server_actions(data, server):
-        kb.button(
-            text=v.t(f"action.{action}"), callback_data=ActionCb(acc=acc, sid=sid, act=action)
-        )
+        text = v.t(f"action.{action}")
+        if action == "autopay":
+            text = v.t("autopay.button.off" if sid in data.autopay else "autopay.button.on")
+        kb.button(text=text, callback_data=ActionCb(acc=acc, sid=sid, act=action))
     kb.adjust(3)
+    if Capability.ROOT_PASSWORD in data.caps:
+        kb.row(_button(v.t("order.button.password"), ActionCb(acc=acc, sid=sid, act="password")))
     kb.row(_button(v.t("button.refresh"), RefreshCb(acc=acc, view="server", sid=sid)))
     kb.row(*_nav(v, HostCb(acc=acc, page=server_page(data, server))))
     return Screen("\n".join(lines), kb.as_markup())
@@ -642,12 +659,14 @@ def journal_action(v: View, entry: JournalEntry) -> str:
     name = (
         v.t(f"journal.action.{entry.action}") if entry.action in JOURNAL_ACTIONS else entry.action
     )
+    if entry.action in ("order", "root_password"):
+        name = v.t(f"order.journal.{entry.action}")
     detail = entry.params.get("invoice") if entry.action == "pay_invoice" else None
     amount = entry.params.get("amount")
     parts = [name]
     if detail:
         parts.append(f"#{detail}")
-    if amount and entry.action in ("renew", "pay_invoice", "topup"):
+    if amount and entry.action in ("renew", "pay_invoice", "topup", "order"):
         parts.append(f"{amount} {entry.params.get('currency', '')}".strip())
     return " ".join(parts)
 
@@ -705,6 +724,8 @@ def settings(v: View, timezone: str, currency: str, thresholds: dict[str, str]) 
     )
     for item in THRESHOLDS:
         kb.row(_button(v.t(f"threshold.button.{item.key}"), SetCb(key="th", value=item.key)))
+    kb.row(_button(v.t("autopay.settings.button"), SetCb(key="ap")))
+    kb.row(_button(v.t("order.settings.button"), SetCb(key="order")))
     kb.row(_button(v.t("settings.button.backup"), SetCb(key="backup")))
     kb.row(*_nav(v))
     return Screen("\n".join(lines), kb.as_markup())

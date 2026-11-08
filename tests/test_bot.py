@@ -39,6 +39,7 @@ from hostwatch.bot.callbacks import (
     SetCb,
 )
 from hostwatch.bot.hub import AccountData, Hub
+from hostwatch.bot.order import OrderCb
 from hostwatch.bot.prefs import Prefs
 from hostwatch.bot.views import View, monthly_cost, server_actions, summary_text
 from hostwatch.core.accounts import AccountRunner
@@ -350,6 +351,12 @@ def test_server_actions_limit_buttons() -> None:
     server = _server(actions=frozenset({ServerAction.RESTART}))
     assert server_actions(_data(FakePlugin, [server]), server) == [
         "restart",
+        "order_same",
+    ]
+    # Bot autopay only where the hoster has no autorenewal of its own (stage 11).
+    no_native = server.model_copy(update={"autorenew": Autorenew.NOT_AVAILABLE})
+    assert server_actions(_data(FakePlugin, [no_native]), no_native) == [
+        "restart",
         "autopay",
         "order_same",
     ]
@@ -362,8 +369,12 @@ def test_plugin_without_capabilities_shows_no_action_buttons() -> None:
 
     server = _server()
     assert server_actions(_data(ReadOnly, [server]), server) == []
-    # Timeweb bills by the hour: power only.
-    assert server_actions(_data(TimewebPlugin, [server]), server) == ["stop", "restart"]
+    # Timeweb bills by the hour: power and orders only.
+    assert server_actions(_data(TimewebPlugin, [server]), server) == [
+        "stop",
+        "restart",
+        "order_same",
+    ]
 
 
 async def test_server_card_of_fake_has_its_buttons(harness: Harness) -> None:
@@ -387,17 +398,21 @@ async def test_server_card_of_fake_has_its_buttons(harness: Harness) -> None:
         assert ActionCb(acc=account, sid="1", act=act).pack() in buttons
     assert ActionCb(acc=account, sid="1", act="start").pack() not in buttons
 
+    assert ActionCb(acc=account, sid="1", act="password").pack() in buttons
+
     await harness.press(ActionCb(acc=account, sid="1", act="order_same"))
-    assert harness.alerts()[-1] == "Будет на этапе 13."
+    # The plan, location and OS are copied; the term is left to choose.
+    assert "Выберите срок" in harness.session.last_text()
 
 
 async def test_order_shows_in_menu_only_when_a_plugin_can_order(harness: Harness) -> None:
     harness.onboard()
-    harness.hub.accounts.add("aeza", "main", {"api_key": "x" * 20})
+    acc = harness.hub.accounts.add("fake", "main", {})
+    harness.hub.accounts.set_status(acc, AccountStatus.DISABLED)
     await harness.send("/menu")
     assert Nav(to="order").pack() not in harness.session.buttons()
 
-    harness.hub.accounts.add("fake", "main", {})
+    harness.hub.accounts.set_status(acc, AccountStatus.OK)
     await harness.send("/menu")
     assert Nav(to="order").pack() in harness.session.buttons()
 
@@ -508,7 +523,11 @@ async def test_servers_and_cards_of_aeza_and_timeweb(live_like: Harness) -> None
             card = live_like.session.last_text()
             assert f"<b>{server.name}</b> · {d.plugin.meta.name}" in card
             assert "Data from" in card
-            shown = [b for b in live_like.session.buttons() if b.startswith("a:")]
+            shown = [
+                b
+                for b in live_like.session.buttons()
+                if b.startswith("a:") and not b.endswith(":password")
+            ]
             assert len(shown) == len(server_actions(d, server))
 
 
@@ -758,19 +777,14 @@ async def test_back_and_menu_on_every_screen(harness: Harness) -> None:
         _assert_nav(harness, back)
 
 
-async def test_stub_buttons_keep_the_screen(harness: Harness) -> None:
+async def test_order_in_the_menu_lists_the_accounts_that_can_order(harness: Harness) -> None:
     harness.onboard("ru")
-    account = harness.hub.accounts.add("fake", "main", {})
-    await harness.poller.poll_account(account)
-    await harness.press(ServerCb(acc=account, sid="1"))
-    calls = len(harness.session.calls)
+    acc = harness.hub.accounts.add("fake", "main", {})
 
-    await harness.press(ActionCb(acc=account, sid="1", act="order_same"))
     await harness.press(Nav(to="order"))
 
-    new = harness.session.calls[calls:]
-    assert all(isinstance(call, AnswerCallbackQuery) for call in new)
-    assert harness.alerts()[-2:] == ["Будет на этапе 13.", "Будет на этапе 13."]
+    assert "У какого хостера заказать?" in harness.session.last_text()
+    assert OrderCb(acc=acc).pack() in harness.session.buttons()
 
 
 async def test_menu_command_works_in_the_middle_of_a_question(harness: Harness) -> None:

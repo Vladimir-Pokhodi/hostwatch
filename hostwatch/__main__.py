@@ -3,7 +3,9 @@
 `python -m hostwatch` runs the bot and the polling scheduler;
 `python -m hostwatch check <plugin_or_account> [--key ...]` reads and prints;
 `python -m hostwatch record <plugin_or_account> [--key ...]` saves scrubbed test fixtures;
-`python -m hostwatch login <plugin_or_account>` asks the running bot for a login link.
+`python -m hostwatch login <plugin_or_account>` asks the running bot for a login link;
+`python -m hostwatch autopay <account>` shows what the autopay rule would do now, paying nothing;
+`python -m hostwatch catalog <account>` reads what the hoster sells, ordering nothing.
 """
 
 from __future__ import annotations
@@ -73,6 +75,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run_bot()
     if args.command == "login":
         return _login_link(args.target)
+    if args.command == "autopay":
+        return _autopay_dry_run(args)
+    if args.command == "catalog":
+        return _catalog(args)
     handler = setup_logging(logging.DEBUG if args.verbose else logging.WARNING, stream=sys.stderr)
     try:
         registry = discover(_plugins_dir())
@@ -134,7 +140,58 @@ def _parser() -> argparse.ArgumentParser:
     login.add_argument(
         "target", help="account label/id, or a plugin id (a new account unless there is one)"
     )
+    autopay = commands.add_parser(
+        "autopay",
+        help="dry run: read invoices and show what the autopay rule would do now; pays nothing",
+    )
+    autopay.add_argument("target", help="account label/id from the database")
+    autopay.add_argument(
+        "--all", action="store_true", help="assume every eligible server is marked for autopay"
+    )
+    autopay.add_argument("--limit", help="assume this monthly limit, in the account currency")
+    autopay.add_argument("--days", type=int, help="assume this many days before the due date")
+    autopay.add_argument(
+        "--redact", action="store_true", help="hide sums, invoice ids and server names"
+    )
+    autopay.add_argument("-v", "--verbose", action="store_true", help="log HTTP requests")
+    catalog = commands.add_parser(
+        "catalog",
+        help="read what the hoster sells and the price of the cheapest plan; orders nothing",
+    )
+    catalog.add_argument("target", help="account label/id from the database")
+    catalog.add_argument("-v", "--verbose", action="store_true", help="log HTTP requests")
     return parser
+
+
+def _catalog(args: argparse.Namespace) -> int:
+    from hostwatch.order_cli import CatalogFailed, read_catalog
+
+    handler = setup_logging(logging.DEBUG if args.verbose else logging.WARNING, stream=sys.stderr)
+    try:
+        text = asyncio.run(read_catalog(discover(_plugins_dir()), args.target))
+    except CatalogFailed as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    finally:
+        logging.getLogger().removeHandler(handler)
+    print(text)
+    return 0
+
+
+def _autopay_dry_run(args: argparse.Namespace) -> int:
+    from hostwatch.autopay_cli import Assume, DryRunFailed, dry_run
+
+    handler = setup_logging(logging.DEBUG if args.verbose else logging.WARNING, stream=sys.stderr)
+    assume = Assume(all_eligible=args.all, limit=args.limit, days=args.days)
+    try:
+        text = asyncio.run(dry_run(discover(_plugins_dir()), args.target, assume, args.redact))
+    except DryRunFailed as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    finally:
+        logging.getLogger().removeHandler(handler)
+    print(text)
+    return 0
 
 
 def _login_link(target: str) -> int:

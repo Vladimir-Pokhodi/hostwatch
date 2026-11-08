@@ -108,6 +108,8 @@ class AccountView:
     failures: int = 0
     # Servers the owner stopped through the bot: their «stopped» is not news.
     owner_stopped: frozenset[str] = frozenset()
+    # Servers the bot's autopay renews (stage 11): they renew like autorenewal ones.
+    autopay: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -406,7 +408,8 @@ class _Rules:
             and forecast.shortfall.server == server.name
             and forecast.shortfall.at <= ends_at
         )
-        if server.autorenew is Autorenew.ON and not short:
+        renews = server.autorenew is Autorenew.ON or server.external_id in self.view.autopay
+        if renews and not short:
             return None
         name = escape(server.name)
         key = "alert.ends_soon_short" if short else "alert.ends_soon"

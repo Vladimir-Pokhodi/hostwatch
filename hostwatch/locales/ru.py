@@ -365,6 +365,82 @@ MESSAGES: dict[str, str] = {
         "Ответ: {detail}\nПроверьте в кабинете."
     ),
     "control.money_notice": "💸 <b>Действие с деньгами</b>\n{text}",
+    "autopay.button.on": "Включить автооплату",
+    "autopay.button.off": "Выключить автооплату",
+    "autopay.button.pay": "✅ Оплатить",
+    "autopay.button.skip": "Не платить",
+    "autopay.button.topup": "Пополнить баланс",
+    "autopay.button.invoices": "Счета хостера",
+    "autopay.card.on": "Автооплата бота: вкл.",
+    "autopay.card.off": "Автооплата бота: выкл.",
+    "autopay.card.native_hint": (
+        "У хостера есть своё автопродление: включите его кнопкой ниже, а бот последит,"
+        " чтобы на балансе хватало денег."
+    ),
+    "autopay.settings.button": "💳 Автооплата",
+    "autopay.settings.title": "<b>Автооплата</b>",
+    "autopay.settings.about": (
+        "Бот сам оплачивает с баланса уже выставленный хостером счёт на продление,"
+        " когда до срока осталось не больше указанного числа дней. Только для серверов"
+        " с отметкой «автооплата» (кнопка на карточке) и только у хостеров без своего"
+        " автопродления. Если сумма выросла больше чем на 10 %, бот спросит."
+    ),
+    "autopay.settings.off": "Автооплата недоступна в этом запуске.",
+    "autopay.settings.days": "Срок: за {days} дн. до окончания",
+    "autopay.settings.no_accounts": "Нет хостеров, у которых бот умеет оплачивать счета.",
+    "autopay.settings.account": (
+        "{title}: лимит {limit} в месяц, потрачено {spent}, серверов с автооплатой: {count}"
+    ),
+    "autopay.settings.zero_limit": "  Лимит 0: бот ничего не оплатит, пока вы его не зададите.",
+    "autopay.settings.button.days": "Срок: {days} дн.",
+    "autopay.settings.button.limit": "Лимит: {title}",
+    "autopay.ask_days": "За сколько дней до срока платить? Сейчас {days}. Число от 1 до {max}.",
+    "autopay.ask_limit": (
+        "Месячный лимит автооплаты для {title}. Сейчас {limit}. Напишите сумму в валюте"
+        " хостера, например 15 или 15.50. 0 выключает оплату."
+    ),
+    "autopay.bad_days": "Нужно целое число от 1 до {max}.",
+    "autopay.bad_limit": "Нужна сумма от 0 до 1 000 000 с точностью до копеек, например 15.50.",
+    "autopay.marked_off": "Автооплата для {server} выключена.",
+    "autopay.marked_on": (
+        "Автооплата для {server} включена: счёт на продление оплачу за {days} дн. до срока,"
+        " не больше {limit} в месяц."
+    ),
+    "autopay.marked_on_no_limit": (
+        "Автооплата для {server} включена, но месячный лимит 0: ничего не оплачу, пока вы"
+        " не зададите его в «Настройки → Автооплата»."
+    ),
+    "autopay.report.paid": (
+        "Автооплата: оплачен счёт #{id} за {server} · {title}: {amount}.\nОтвет хостера: {detail}"
+    ),
+    "autopay.report.limit": "Лимит месяца: потрачено {spent} из {limit}.",
+    "autopay.report.unclear": (
+        "Автооплата: хостер принял оплату счёта #{id} за {server} · {title} ({amount}),"
+        " но не подтвердил её.\nОтвет: {detail}\nПроверьте в кабинете. Сам бот этот счёт"
+        " больше не тронет."
+    ),
+    "autopay.report.failed": (
+        "Автооплата не оплатила счёт #{id} за {server} · {title} ({amount}). Причина: {reason}."
+        "\nСам бот этот счёт больше не тронет: проверьте в кабинете и оплатите вручную."
+    ),
+    "autopay.report.grown": (
+        "⚠️ Счёт #{id} за {server} · {title} вырос: {amount} вместо {reference}."
+        " Автооплата его не оплатила. Оплатить?"
+    ),
+    "autopay.report.new": (
+        "⚠️ Счёт #{id} за {server} · {title} на {amount}: не с чем сравнить сумму."
+        " Автооплата его не оплатила. Оплатить?"
+    ),
+    "autopay.report.over_limit": (
+        "Счёт #{id} за {server} · {title} ({amount}) не оплачен автооплатой: не хватает"
+        " месячного лимита (потрачено {spent} из {limit})."
+    ),
+    "autopay.report.low_balance": (
+        "Счёт #{id} за {server} · {title} ({amount}) не оплачен автооплатой: на балансе"
+        " {balance}, не хватает {missing}."
+    ),
+    "autopay.declined": "Хорошо, счёт #{id} бот оплачивать не будет.",
+    "autopay.changed": "Сумма счёта снова изменилась, теперь {amount}. Ничего не оплачено.",
     "invoices.title": "<b>Счета к оплате: {title}</b>",
     "invoices.none": "Неоплаченных счетов нет.",
     "invoices.line": "Счёт #{id}: {amount}, срок {due}",
@@ -385,4 +461,116 @@ MESSAGES: dict[str, str] = {
     "journal.action.autorenew_off": "автопродление выкл.",
     "journal.action.renew": "продление",
     "journal.action.pay_invoice": "оплата счёта",
+    # Ordering servers (stage 13)
+    "order.title_any": "<b>Заказ сервера</b>",
+    "order.title": "<b>Заказ сервера · {title}</b>",
+    "order.no_accounts": "Нет подключённых хостеров, у которых бот умеет заказывать серверы.",
+    "order.choose_account": "У какого хостера заказать?",
+    "order.choose_location": "Выберите локацию:",
+    "order.location_button": "{name} · от {amount}/мес",
+    "order.empty": "Хостер сейчас ничего не продаёт.",
+    "order.location": "Локация: {name}",
+    "order.choose_plan": "Выберите тариф:",
+    "order.plan_line": "• <b>{name}</b> — {specs}, от {amount}/мес",
+    "order.plan_button": "{name} · {amount}/мес",
+    "order.more_plans": "И ещё тарифов: {count}. Показаны самые дешёвые.",
+    "order.plan": "Тариф: {name} ({specs})",
+    "order.choose_os": "Выберите ОС:",
+    "order.no_os": "Для этого тарифа нет ОС, которую бот умеет заказать.",
+    "order.os": "ОС: {name}",
+    "order.choose_period": "Выберите срок:",
+    "order.period_hourly": "Почасово · ≈{amount}/мес",
+    "order.period_months": "{months} мес. · {amount}",
+    "order.period": "Срок: {period}",
+    "order.hourly": "почасово",
+    "order.months": "{months} мес.",
+    "order.price": "Цена: {price}",
+    "order.price_hourly": "≈{amount} в месяц, списывается почасово ({hour} в час)",
+    "order.price_changed": "⚠️ Цена изменилась: в каталоге было {old}, хостер просит {new}.",
+    "order.balance": "Баланс: {amount}",
+    "order.key_set": "SSH-ключ: поставлю ключ из настроек ({name}).",
+    "order.key_missing": (
+        "SSH-ключ: не задан в настройках. Войти можно будет по паролю"
+        " (кнопка «Показать пароль» на карточке)."
+    ),
+    "order.key_not_supported": (
+        "SSH-ключ: этот хостер не ставит ключ при заказе. Войти можно будет по паролю."
+    ),
+    "order.limit_ok": "Лимит заказов: потрачено {spent} из {limit} в этом месяце.",
+    "order.limit_over": (
+        "Лимит заказов: потрачено {spent} из {limit} в этом месяце."
+        " Заказ выше лимита, спрошу ещё раз."
+    ),
+    "order.untested": (
+        "⚠️ Заказ у этого хостера не проверен вживую: после заказа проверьте кабинет."
+    ),
+    "order.ask": "Заказать за {price}?",
+    "order.second_title": "<b>Заказ выше месячного лимита</b>",
+    "order.what": "Что: {what}",
+    "order.second_ask": "Точно заказать? Это второе подтверждение.",
+    "order.second_yes": "✅ Да, заказать",
+    "order.shortfall": (
+        "На балансе не хватает денег: нужно {need}, на балансе {balance}, не хватает {missing}."
+    ),
+    "order.topup_button": "Пополнить на {amount} · {name}",
+    "order.topup_hint": "Пополните баланс и нажмите «Проверить ещё раз».",
+    "order.topup_none": "Пополните баланс в кабинете хостера и нажмите «Проверить ещё раз».",
+    "order.check_again": "🔄 Проверить ещё раз",
+    "order.loading": "Читаю каталог у хостера…",
+    "order.asking_price": "Узнаю цену и баланс у хостера…",
+    "order.cancelled": "Заказ отменён. Ничего не заказал.",
+    "order.running": "Заказываю…",
+    "order.timeout": (
+        "Хостер не ответил вовремя: {what}. Заказ мог пройти. Проверьте кабинет"
+        " и не заказывайте повторно, пока не убедитесь."
+    ),
+    "order.price_moved": (
+        "Не заказал: {what}. Цена изменилась перед заказом: было {old}, стало {new}."
+        " Начните заказ заново."
+    ),
+    "order.failed": "Не заказал: {what}. Причина: {reason}.",
+    "order.unclear": (
+        "Хостер ответил непонятно: {what}. Проверьте кабинет.\nОтвет хостера: {detail}"
+    ),
+    "order.invoice": (
+        "Хостер выставил счёт #{invoice} вместо оплаты с баланса: {what}."
+        " Сервер появится после оплаты.\nОтвет хостера: {detail}"
+    ),
+    "order.done": (
+        "Заказано: {what}, {price}. Сервер появится в списке после ближайшего опроса."
+        "\nОтвет хостера: {detail}"
+    ),
+    "order.password": (
+        "🔑 Root-пароль {server}: <code>{password}</code>\n"
+        "Сообщение удалится через {minutes} мин. Бот пароль не хранит."
+    ),
+    "order.password_asking": "Запрашиваю пароль у хостера…",
+    "order.button.password": "🔑 Показать пароль",
+    "order.journal.order": "заказ сервера",
+    "order.journal.root_password": "показ пароля",
+    "order.settings.button": "Заказ: лимит и SSH-ключ",
+    "order.settings.title": "<b>Заказ серверов</b>",
+    "order.settings.limit": "Лимит заказов в месяц: {amount}",
+    "order.settings.limit_note": (
+        "Заказ выше лимита бот подтверждает дважды. При лимите 0 — каждый заказ."
+    ),
+    "order.settings.key": "SSH-ключ для новых серверов: {name}",
+    "order.settings.no_key": "не задан",
+    "order.settings.button.limit": "Изменить лимит",
+    "order.settings.button.key": "Задать SSH-ключ",
+    "order.settings.button.no_key": "Удалить SSH-ключ",
+    "order.settings.ask_limit": (
+        "Напишите лимит заказов в месяц в {currency}, например 1000."
+        " 0 — подтверждать дважды каждый заказ."
+    ),
+    "order.settings.bad_limit": "Не понял сумму. Напишите число 0 или больше, например 1000.",
+    "order.settings.ask_key": (
+        "Пришлите публичный SSH-ключ одной строкой, например содержимое ~/.ssh/id_ed25519.pub."
+    ),
+    "order.settings.bad_key": (
+        "Это не похоже на публичный ключ. Нужна строка вида «ssh-ed25519 AAAA… комментарий»."
+    ),
+    "order.settings.private_key": (
+        "Это приватный ключ: удалил сообщение. Пришлите публичный, файл с окончанием .pub."
+    ),
 }

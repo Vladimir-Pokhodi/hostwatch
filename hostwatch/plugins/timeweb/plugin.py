@@ -27,6 +27,7 @@ from typing import Any
 import httpx
 from pydantic import BaseModel, ValidationError
 
+from hostwatch.core.catalog import Catalog, OrderRequest, OrderResult, OrderTemplate
 from hostwatch.core.errors import AuthExpired, Blocked, HosterError, LayoutChanged, RateLimited
 from hostwatch.core.models import (
     ActionResult,
@@ -46,6 +47,7 @@ from hostwatch.core.models import (
 )
 from hostwatch.core.payments import yookassa
 from hostwatch.core.plugin import ApiKeyAuth, BrowserAuth, Plugin, PluginMeta
+from hostwatch.plugins.timeweb import ordering
 from hostwatch.plugins.timeweb.schema import (
     CloudServer,
     CloudServerAnswer,
@@ -194,6 +196,21 @@ class TimewebPlugin(Plugin):
             raise HosterError("Timeweb is unreachable") from None
         _raise_for_status(response)
         return ActionResult(ok=True, detail=f"HTTP {response.status_code}")
+
+    async def catalog(self) -> Catalog:
+        return await ordering.catalog(self)
+
+    async def quote(self, request: OrderRequest) -> Money:
+        return await ordering.quote(self, request)
+
+    async def order(self, request: OrderRequest) -> OrderResult:
+        return await ordering.order(self, request)
+
+    async def order_template(self, server_id: str) -> OrderTemplate:
+        return await ordering.template(self, server_id)
+
+    async def root_password(self, server_id: str) -> str:
+        return await ordering.root_password(self, server_id)
 
     async def topup_methods(self) -> list[TopupMethod]:
         minimum = Money(amount=MIN_TOPUP, currency="RUB")

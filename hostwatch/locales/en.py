@@ -368,6 +368,83 @@ MESSAGES: dict[str, str] = {
         "Answer: {detail}\nCheck the cabinet."
     ),
     "control.money_notice": "💸 <b>Money action</b>\n{text}",
+    "autopay.button.on": "Turn autopay on",
+    "autopay.button.off": "Turn autopay off",
+    "autopay.button.pay": "✅ Pay",
+    "autopay.button.skip": "Don't pay",
+    "autopay.button.topup": "Top up",
+    "autopay.button.invoices": "Hoster invoices",
+    "autopay.card.on": "Bot autopay: on",
+    "autopay.card.off": "Bot autopay: off",
+    "autopay.card.native_hint": (
+        "The hoster has its own autorenewal: turn it on with the button below, and the bot"
+        " will watch that the balance is enough."
+    ),
+    "autopay.settings.button": "💳 Autopay",
+    "autopay.settings.title": "<b>Autopay</b>",
+    "autopay.settings.about": (
+        "The bot pays a renewal invoice the hoster has issued, from the balance, when the"
+        " due date is this many days away or closer. Only for servers marked «autopay»"
+        " (a button on the card) and only at hosters without their own autorenewal. If the"
+        " sum grew by more than 10 %, the bot asks."
+    ),
+    "autopay.settings.off": "Autopay is not available in this run.",
+    "autopay.settings.days": "When: {days} days before the due date",
+    "autopay.settings.no_accounts": "No connected hoster whose invoices the bot can pay.",
+    "autopay.settings.account": (
+        "{title}: limit {limit} a month, spent {spent}, servers with autopay: {count}"
+    ),
+    "autopay.settings.zero_limit": "  Limit 0: the bot pays nothing until you set it.",
+    "autopay.settings.button.days": "When: {days} days",
+    "autopay.settings.button.limit": "Limit: {title}",
+    "autopay.ask_days": "How many days before the due date to pay? Now {days}. 1 to {max}.",
+    "autopay.ask_limit": (
+        "Monthly autopay limit for {title}. Now {limit}. Type a sum in the hoster's currency,"
+        " e.g. 15 or 15.50. 0 turns paying off."
+    ),
+    "autopay.bad_days": "A whole number from 1 to {max}, please.",
+    "autopay.bad_limit": "A sum from 0 to 1 000 000 in whole cents, e.g. 15.50.",
+    "autopay.marked_off": "Autopay for {server} is off.",
+    "autopay.marked_on": (
+        "Autopay for {server} is on: I pay the renewal invoice {days} days before the due"
+        " date, at most {limit} a month."
+    ),
+    "autopay.marked_on_no_limit": (
+        "Autopay for {server} is on, but the monthly limit is 0: I pay nothing until you set"
+        " it in «Settings → Autopay»."
+    ),
+    "autopay.report.paid": (
+        "Autopay: paid invoice #{id} for {server} · {title}: {amount}.\nHoster's answer: {detail}"
+    ),
+    "autopay.report.limit": "Month limit: spent {spent} of {limit}.",
+    "autopay.report.unclear": (
+        "Autopay: the hoster took the payment of invoice #{id} for {server} · {title}"
+        " ({amount}) but did not confirm it.\nAnswer: {detail}\nCheck the cabinet. The bot"
+        " will not touch this invoice again by itself."
+    ),
+    "autopay.report.failed": (
+        "Autopay did not pay invoice #{id} for {server} · {title} ({amount}). Reason: {reason}."
+        "\nThe bot will not touch this invoice again by itself: check the cabinet and pay"
+        " by hand."
+    ),
+    "autopay.report.grown": (
+        "⚠️ Invoice #{id} for {server} · {title} grew: {amount} instead of {reference}."
+        " Autopay did not pay it. Pay?"
+    ),
+    "autopay.report.new": (
+        "⚠️ Invoice #{id} for {server} · {title} is {amount}: nothing to compare the sum with."
+        " Autopay did not pay it. Pay?"
+    ),
+    "autopay.report.over_limit": (
+        "Invoice #{id} for {server} · {title} ({amount}) was not paid by autopay: the monthly"
+        " limit is not enough (spent {spent} of {limit})."
+    ),
+    "autopay.report.low_balance": (
+        "Invoice #{id} for {server} · {title} ({amount}) was not paid by autopay: the balance"
+        " is {balance}, {missing} short."
+    ),
+    "autopay.declined": "OK, the bot will not pay invoice #{id}.",
+    "autopay.changed": "The invoice sum changed again, now {amount}. Nothing was paid.",
     "invoices.title": "<b>Invoices to pay: {title}</b>",
     "invoices.none": "No unpaid invoices.",
     "invoices.line": "Invoice #{id}: {amount}, due {due}",
@@ -388,4 +465,115 @@ MESSAGES: dict[str, str] = {
     "journal.action.autorenew_off": "autorenewal off",
     "journal.action.renew": "renewal",
     "journal.action.pay_invoice": "invoice payment",
+    # Ordering servers (stage 13)
+    "order.title_any": "<b>Order a server</b>",
+    "order.title": "<b>Order a server · {title}</b>",
+    "order.no_accounts": "No connected hoster where the bot can order servers.",
+    "order.choose_account": "Where to order?",
+    "order.choose_location": "Pick a location:",
+    "order.location_button": "{name} · from {amount}/mo",
+    "order.empty": "The hoster sells nothing right now.",
+    "order.location": "Location: {name}",
+    "order.choose_plan": "Pick a plan:",
+    "order.plan_line": "• <b>{name}</b> — {specs}, from {amount}/mo",
+    "order.plan_button": "{name} · {amount}/mo",
+    "order.more_plans": "{count} more plans. The cheapest are shown.",
+    "order.plan": "Plan: {name} ({specs})",
+    "order.choose_os": "Pick an OS:",
+    "order.no_os": "This plan has no OS the bot can order.",
+    "order.os": "OS: {name}",
+    "order.choose_period": "Pick a term:",
+    "order.period_hourly": "Hourly · ≈{amount}/mo",
+    "order.period_months": "{months} mo · {amount}",
+    "order.period": "Term: {period}",
+    "order.hourly": "hourly",
+    "order.months": "{months} mo",
+    "order.price": "Price: {price}",
+    "order.price_hourly": "≈{amount} a month, charged by the hour ({hour} an hour)",
+    "order.price_changed": "⚠️ The price changed: the catalog said {old}, the hoster asks {new}.",
+    "order.balance": "Balance: {amount}",
+    "order.key_set": "SSH key: I will add the key from the settings ({name}).",
+    "order.key_missing": (
+        "SSH key: none in the settings. You can log in with the password"
+        " («Show password» on the server card)."
+    ),
+    "order.key_not_supported": (
+        "SSH key: this hoster does not add a key with the order. Log in with the password."
+    ),
+    "order.limit_ok": "Order limit: {spent} of {limit} spent this month.",
+    "order.limit_over": (
+        "Order limit: {spent} of {limit} spent this month."
+        " This order goes above it, I will ask once more."
+    ),
+    "order.untested": (
+        "⚠️ Ordering at this hoster is not tested live yet: check the cabinet after it."
+    ),
+    "order.ask": "Order for {price}?",
+    "order.second_title": "<b>The order goes above the monthly limit</b>",
+    "order.what": "What: {what}",
+    "order.second_ask": "Order anyway? This is the second confirmation.",
+    "order.second_yes": "✅ Yes, order",
+    "order.shortfall": (
+        "Not enough money on the balance: {need} needed, {balance} there, {missing} missing."
+    ),
+    "order.topup_button": "Top up {amount} · {name}",
+    "order.topup_hint": "Top up the balance and press «Check again».",
+    "order.topup_none": "Top up the balance in the hoster's cabinet and press «Check again».",
+    "order.check_again": "🔄 Check again",
+    "order.loading": "Reading the hoster's catalog…",
+    "order.asking_price": "Asking the hoster for the price and the balance…",
+    "order.cancelled": "Order cancelled. Nothing was ordered.",
+    "order.running": "Ordering…",
+    "order.timeout": (
+        "The hoster did not answer in time: {what}. The order may have gone through. Check the"
+        " cabinet and do not order again until you are sure."
+    ),
+    "order.price_moved": (
+        "Not ordered: {what}. The price changed before the order: {old} then, {new} now."
+        " Start the order again."
+    ),
+    "order.failed": "Not ordered: {what}. Reason: {reason}.",
+    "order.unclear": (
+        "Unclear answer from the hoster: {what}. Check the cabinet.\nHoster's answer: {detail}"
+    ),
+    "order.invoice": (
+        "The hoster issued invoice #{invoice} instead of taking the balance: {what}."
+        " The server comes after it is paid.\nHoster's answer: {detail}"
+    ),
+    "order.done": (
+        "Ordered: {what}, {price}. The server shows in the list after the next poll."
+        "\nHoster's answer: {detail}"
+    ),
+    "order.password": (
+        "🔑 Root password of {server}: <code>{password}</code>\n"
+        "This message goes away in {minutes} min. The bot does not keep the password."
+    ),
+    "order.password_asking": "Asking the hoster for the password…",
+    "order.button.password": "🔑 Show password",
+    "order.journal.order": "server order",
+    "order.journal.root_password": "password shown",
+    "order.settings.button": "Orders: limit and SSH key",
+    "order.settings.title": "<b>Ordering servers</b>",
+    "order.settings.limit": "Order limit a month: {amount}",
+    "order.settings.limit_note": (
+        "An order above the limit takes two confirmations. With a limit of 0, every order does."
+    ),
+    "order.settings.key": "SSH key for new servers: {name}",
+    "order.settings.no_key": "none",
+    "order.settings.button.limit": "Change the limit",
+    "order.settings.button.key": "Set the SSH key",
+    "order.settings.button.no_key": "Remove the SSH key",
+    "order.settings.ask_limit": (
+        "Type the monthly order limit in {currency}, e.g. 1000. 0 asks twice for every order."
+    ),
+    "order.settings.bad_limit": "That is not a sum. Type a number of 0 or more, e.g. 1000.",
+    "order.settings.ask_key": (
+        "Send the public SSH key as one line, e.g. the contents of ~/.ssh/id_ed25519.pub."
+    ),
+    "order.settings.bad_key": (
+        "This does not look like a public key. It is one line: «ssh-ed25519 AAAA… comment»."
+    ),
+    "order.settings.private_key": (
+        "This is a private key: I deleted the message. Send the public one, the .pub file."
+    ),
 }
