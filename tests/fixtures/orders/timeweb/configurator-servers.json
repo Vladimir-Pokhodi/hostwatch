@@ -1,0 +1,619 @@
+{
+ "meta": {
+  "total": 18
+ },
+ "server_configurators": [
+  {
+   "id": 11,
+   "disk_type": "nvme",
+   "cpu_frequency": "3.3",
+   "location": "ru-1",
+   "is_allowed_local_network": true,
+   "tags": [
+    "discount35"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 1024,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 420,
+    "ram": 400,
+    "disk": 24,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 17,
+   "disk_type": "nvme",
+   "cpu_frequency": "3",
+   "location": "pl-1",
+   "is_allowed_local_network": true,
+   "tags": [
+    "discount_euro"
+   ],
+   "requirements": {
+    "cpu_min": 2,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 2048,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 100,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 40960,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 210,
+    "ram": 120,
+    "disk": 12,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 19,
+   "disk_type": "nvme",
+   "cpu_frequency": "3.3",
+   "location": "ru-2",
+   "is_allowed_local_network": false,
+   "tags": [
+    "nsk_nvme"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 1024,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 100,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 420,
+    "ram": 400,
+    "disk": 24,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 23,
+   "disk_type": "nvme",
+   "cpu_frequency": "3.3",
+   "location": "kz-1",
+   "is_allowed_local_network": false,
+   "tags": [
+    "kz_nvme_2023"
+   ],
+   "requirements": {
+    "cpu_min": 2,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 2048,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 100,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 40960,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 840,
+    "ram": 800,
+    "disk": 30,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 31,
+   "disk_type": "nvme",
+   "cpu_frequency": "3.3",
+   "location": "ru-3",
+   "is_allowed_local_network": false,
+   "tags": [
+    "msk_nvme"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 1024,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 420,
+    "ram": 400,
+    "disk": 24,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 43,
+   "disk_type": "ssd",
+   "cpu_frequency": "2.8",
+   "location": "ru-1",
+   "is_allowed_local_network": true,
+   "tags": [
+    "ssd_2022"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 1024,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 100,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 100,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 400,
+    "ram": 220,
+    "disk": 22,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 63,
+   "disk_type": "nvme",
+   "cpu_frequency": "3.3",
+   "location": "ru-3",
+   "is_allowed_local_network": false,
+   "tags": [
+    "msk_dedicated_cpu"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 32,
+    "ram_min": 4096,
+    "ram_step": 1024,
+    "ram_max": 131072,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 51200,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 1400,
+    "ram": 500,
+    "disk": 24,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 67,
+   "disk_type": "nvme",
+   "cpu_frequency": "3.3",
+   "location": "ru-1",
+   "is_allowed_local_network": true,
+   "tags": [
+    "spb3_dedicated_cpu"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 32,
+    "ram_min": 4096,
+    "ram_step": 1024,
+    "ram_max": 131072,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 51200,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 1400,
+    "ram": 500,
+    "disk": 24,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 129,
+   "disk_type": "nvme",
+   "cpu_frequency": "3",
+   "location": "us-4",
+   "is_allowed_local_network": false,
+   "tags": [
+    "nyc_nvme_base"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 1024,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 760,
+    "ram": 720,
+    "disk": 36,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 131,
+   "disk_type": "nvme",
+   "cpu_frequency": "5.5",
+   "location": "ru-3",
+   "is_allowed_local_network": false,
+   "tags": [
+    "msk_high_cpu"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 2,
+    "cpu_max": 8,
+    "ram_min": 1024,
+    "ram_step": 2048,
+    "ram_max": 16384,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 1200,
+    "ram": 600,
+    "disk": 30,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 133,
+   "disk_type": "nvme",
+   "cpu_frequency": "5.5",
+   "location": "ru-3",
+   "is_allowed_local_network": false,
+   "tags": [
+    "msk_dedicated_high_cpu"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 28,
+    "ram_min": 4096,
+    "ram_step": 2048,
+    "ram_max": 131072,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 20480,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 1800,
+    "ram": 700,
+    "disk": 30,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 137,
+   "disk_type": "nvme",
+   "cpu_frequency": "3.3",
+   "location": "ru-3",
+   "is_allowed_local_network": false,
+   "tags": [
+    "msk_gpu"
+   ],
+   "requirements": {
+    "cpu_min": 16,
+    "cpu_step": 16,
+    "cpu_max": 32,
+    "ram_min": 32768,
+    "ram_step": 32768,
+    "ram_max": 131072,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": 1,
+    "gpu_step": 1,
+    "gpu_max": 4
+   },
+   "prices": {
+    "cpu": 520,
+    "ram": 500,
+    "disk": 30,
+    "bandwidth": null,
+    "gpu": 86760
+   }
+  },
+  {
+   "id": 149,
+   "disk_type": "nvme",
+   "cpu_frequency": "3",
+   "location": "ru-4",
+   "is_allowed_local_network": false,
+   "tags": [
+    "ekb_nvme"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 1024,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 210,
+    "ram": 200,
+    "disk": 12,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 151,
+   "disk_type": "nvme",
+   "cpu_frequency": "3",
+   "location": "ru-5",
+   "is_allowed_local_network": false,
+   "tags": [
+    "kzn_nvme"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 1024,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 210,
+    "ram": 200,
+    "disk": 12,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 153,
+   "disk_type": "nvme",
+   "cpu_frequency": "3.3",
+   "location": "nl-1",
+   "is_allowed_local_network": false,
+   "tags": [
+    "nl_base"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 1024,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 580,
+    "ram": 560,
+    "disk": 32,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 155,
+   "disk_type": "nvme",
+   "cpu_frequency": "3.3",
+   "location": "de-1",
+   "is_allowed_local_network": false,
+   "tags": [
+    "fra_nvme"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 1024,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 200,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 580,
+    "ram": 560,
+    "disk": 32,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 157,
+   "disk_type": "nvme",
+   "cpu_frequency": "5",
+   "location": "ru-1",
+   "is_allowed_local_network": true,
+   "tags": [
+    "discount_highcpu2022"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 8,
+    "ram_min": 4096,
+    "ram_step": 4096,
+    "ram_max": 131072,
+    "network_bandwidth_min": 200,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 200,
+    "disk_min": 20480,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 1000,
+    "ram": 500,
+    "disk": 30,
+    "bandwidth": null,
+    "gpu": null
+   }
+  },
+  {
+   "id": 159,
+   "disk_type": "nvme",
+   "cpu_frequency": "3.3",
+   "location": "ru-3",
+   "is_allowed_local_network": false,
+   "tags": [
+    "ultra_msk_nvme"
+   ],
+   "requirements": {
+    "cpu_min": 1,
+    "cpu_step": 1,
+    "cpu_max": 104,
+    "ram_min": 1024,
+    "ram_step": 1024,
+    "ram_max": 747520,
+    "network_bandwidth_min": 1000,
+    "network_bandwidth_step": 100,
+    "network_bandwidth_max": 1000,
+    "disk_min": 15360,
+    "disk_step": 5120,
+    "disk_max": 1024000,
+    "gpu_min": null,
+    "gpu_step": null,
+    "gpu_max": null
+   },
+   "prices": {
+    "cpu": 640,
+    "ram": 600,
+    "disk": 32,
+    "bandwidth": null,
+    "gpu": null
+   }
+  }
+ ]
+}

@@ -135,9 +135,11 @@ class InvoiceItems(Answer):
 
 
 class InvoiceDetails(Answer):
-    """`/api/billing/invoices/{id}` (WHMCS GetInvoice)."""
+    """`/api/billing/invoices/{id}` (WHMCS GetInvoice). `balance` is what is left to pay."""
 
     result: str
+    status: str = ""
+    balance: Sum | None = None
     items: InvoiceItems | list[Any] = []
 
     def lines(self) -> list[InvoiceItem]:
@@ -162,3 +164,14 @@ class CryptomusLink(Answer):
     success: bool
     url: str | None = None
     message: str = ""
+
+
+class Outcome(Answer):
+    """Answer of the site's action endpoints: `{"success", "message"}` for apply-credit,
+    `{"done_msg": ...}` for power. Both are read leniently: only these fields matter."""
+
+    model_config = ConfigDict(frozen=True, extra="ignore", strict=False)
+
+    success: bool | None = None
+    message: str = ""
+    done_msg: str = ""

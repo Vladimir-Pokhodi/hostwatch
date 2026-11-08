@@ -29,7 +29,6 @@ from hostwatch.web.login import EndReason, LoginTarget, NotDone
 from . import views
 from .callbacks import (
     AccountCb,
-    ActionCb,
     AddCb,
     HostCb,
     JournalCb,
@@ -71,9 +70,6 @@ def make_router() -> Router:
 
 # How long the bot waits for a poll it started before it shows what it has.
 POLL_WAIT = 45.0
-# Which stage brings each stubbed button to life.
-ACTION_STAGE = {"autopay": 11, "order_same": 13}
-DEFAULT_ACTION_STAGE = 10
 
 
 class AddAccount(StatesGroup):
@@ -368,12 +364,6 @@ async def on_server(query: CallbackQuery, callback_data: ServerCb, hub: Hub) -> 
         return
     await answer(query)
     await show(query, screen)
-
-
-@on("callback_query", ActionCb.filter())
-async def on_action(query: CallbackQuery, callback_data: ActionCb, hub: Hub) -> None:
-    stage = ACTION_STAGE.get(callback_data.act, DEFAULT_ACTION_STAGE)
-    await answer(query, view(hub).t("stub", stage=stage), alert=True)
 
 
 @on("callback_query", JournalCb.filter())
@@ -681,5 +671,5 @@ async def on_other_text(message: Message, hub: Hub) -> None:
     await show(message, await screen_for(hub, "menu"))
 
 
-# Top-up handlers live in their own module; importing it registers them.
-from . import topup  # noqa: E402, F401
+# Top-up and control handlers live in their own modules; importing them registers them.
+from . import control, topup  # noqa: E402, F401

@@ -34,6 +34,7 @@ from hostwatch.storage.repositories import (
     AlertRepository,
     BalanceHistoryRepository,
     JournalRepository,
+    OwnerStopRepository,
     PaymentRepository,
     ServerRepository,
     SettingsRepository,
@@ -214,6 +215,7 @@ async def run(settings: Settings) -> None:
             poller=poller,
             rates=CbrRates(rates_http),
             payments=PaymentRepository(conn),
+            owner_stops=OwnerStopRepository(conn),
             own_ip=settings.hostwatch_ip,
             backups=Backups(conn, settings.data_dir / "backups", settings_repo, lambda: prefs.tz),
         )

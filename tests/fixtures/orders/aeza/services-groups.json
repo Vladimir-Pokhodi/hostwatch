@@ -1,0 +1,2351 @@
+{
+ "items": [
+  {
+   "id": 62,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "ru",
+    "label": "MOSCOW",
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "storage",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [],
+    "name": "Storage VPS",
+    "localedPayload": {}
+   },
+   "name": "Москва",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 44,
+   "role": null,
+   "parentId": null,
+   "payload": {
+    "label": "VPN",
+    "isDisabled": true
+   },
+   "isAvailable": false,
+   "type": {
+    "slug": "vpn",
+    "serviceHandler": "vpn",
+    "payload": {
+     "tp": [
+      "profiles",
+      "locations",
+      "premium",
+      "interface",
+      "speed"
+     ],
+     "isHidden": true,
+     "isPrivate": true
+    },
+    "parameters": [],
+    "name": "VPN",
+    "localedPayload": {
+     "tp:profiles": "Число профилей",
+     "tp:locations": "Число локаций",
+     "tp:premium": "Премиум локации",
+     "tp:interface": "Способ подключения",
+     "tp:speed": "Скорость сети (до)"
+    }
+   },
+   "name": "VPN",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 64,
+   "role": null,
+   "parentId": null,
+   "payload": {
+    "label": "ISPMANAGER",
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "soft",
+    "serviceHandler": "ispmgr",
+    "payload": {
+     "badge": "-40%",
+     "badgeColor": "#749eff",
+     "badgeTextColor": "white"
+    },
+    "parameters": [],
+    "name": "Лицензия ispmanager",
+    "localedPayload": {}
+   },
+   "name": "ispmanager",
+   "description": "Продвинутая панель на базе Linux, для управления веб-сайтами, выделенными и игровыми и VPS веб-серверами,\nа также продажи услуг хостинга",
+   "localedPayload": {}
+  },
+  {
+   "id": 6,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "ru",
+    "label": "MOSCOW",
+    "anchor": "msk",
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "dedicated",
+    "serviceHandler": "manual",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "-"
+     },
+     {
+      "field": "isAllowNull",
+      "name": "-"
+     },
+     {
+      "field": "names",
+      "name": "-"
+     },
+     {
+      "field": "type",
+      "name": "-"
+     }
+    ],
+    "name": "Выделенный сервер",
+    "localedPayload": {}
+   },
+   "name": "Москва",
+   "description": null,
+   "localedPayload": {
+    "features": "Дата-центр: ММТС-9,\nБазовая DDoS-защита,\n1 адрес IPv4,\n/64 подсеть IPv6,\nСтоимость доп. IPv4 — 2.5 евро/мес,\nАнонс вашей AS и сети по запросу"
+   }
+  },
+  {
+   "id": 78,
+   "role": null,
+   "parentId": 26,
+   "payload": {
+    "mode": "amd",
+    "label": "RU-RX32-HI-CPU",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "hicpu",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     }
+    ],
+    "name": "Enterprise сервер",
+    "localedPayload": {}
+   },
+   "name": "AMD",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 9950X3D2",
+    "frequency": "4.3 - 5.6 ГГц",
+    "network": "До 25 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть"
+   }
+  },
+  {
+   "id": 24,
+   "role": null,
+   "parentId": 23,
+   "payload": {
+    "mode": "shared",
+    "label": "DE-SHARED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Shared",
+   "description": "Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 9950X",
+    "frequency": "4.3 - 5.7 ГГц",
+    "network": "До 25 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть",
+    "other": "Панель управления ispmanager 6 lite со 100% скидкой в первый месяц"
+   }
+  },
+  {
+   "id": 43,
+   "role": null,
+   "parentId": 37,
+   "payload": {
+    "mode": "promo",
+    "label": "SE-PROMO",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Promo",
+   "description": "Промо-серверы на базе AMD Ryzen 5 3600. Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {}
+  },
+  {
+   "id": 63,
+   "role": null,
+   "parentId": 62,
+   "payload": {
+    "mode": "storage",
+    "label": "RU-STORAGE",
+    "isPrivate": false,
+    "isDisabled": true
+   },
+   "isAvailable": false,
+   "type": {
+    "slug": "storage",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [],
+    "name": "Storage VPS",
+    "localedPayload": {}
+   },
+   "name": "Intel",
+   "description": "Виртуальные серверы с вместительным HDD хранилищем и ZFS Raid. Отличное решение для безопасного хранения больших объёмов данных, медиафайлов, резервных копий по настоящему ценных проектов.",
+   "localedPayload": {
+    "processor": "Intel Xeon 8260 Platinum",
+    "frequency": "2.4 - 3.9 ГГц",
+    "network": "До 10 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть"
+   }
+  },
+  {
+   "id": 26,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "ru",
+    "mode": "shared",
+    "ping": "mow.ping.aezastatus.com",
+    "label": "MSK-HI-CPU",
+    "isDisabled": true
+   },
+   "isAvailable": false,
+   "type": {
+    "slug": "hicpu",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     }
+    ],
+    "name": "Enterprise сервер",
+    "localedPayload": {}
+   },
+   "name": "Москва",
+   "description": null,
+   "localedPayload": {
+    "features": "AMD Ryzen™ Threadripper™ 3990X,\nЧастота 2.9-4.3 ГГц,\nРасширенная DDoS-защита,\n1 адрес IPv4,\n/64 подсеть IPv6,\nИнтернет до 10 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 75,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "pl",
+    "ping": "waw.ping.aezastatus.com",
+    "label": "WARSZAW",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Варшава",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 17,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "ru",
+    "ping": "mow.ping.aezastatus.com",
+    "label": "MOSCOW",
+    "anchor": "msk",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Москва",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 35,
+   "role": null,
+   "parentId": 34,
+   "payload": {
+    "mode": "shared",
+    "label": "FI-SHARED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Shared",
+   "description": "Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 7950X3D",
+    "frequency": "4.2 - 5.7 ГГц",
+    "network": "До 1 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть",
+    "other": "Панель управления ispmanager 6 lite со 100% скидкой в первый месяц"
+   }
+  },
+  {
+   "id": 52,
+   "role": null,
+   "parentId": 51,
+   "payload": {
+    "mode": "shared",
+    "label": "GB-SHARED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Shared",
+   "description": "Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 7950X3D",
+    "frequency": "4.2 - 5.7 ГГц",
+    "network": "До 1 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть",
+    "other": "Панель управления ispmanager 6 lite со 100% скидкой в первый месяц"
+   }
+  },
+  {
+   "id": 2,
+   "role": null,
+   "parentId": 17,
+   "payload": {
+    "mode": "shared",
+    "label": "RU-SHARED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Shared",
+   "description": "Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 9950X",
+    "frequency": "4.3 - 5.7 ГГц",
+    "network": "До 25 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть",
+    "other": "Панель управления ispmanager 6 lite со 100% скидкой в первый месяц"
+   }
+  },
+  {
+   "id": 46,
+   "role": null,
+   "parentId": 45,
+   "payload": {
+    "mgr": "usa",
+    "mode": "shared",
+    "label": "US-SHARED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Shared",
+   "description": "Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 9950X",
+    "frequency": "4.3 - 5.7 ГГц",
+    "network": "До 25 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть",
+    "other": "Панель управления ispmanager 6 lite со 100% скидкой в первый месяц"
+   }
+  },
+  {
+   "id": 33,
+   "role": null,
+   "parentId": 32,
+   "payload": {
+    "mode": "amd",
+    "label": "DE-HI-CPU",
+    "isPrivate": false,
+    "isDisabled": true
+   },
+   "isAvailable": false,
+   "type": {
+    "slug": "hicpu",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     }
+    ],
+    "name": "Enterprise сервер",
+    "localedPayload": {}
+   },
+   "name": "AMD",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "processor": "AMD EPYC 9454",
+    "frequency": "2.75 - 3.8 ГГц",
+    "network": "До 25 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть"
+   }
+  },
+  {
+   "id": 41,
+   "role": null,
+   "parentId": 40,
+   "payload": {
+    "mode": "shared",
+    "label": "FR-SHARED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Shared",
+   "description": "Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 7950X3D",
+    "frequency": "4.2 - 5.7 ГГц",
+    "network": "До 1 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть",
+    "other": "Панель управления ispmanager 6 lite со 100% скидкой в первый месяц"
+   }
+  },
+  {
+   "id": 67,
+   "role": null,
+   "parentId": 65,
+   "payload": {
+    "mode": "shared",
+    "label": "SPB-SHARED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Shared",
+   "description": "Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 9950X",
+    "frequency": "4.3 - 5.7 ГГц",
+    "network": "До 25 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть",
+    "other": "Панель управления ispmanager 6 lite со 100% скидкой в первый месяц"
+   }
+  },
+  {
+   "id": 21,
+   "role": null,
+   "parentId": 18,
+   "payload": {
+    "mode": "shared",
+    "label": "AT-SHARED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Shared",
+   "description": "Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 7950X3D",
+    "frequency": "4.2 - 5.7 ГГц",
+    "network": "До 1 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть",
+    "other": "Панель управления ispmanager 6 lite со 100% скидкой в первый месяц"
+   }
+  },
+  {
+   "id": 47,
+   "role": null,
+   "parentId": 45,
+   "payload": {
+    "mgr": "usa",
+    "mode": "dedicated",
+    "label": "US-DEDICATED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Dedicated",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "features": "Процессор AMD Ryzen 9 9950X,\nЧастота 4.3-5.7 ГГц,\nБазовая DDoS-защита,\n1 адрес IPv4,\n/48 подсеть IPv6,\nИнтернет до 25 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 36,
+   "role": null,
+   "parentId": 34,
+   "payload": {
+    "mode": "dedicated",
+    "label": "FI-DEDICATED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Dedicated",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "features": "Процессор AMD Ryzen 9 7950X3D,\nЧастота 4.2-5.7 ГГц,\nБазовая DDoS-защита,\n1 адрес IPv4,\n/48 подсеть IPv6,\nИнтернет до 1 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 13,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "de",
+    "label": "GERMANY",
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "dedicated",
+    "serviceHandler": "manual",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "-"
+     },
+     {
+      "field": "isAllowNull",
+      "name": "-"
+     },
+     {
+      "field": "names",
+      "name": "-"
+     },
+     {
+      "field": "type",
+      "name": "-"
+     }
+    ],
+    "name": "Выделенный сервер",
+    "localedPayload": {}
+   },
+   "name": "Германия",
+   "description": null,
+   "localedPayload": {
+    "features": "Дата-центр: Hetzner,\nБазовая DDoS-защита,\n1 адрес IPv4,\nСтоимость доп. IPv4 — 2.5 евро/мес (+7.35 евро установочный платеж в первый месяц)"
+   }
+  },
+  {
+   "id": 23,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "de",
+    "ping": "fra.ping.aezastatus.com",
+    "label": "FRANKFURT",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Франкфурт",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 28,
+   "role": null,
+   "parentId": 27,
+   "payload": {
+    "mode": "shared",
+    "label": "NL-SHARED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Shared",
+   "description": "Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 7950X3D",
+    "frequency": "4.3 - 5.7 ГГц",
+    "network": "До 1 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть",
+    "other": "Панель управления ispmanager 6 lite со 100% скидкой в первый месяц"
+   }
+  },
+  {
+   "id": 42,
+   "role": null,
+   "parentId": 40,
+   "payload": {
+    "mode": "dedicated",
+    "label": "FR-DEDICATED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Dedicated",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {}
+  },
+  {
+   "id": 1,
+   "role": null,
+   "parentId": 17,
+   "payload": {
+    "mode": "dedicated",
+    "label": "RU-DEDICATED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Dedicated",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "features": "Процессор AMD Ryzen 9 9950x,\nЧастота 4.5-5.7 ГГц,\nБазовая DDoS-защита,\n1 адрес IPv4,\n/48 подсеть IPv6,\nИнтернет до 25 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 32,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "de",
+    "mode": "amd",
+    "ping": "fra.ping.aezastatus.com",
+    "label": "FRANKFURT",
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "hicpu",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     }
+    ],
+    "name": "Enterprise сервер",
+    "localedPayload": {}
+   },
+   "name": "Франкфурт",
+   "description": "Облачные серверы премиум уровня с игровой DDoS-защитой с гарантированными ресурсами процессора AMD Threadripper 3990X и хранилищем NVMe с RAM Cache для самых требовательных задач, например 1С, Битрикс или размещение игровых проектов.",
+   "localedPayload": {
+    "features": "Intel Core™ i9-12900k™,\nЧастота 3.2-5.2 ГГц,\nРасширенная DDoS-защита,\n1 адрес IPv4,\nИнтернет до 1 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 38,
+   "role": null,
+   "parentId": 37,
+   "payload": {
+    "mode": "shared",
+    "label": "SE-SHARED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Shared",
+   "description": "Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 7950X3D, Ryzen 5 3600",
+    "frequency": "4.2 - 5.7 ГГц, 3.6 - 4.2 ГГц",
+    "network": "до 300 Мбит, до 1 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть",
+    "other": "Панель управления ispmanager 6 lite со 100% скидкой в первый месяц"
+   }
+  },
+  {
+   "id": 53,
+   "role": null,
+   "parentId": 51,
+   "payload": {
+    "mode": "dedicated",
+    "label": "GB-DEDICATED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Dedicated",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "features": "Процессор AMD Ryzen 9 7950X3D,\nЧастота 4.2-5.7 ГГц,\nБазовая DDoS-защита,\n1 адрес IPv4,\n/48 подсеть IPv6,\nИнтернет до 1 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 66,
+   "role": null,
+   "parentId": 65,
+   "payload": {
+    "mode": "dedicated",
+    "label": "SPB-DEDICATED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Dedicated",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "features": "Процессор AMD Ryzen 9 9950x,\nЧастота 4.5-5.7 ГГц,\nБазовая DDoS-защита,\n1 адрес IPv4,\n/48 подсеть IPv6,\nИнтернет до 25 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 22,
+   "role": null,
+   "parentId": 18,
+   "payload": {
+    "mode": "dedicated",
+    "label": "AT-DEDICATED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Dedicated",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "features": "Процессор AMD Ryzen 9 7950X3D,\nЧастота 4.2-5.7 ГГц,\nБазовая DDoS-защита,\n1 адрес IPv4,\n/48 подсеть IPv6,\nИнтернет до 1 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 77,
+   "role": null,
+   "parentId": 75,
+   "payload": {
+    "mode": "shared",
+    "label": "WS-SHARED",
+    "isPrivate": false,
+    "isDisabled": true
+   },
+   "isAvailable": false,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Shared",
+   "description": "Процессорное время распределяется между виртуальными машинами.",
+   "localedPayload": {
+    "processor": "AMD Ryzen 9 9950X",
+    "frequency": "4.3 - 5.7 ГГц",
+    "network": "До 25 Гбит/с",
+    "traffic": "∞",
+    "ddosProtection": "Базовая",
+    "ipv4": "1 адрес",
+    "ipv6": "48 подсеть",
+    "other": "Панель управления ispmanager 6 lite со 100% скидкой в первый месяц"
+   }
+  },
+  {
+   "id": 25,
+   "role": null,
+   "parentId": 23,
+   "payload": {
+    "mode": "dedicated",
+    "label": "DE-DEDICATED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Dedicated",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "features": "Процессор AMD Ryzen 9 9950x,\nЧастота 4.5-5.7 ГГц,\nБазовая DDoS-защита,\n1 адрес IPv4,\n/48 подсеть IPv6,\nИнтернет до 25 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 76,
+   "role": null,
+   "parentId": 75,
+   "payload": {
+    "mode": "dedicated",
+    "label": "WS-DEDICATED",
+    "isPrivate": false,
+    "isDisabled": true
+   },
+   "isAvailable": false,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Dedicated",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "features": "Процессор AMD Ryzen 9 9950x,\nЧастота 4.5-5.7 ГГц,\nБазовая DDoS-защита,\n1 адрес IPv4,\n/48 подсеть IPv6,\nИнтернет до 25 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 14,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "fi",
+    "label": "FINLAND"
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "dedicated",
+    "serviceHandler": "manual",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "-"
+     },
+     {
+      "field": "isAllowNull",
+      "name": "-"
+     },
+     {
+      "field": "names",
+      "name": "-"
+     },
+     {
+      "field": "type",
+      "name": "-"
+     }
+    ],
+    "name": "Выделенный сервер",
+    "localedPayload": {}
+   },
+   "name": "Финляндия",
+   "description": null,
+   "localedPayload": {
+    "features": "Дата-центр: Hetzner,\nБазовая DDoS-защита,\n1 адрес IPv4,\nСтоимость доп. IPv4 — 2.5 евро/мес (+7.35 евро установочный платеж в первый месяц)"
+   }
+  },
+  {
+   "id": 39,
+   "role": null,
+   "parentId": 37,
+   "payload": {
+    "mode": "dedicated",
+    "label": "SE-DEDICATED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Dedicated",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "features": "Процессор AMD Ryzen 9 7950X3D,\nЧастота 4.2-5.7 ГГц,\nБазовая DDoS-защита,\n1 адрес IPv4,\n/48 подсеть IPv6,\nИнтернет до 1 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 29,
+   "role": null,
+   "parentId": 27,
+   "payload": {
+    "mode": "dedicated",
+    "label": "NL-DEDICATED",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Dedicated",
+   "description": "Повышенный приоритет на процессорное время.",
+   "localedPayload": {
+    "features": "Процессор AMD Ryzen 9 7950X3D,\nЧастота 4.2-5.7 ГГц,\nБазовая DDoS-защита,\n1 адрес IPv4,\n/48 подсеть IPv6,\nИнтернет до 1 Гбит/с,\nТрафик ∞"
+   }
+  },
+  {
+   "id": 40,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "fr",
+    "ping": "par.ping.aezastatus.com",
+    "label": "PARIS",
+    "isPrivate": false,
+    "isDisabled": false,
+    "ddosNotificationsDisabled": true
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Париж",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 69,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "nl",
+    "label": "AMSTERDAM"
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "dedicated",
+    "serviceHandler": "manual",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "-"
+     },
+     {
+      "field": "isAllowNull",
+      "name": "-"
+     },
+     {
+      "field": "names",
+      "name": "-"
+     },
+     {
+      "field": "type",
+      "name": "-"
+     }
+    ],
+    "name": "Выделенный сервер",
+    "localedPayload": {}
+   },
+   "name": "Амстердам",
+   "description": null,
+   "localedPayload": {
+    "features": "Дата-центр: Equinix,\n1 адрес IPv4,\nСтоимость доп. 6 IPv4 — 15 евро/мес.,\nАнонс вашей AS и сети по запросу"
+   }
+  },
+  {
+   "id": 70,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "hk",
+    "label": "HONG KONG",
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "dedicated",
+    "serviceHandler": "manual",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "-"
+     },
+     {
+      "field": "isAllowNull",
+      "name": "-"
+     },
+     {
+      "field": "names",
+      "name": "-"
+     },
+     {
+      "field": "type",
+      "name": "-"
+     }
+    ],
+    "name": "Выделенный сервер",
+    "localedPayload": {}
+   },
+   "name": "Гонконг",
+   "description": null,
+   "localedPayload": {
+    "features": "Дата-центр: Equinix,\n1 адрес IPv4,\nСтоимость доп. 6 IPv4 — 15 евро/мес.,\nАнонс вашей AS и сети по запросу"
+   }
+  },
+  {
+   "id": 68,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "fr",
+    "label": "PARIS"
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "dedicated",
+    "serviceHandler": "manual",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "-"
+     },
+     {
+      "field": "isAllowNull",
+      "name": "-"
+     },
+     {
+      "field": "names",
+      "name": "-"
+     },
+     {
+      "field": "type",
+      "name": "-"
+     }
+    ],
+    "name": "Выделенный сервер",
+    "localedPayload": {}
+   },
+   "name": "Париж",
+   "description": null,
+   "localedPayload": {
+    "features": "Дата-центр: Equinix,\n1 адрес IPv4,\nСтоимость доп. 6 IPv4 — 15 евро/мес.,\nАнонс вашей AS и сети по запросу"
+   }
+  },
+  {
+   "id": 27,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "nl",
+    "ping": "ams.ping.aezastatus.com",
+    "label": "AMSTERDAM",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Амстердам",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 71,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "sg",
+    "label": "SINGAPORE",
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "dedicated",
+    "serviceHandler": "manual",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "-"
+     },
+     {
+      "field": "isAllowNull",
+      "name": "-"
+     },
+     {
+      "field": "names",
+      "name": "-"
+     },
+     {
+      "field": "type",
+      "name": "-"
+     }
+    ],
+    "name": "Выделенный сервер",
+    "localedPayload": {}
+   },
+   "name": "Сингапур",
+   "description": null,
+   "localedPayload": {
+    "features": "Дата-центр: Equinix,\n1 адрес IPv4,\nСтоимость доп. 6 IPv4 — 15 евро/мес.,\nАнонс вашей AS и сети по запросу"
+   }
+  },
+  {
+   "id": 45,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "mgr": "usa",
+    "code": "us",
+    "ping": "clt.ping.aezastatus.com",
+    "label": "CHARLOTTE",
+    "isPrivate": false,
+    "isDisabled": false,
+    "ddosNotificationsDisabled": true
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Шарлотт",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 72,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "br",
+    "label": "SÃO PAULO",
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "dedicated",
+    "serviceHandler": "manual",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "-"
+     },
+     {
+      "field": "isAllowNull",
+      "name": "-"
+     },
+     {
+      "field": "names",
+      "name": "-"
+     },
+     {
+      "field": "type",
+      "name": "-"
+     }
+    ],
+    "name": "Выделенный сервер",
+    "localedPayload": {}
+   },
+   "name": "Сан-Паулу",
+   "description": null,
+   "localedPayload": {
+    "features": "Дата-центр: Equinix,\n1 адрес IPv4,\nСтоимость доп. 6 IPv4 — 15 евро/мес.,\nАнонс вашей AS и сети по запросу"
+   }
+  },
+  {
+   "id": 73,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "us",
+    "label": "LOS ANGELES",
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "dedicated",
+    "serviceHandler": "manual",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "-"
+     },
+     {
+      "field": "isAllowNull",
+      "name": "-"
+     },
+     {
+      "field": "names",
+      "name": "-"
+     },
+     {
+      "field": "type",
+      "name": "-"
+     }
+    ],
+    "name": "Выделенный сервер",
+    "localedPayload": {}
+   },
+   "name": "Лос-Анджелес",
+   "description": null,
+   "localedPayload": {
+    "features": "Дата-центр: Equinix,\n1 адрес IPv4,\nСтоимость доп. 6 IPv4 — 15 евро/мес.,\nАнонс вашей AS и сети по запросу"
+   }
+  },
+  {
+   "id": 18,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "at",
+    "ping": "vie.ping.aezastatus.com",
+    "label": "VIENNA",
+    "isPrivate": false,
+    "isDisabled": false,
+    "ddosNotificationsDisabled": true
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Вена",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 37,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "se",
+    "ping": "swe.ping.aezastatus.com",
+    "label": "STOCKHOLM",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Стокгольм",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 51,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "gb",
+    "ping": "lnd.ping.aezastatus.com",
+    "label": "LONDON",
+    "isPrivate": false,
+    "isDisabled": false,
+    "ddosNotificationsDisabled": true
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Лондон",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 34,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "fi",
+    "ping": "hel.ping.aezastatus.com",
+    "label": "HELSINKI",
+    "isPrivate": false,
+    "isDisabled": false,
+    "ddosNotificationsDisabled": true
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Хельсинки",
+   "description": null,
+   "localedPayload": {}
+  },
+  {
+   "id": 65,
+   "role": "location",
+   "parentId": null,
+   "payload": {
+    "code": "ru",
+    "ping": "spb.ping.aezastatus.com",
+    "label": "SAINT-PETERSBURG",
+    "anchor": "spb",
+    "isPrivate": false,
+    "isDisabled": false
+   },
+   "isAvailable": true,
+   "type": {
+    "slug": "vps",
+    "serviceHandler": "vm6",
+    "payload": {},
+    "parameters": [
+     {
+      "field": "ddosNotifications",
+      "name": "Уведомления о DDoS-атаках",
+      "type": "boolean"
+     },
+     {
+      "field": "os",
+      "name": "Операционная система",
+      "type": "any"
+     },
+     {
+      "field": "recipe",
+      "name": "Рецепт",
+      "type": "string"
+     },
+     {
+      "field": "isoUrl",
+      "name": "Ссылка на образ",
+      "type": "string"
+     }
+    ],
+    "name": "Виртуальный сервер",
+    "localedPayload": {}
+   },
+   "name": "Санкт-Петербург",
+   "description": null,
+   "localedPayload": {}
+  }
+ ],
+ "total": 51
+}

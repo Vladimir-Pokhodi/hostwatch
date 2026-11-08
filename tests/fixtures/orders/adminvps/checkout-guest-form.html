@@ -1,0 +1,496 @@
+<form method="post" action="/cart.php?a=checkout" name="orderfrm" id="frmCheckout" data-form-type="clientDetails">
+<input type="hidden" name="token" value="">
+                <input type="hidden" name="submit" value="true">
+                <input type="hidden" name="custtype" id="inputCustType" value="new">
+
+                
+                <div id="containerExistingUserSignin" class="w-hidden m-2" style="padding:10px 0px;">
+                    
+                    <div class="alert alert-danger w-hidden" id="existingLoginMessage">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group prepend-icon required">
+                                <label for="inputLoginEmail" class="field-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </label>
+                                <input type="text" name="loginemail" id="inputLoginEmail" class="field form-control" placeholder="Email-адрес" value="" required="">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group prepend-icon required">
+                                <label for="inputLoginPassword" class="field-icon">
+                                    <i class="fas fa-lock"></i>
+                                </label>
+                                <input type="password" name="loginpassword" id="inputLoginPassword" class="field form-control" placeholder="Пароль" required="">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="button" id="btnExistingLogin" class="btn btn-primary btn-md">
+                            <span id="existingLoginButton">Войдите в аккаунт</span>
+                            <span id="existingLoginPleaseWait" class="w-hidden">Пожалуйста, подождите...</span>
+                        </button>
+                    </div>
+
+                                    </div>
+
+                <div id="containerNewUserSignup">
+
+                    <div>
+                                            </div>
+
+                    <div>
+        <div class="row">
+        <div class="col-sm-12">
+            <div class="form-group form-group-select">
+                                    <select name="groupId" class="form-control" id="groupId" data-init-val="0" data-show-modal="false">
+                                                    <option value="0" data-input-fields="[]" selected="">
+                                Физическое лицо</option>
+                                                    <option value="3" data-input-fields="[&quot;companyname&quot;,&quot;tax_id&quot;,&quot;clientRegisterReasonCode&quot;]">
+                                Юридическое лицо</option>
+                                                    <option value="4" data-input-fields="[&quot;clientRegisterMiddleName&quot;,&quot;tax_id&quot;]">
+                                Индивидуальный предприниматель</option>
+                                            </select>
+                            </div>
+        </div>
+    </div>
+</div>
+<div>
+        <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group required">
+                                <input type="text" name="lastname" id="inputLastName" maxlength="100" class="form-control" data-required-error="Заполните это поле" placeholder=" Фамилия " value="" required="">
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group required">
+                                <input type="text" name="firstname" id="inputFirstName" maxlength="50" class="form-control" data-required-error="Заполните это поле" placeholder="Имя " value="" required="">
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+    </div>
+    <div class="row dependency-form-group">
+                <div class="col-sm-6">
+            <div class="form-group">
+                                <input type="text" name="customfield[1946]" id="customfield1946" placeholder="Отчество" data-required="true" data-text-id="clientRegisterMiddleName" value="" size="30" class="form-control">
+                
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        
+            </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group required">
+                                                <input type="tel" name="phonenumber" id="inputPhone" class="form-control" placeholder=" Телефон " value="" data-minlength="11" pattern="\d+" data-required-error="Заполните это поле" data-minlength-error="Поле должно содержать не менее 11 цифр" data-pattern-error="Поле должно содержать только цифры" data-toggle="tooltip-focus" data-placement="top" title="Номер телефона должен быть введен в международном формате с указанием кода страны. Например: Россия - 79851234567, Беларусь - 375291234567" required="">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group required">
+                                        <input type="email" name="email" id="inputEmail" class="form-control" data-required-error="Заполните это поле" placeholder=" Email-адрес " value="" required="">
+                    <div class="help-block with-errors"></div>
+                </div>
+            </div>
+        </div>
+            </div>
+            <div class="section dependency-form-group">
+                        <div class="row">
+                                    <div class="col-sm-6 dependency-form-group">
+                        <div class="form-group required">
+                            <label for="inputTaxId" class="control-label">
+                                ИНН
+                            </label>
+                            <input type="text" name="tax_id" id="inputTaxId" class="form-control" maxlength="12" data-minlength="10" pattern="\d+" data-minlength-error="Поле должно содержать не менее 10 цифр" data-pattern-error="Поле должно содержать только цифры" placeholder="7708257630" value="" required="">
+                            <div class="help-block with-errors"></div>
+                        </div>
+                    </div>
+                                <div class="col-sm-6 dependency-form-group">
+                    <div class="form-group required">
+                        <label for="inputCompanyName" class="control-label">
+                            Организация
+                        </label>
+                        <input type="text" name="companyname" id="inputCompanyName" class="form-control" pattern="[\p{L}\d\s\.\-\x22]+" data-pattern-error="Поле должно содержать только цифры, буквы, пробелы, дефисы и двойные кавычки" placeholder="ООО &quot;Админвпс&quot;" value="" required="">
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                                <div class="col-sm-6 dependency-form-group">
+                    <div class="form-group">
+                        <label class="control-label" for="customfield1952">КПП</label>
+                        <input type="text" name="customfield[1952]" id="customfield1952" data-required="true" data-pattern-error="clientDetails.errorMsg.reasonCode.pattern" data-minlength-error="Поле должно содержать не менее 9 цифр" pattern="\d+" data-minlength="9" placeholder="772501001" data-text-id="clientRegisterReasonCode" value="" size="30" class="form-control">
+                        
+                        <div class="help-block with-errors"></div>
+                    </div>
+                </div>
+                
+                            </div>
+        </div>
+        <input type="hidden" name="address1" id="inputAddress1" value="">
+        <input type="hidden" name="address2" id="inputAddress2" value="">
+        <input type="hidden" name="city" id="inputCity" value="">
+        <input type="hidden" name="state" id="inputState" value="">
+        <input type="hidden" name="postcode" id="inputPostcode" value="">
+        <input type="hidden" name="country" id="inputCountry" value="RU">
+                                                                                                            </div>
+
+                
+                
+                    <div id="containerNewUserSecurity">
+
+                                                <h3>Безопасность</h3>
+                        <div id="containerPassword" class="">
+    <div id="passwdFeedback" style="display: none;" class="alert alert-info text-center col-sm-12"></div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group has-feedback required" id="newPassword1">
+                                <div class="input-password-strenght">
+                    <input type="password" name="password" id="inputNewPassword1" data-required-error="Заполните это поле" data-error-threshold="50" data-warning-threshold="75" class="form-control" placeholder=" Пароль " autocomplete="off" required="">
+                </div>
+                                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group has-feedback required" id="newPassword2">
+                                <input type="password" name="password2" id="inputNewPassword2" class="form-control" data-required-error="Заполните это поле" placeholder=" Подтвердите пароль " autocomplete="off" required="">
+                                <div id="inputNewPassword2Msg"></div>
+                <div class="help-block with-errors"></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <button type="button" class="btn btn-default btn-sm btn-xs-block generate-password width_full" data-targetfields="inputNewPassword1,inputNewPassword2">
+                    Генерировать пароль
+                </button>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="password-strength-meter">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="passwordStrengthMeterBar">
+                    </div>
+                </div>
+                <p class="text-center small text-muted" id="passwordStrengthTextLabel">Надежность пароля:
+                    Введите пароль</p>
+            </div>
+        </div>
+    </div>
+</div>
+                    </div>
+
+                
+                                    <div>
+                        <script type="text/javascript">$(document).ready(function(){function compliteCheckout(){let ymClientID=yaCounter30967346?.getClientID();if(!ymClientID){ym(30967346,'getClientID',function(clientID){ymClientID=clientID;});}if(ymClientID){fetch('/modules/addons/yandex_analytics/api.php',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json;charset=utf-8'},body:JSON.stringify({ym_uid:ymClientID})}).then(r=>r).catch(e=>e);}};$('#btnCompleteOrder').on('click',function(e){compliteCheckout();return true;});});</script>
+                    </div>
+                
+                
+                <div class="alert alert-success text-center large-text" role="alert" id="totalDueToday">
+                    К оплате: &nbsp; <strong id="totalCartPrice">499.00 руб.</strong>
+                </div>
+
+                <div id="applyCreditContainer" class="apply-credit-container w-hidden" data-apply-credit="1">
+                    <p></p>
+
+                    
+                    <label class="radio" id="labelUseCreditOnCheckout" style="display:none;">
+                        <input id="useCreditOnCheckout" type="radio" name="applycredit" value="1" checked="">
+                        <span id="spanFullCredit" class="w-hidden">
+                            Я хочу оплатить данный счет с баланса
+                        </span>
+                        <span id="spanUseCredit">
+                            Я хочу оплатить данный счет с баланса
+                        </span>
+                    </label>
+
+                    
+                    <label class="radio">
+                        <input id="skipCreditOnCheckout" type="radio" name="applycredit" value="0">
+                        Я хочу оплатить данный счет через платежную систему, не используя текущий баланс
+                    </label>
+
+                                                        </div>
+
+                                    
+                    <div class="form-group">
+                        <input type="hidden" name="paymentmethod" id="paymentmethod" value="paymaster_ng_direct">
+                    </div>
+
+                    <div class="panel-group" id="paymenttypesaccordion" role="tablist" aria-multiselectable="false">
+                                                                                                                                                                                                                                                            <div class="panel panel-default" data-payment-method-role="legal-person" style="display: none;">
+                                <div class="panel-heading payment-name-wo-info" role="tab" id="headingbankinvoicerugw0">
+                                    <div role="button" data-toggle="collapse" data-parent="#paymenttypesaccordion" aria-expanded="false" aria-controls="bankinvoicerugw0" href="#bankinvoicerugw0">
+                                        <div class="panel-title">
+                                            <div class="row">
+                                                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center va-center">
+                                                                                                        <img src="images/payment/bankinvoicerugw.svg" height="45px" alt="">
+                                                                                                    </div>
+                                                <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 va-center">
+                                                    <div>Безналичный расчет (юр.л.)</div>
+                                                    <div style="color: #777; font-size: 13px;">Оплата по безналичному расчету для юр.л. и ИП — резиденты РФ</div>                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="bankinvoicerugw0" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingbankinvoicerugw0" style="margin-bottom: 0px;" data-payment-method="bankinvoicerugw">
+                                                                    </div>
+                            </div>
+                                                                                                                                                                                                                                                            <div class="panel panel-default" data-payment-method-role="personal">
+                                <div class="panel-heading  ph-active" role="tab" id="headingpaymaster1">
+                                    <div role="button" data-toggle="collapse" data-parent="#paymenttypesaccordion" aria-expanded="true" aria-controls="paymaster1" href="#paymaster1">
+                                        <div class="panel-title">
+                                            <div class="row">
+                                                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center va-center">
+                                                                                                        <img src="images/payment/cardru.svg" height="45px" alt="">
+                                                                                                    </div>
+                                                <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 va-center">
+                                                    <div>Российская банковская карта</div>
+                                                    <div style="color: #777; font-size: 13px;">Оплата для резидентов РФ</div>                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="paymaster1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingpaymaster1" style="margin-bottom: 0px;" data-payment-method="paymaster">
+                                                                            <div class="panel-body payment-method-info">
+                                                                                    <div class="row">
+                                                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"></div>
+                                                <div class="col-md-10">
+                                                    <label class="checkbox-inline" style="padding-left:5px;">
+                                                        <input type="checkbox" name="saveCard" value="paymaster_ng_direct" id="paymaster1SaveCard" checked="">
+                                                        &nbsp;
+                                                        Запомнить карту для оплаты и автопродления услуг
+                                                    </label>
+                                                </div>
+                                            </div>
+                                                                                                                                                                </div>
+                                                                    </div>
+                            </div>
+                                                                                                                                                                                                <div class="panel panel-default" data-payment-method-role="personal">
+                                <div class="panel-heading " role="tab" id="headingpaymaster_sbp2">
+                                    <div role="button" data-toggle="collapse" data-parent="#paymenttypesaccordion" aria-expanded="false" aria-controls="paymaster_sbp2" href="#paymaster_sbp2">
+                                        <div class="panel-title">
+                                            <div class="row">
+                                                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center va-center">
+                                                                                                        <img src="images/payment/sbp.svg" height="45px" alt="">
+                                                                                                    </div>
+                                                <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 va-center">
+                                                    <div>Система быстрых платежей</div>
+                                                                                                    </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="paymaster_sbp2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingpaymaster_sbp2" style="margin-bottom: 0px;" data-payment-method="paymaster_sbp">
+                                                                            <div class="panel-body payment-method-info">
+                                                                                                                            <div class="row">
+                                                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"></div>
+                                                <div class="col-md-10">
+                                                    <label class="checkbox-inline" style="padding-left:5px;">
+                                                        <input type="checkbox" name="paymaster_sbp_recurring" value="1" id="paymaster_sbp2SbpRecurring">
+                                                        &nbsp;
+                                                        Подключить автопродление через СБП
+                                                    </label>
+                                                </div>
+                                            </div>
+                                                                                                                        </div>
+                                                                    </div>
+                            </div>
+                                                                                                                                                                                                <div class="panel panel-default" data-payment-method-role="personal">
+                                <div class="panel-heading " role="tab" id="headingassistby3">
+                                    <div role="button" data-toggle="collapse" data-parent="#paymenttypesaccordion" aria-expanded="false" aria-controls="assistby3" href="#assistby3">
+                                        <div class="panel-title">
+                                            <div class="row">
+                                                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center va-center">
+                                                                                                        <img src="images/payment/cardeur.svg" height="45px" alt="">
+                                                                                                    </div>
+                                                <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 va-center">
+                                                    <div>Иностранная банковская карта</div>
+                                                    <div style="color: #777; font-size: 13px;">Оплата для нерезидентов РФ</div>                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="assistby3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingassistby3" style="margin-bottom: 0px;" data-payment-method="assistby">
+                                                                            <div class="panel-body payment-method-info">
+                                                                                                                                                                    <div class="row">
+                                                <div class="col-md-12"><p>Данный способ оплаты доступен для нерезидентов РФ.</p>
+<p>Нажимая кнопку "Завершить заказ", я становлюсь клиентом компании с ООО "Единые Решения" и подтверждаю свое ознакомление с <a href="https://client.cloudvps.by/bz/documents/public_oferta.pdf" target="_blank" style="color:#3366ff">Публичной офертой</a> и <a href="https://adminvps.by/docs/privacy_policy.pdf" target="_blank" style="color:#3366ff">Политикой конфиденциальности</a> ООО "Единые Решения".</p>
+<p>Для совершения платежа вы будете перенаправлены на сайт adminvps.by, сумма платежа будет сконвертирована в BYN (бел.руб) по курсу НБ РБ. Обращаем ваше внимание, что возврат средств для настоящих платежей не предусмотрен.</p></div>
+                                            </div>
+                                                                                </div>
+                                                                    </div>
+                            </div>
+                                                                                                                                                                                                <div class="panel panel-default" data-payment-method-role="personal">
+                                <div class="panel-heading payment-name-wo-info" role="tab" id="headingyandexauto_yoo_money4">
+                                    <div role="button" data-toggle="collapse" data-parent="#paymenttypesaccordion" aria-expanded="false" aria-controls="yandexauto_yoo_money4" href="#yandexauto_yoo_money4">
+                                        <div class="panel-title">
+                                            <div class="row">
+                                                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center va-center">
+                                                                                                        <img src="images/payment/yoomoney.svg" height="45px" alt="">
+                                                                                                    </div>
+                                                <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 va-center">
+                                                    <div>ЮMoney</div>
+                                                    <div style="color: #777; font-size: 13px;">Оплата через кошелек</div>                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="yandexauto_yoo_money4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingyandexauto_yoo_money4" style="margin-bottom: 0px;" data-payment-method="yandexauto_yoo_money">
+                                                                    </div>
+                            </div>
+                                                                                                                                                                                                <div class="panel panel-default" data-payment-method-role="personal">
+                                <div class="panel-heading payment-name-wo-info" role="tab" id="headingyandexauto_sberbank5">
+                                    <div role="button" data-toggle="collapse" data-parent="#paymenttypesaccordion" aria-expanded="false" aria-controls="yandexauto_sberbank5" href="#yandexauto_sberbank5">
+                                        <div class="panel-title">
+                                            <div class="row">
+                                                <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center va-center">
+                                                                                                        <img src="images/payment/sberpay.svg" height="45px" alt="">
+                                                                                                    </div>
+                                                <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 va-center">
+                                                    <div>SberPay</div>
+                                                    <div style="color: #777; font-size: 13px;">Приложение Сбербанк Онлайн</div>                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="yandexauto_sberbank5" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingyandexauto_sberbank5" style="margin-bottom: 0px;" data-payment-method="yandexauto_sberbank">
+                                                                    </div>
+                            </div>
+                                            </div>
+
+                    <div class="alert alert-danger text-center gateway-errors w-hidden"></div>
+
+                    <div class="clearfix"></div>
+
+                    <div class="cc-input-container w-hidden" id="creditCardInputFields">
+                                                <div class="row cvv-input" id="existingCardInfo">
+                            <div class="col-lg-3 col-sm-4">
+                                <div class="form-group prepend-icon">
+                                    <label for="inputCardCVV2" class="field-icon">
+                                        <i class="fas fa-barcode"></i>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="tel" name="cccvv" id="inputCardCVV2" class="field form-control" placeholder="CVV/CVC2" autocomplete="cc-cvc">
+                                        <span class="input-group-btn input-group-append">
+                                            <button type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="&lt;img src='/assets/img/ccv.gif' width='210' /&gt;">
+                                                ?
+                                            </button>
+                                        </span>
+                                    </div>
+                                    <span class="field-error-msg">Введенный вами номер CVC недействительный.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <ul>
+                            <li>
+                                <label class="radio-inline">
+                                    <input type="radio" name="ccinfo" value="new" id="new" checked="checked">
+                                    &nbsp;
+                                    Введите данные новой карты
+                                </label>
+                            </li>
+                        </ul>
+
+                        <div class="row" id="newCardInfo">
+                            <div id="cardNumberContainer" class="col-sm-6 new-card-container">
+                                <div class="form-group prepend-icon">
+                                    <label for="inputCardNumber" class="field-icon">
+                                        <i class="fas fa-credit-card"></i>
+                                    </label>
+                                    <input type="tel" name="ccnumber" id="inputCardNumber" class="field form-control cc-number-field" placeholder="Номер карты" autocomplete="cc-number" data-message-unsupported="Мы не можем принять введенный вами тип карты. Пожалуйста, используйте другую карту." data-message-invalid="Введенный вами номер карты недействительный." data-supported-cards="visa,mastercard,discover,amex,jcb,dinersclub,maestro,dankort,forbrugsforeningen,unionpay">
+                                    <span class="field-error-msg"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 new-card-container">
+                                <div class="form-group prepend-icon">
+                                    <label for="inputCardExpiry" class="field-icon">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </label>
+                                    <input type="tel" name="ccexpirydate" id="inputCardExpiry" class="field form-control" placeholder="MM / YY" autocomplete="cc-exp">
+                                    <span class="field-error-msg">Дата окончания, которую вы ввели, недействительная.</span>
+                                </div>
+                            </div>
+                            <div class="col-sm-3" id="cvv-field-container">
+                                <div class="form-group prepend-icon">
+                                    <label for="inputCardCVV" class="field-icon">
+                                        <i class="fas fa-barcode"></i>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="tel" name="cccvv" id="inputCardCVV" class="field form-control" placeholder="CVV/CVC2" autocomplete="cc-cvc">
+                                        <span class="input-group-btn input-group-append">
+                                            <button type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="&lt;img src='/assets/img/ccv.gif' width='210' /&gt;">
+                                                ?
+                                            </button>
+                                        </span><br>
+                                    </div>
+                                    <span class="field-error-msg">Введенный вами номер CVC недействительный.</span>
+                                </div>
+                            </div>
+                                                    </div>
+                        <div id="newCardSaveSettings">
+                            <div class="row form-group new-card-container">
+                                <div id="inputDescriptionContainer" class="col-md-6">
+                                    <div class="prepend-icon">
+                                        <label for="inputDescription" class="field-icon">
+                                            <i class="fas fa-pencil"></i>
+                                        </label>
+                                        <input type="text" class="field form-control" id="inputDescription" name="ccdescription" autocomplete="off" value="" placeholder="Введите название для этой карты (опционально)">
+                                    </div>
+                                </div>
+                                                                    <div id="inputNoStoreContainer" class="col-md-6" style="line-height: 32px;">
+                                        <input type="hidden" name="nostore" value="1">
+                                        <input type="checkbox" class="toggle-switch-success no-icheck" data-size="mini" checked="checked" name="nostore" id="inputNoStore" value="0" data-on-text="Да" data-off-text="Нет">
+                                        <label for="inputNoStore" class="checkbox-inline no-padding">
+                                            &nbsp;&nbsp;
+                                            Сохранить карту для более быстрой оплаты в будущем
+                                        </label>
+                                    </div>
+                                                            </div>
+                        </div>
+                    </div>
+                
+                
+                                    <input type="hidden" name="marketingoptin" value="1">
+                
+                <div class="text-center">
+                                            <div class="accepttos text-left">
+                            <div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-danger tospanel">
+            <div class="row">
+                <div class="col-md-12">
+                    <label class="control-label">
+                        <span class="accepttos-ckeckbox_wrapper">
+                            <input class="icheck-control" type="checkbox" name="accepttos" required="" checked="">
+
+                            <span class="accepttos-ckeckbox_inner">
+                                <svg width="7" height="6" viewBox="0 0 7 6" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon--gMuBl">
+                                    <path d="M6.28.97c.3.3.3.77 0 1.06L3.21 5.1a1 1 0 0 1-1.42 0L.47 3.78a.75.75 0 0 1 1.06-1.06l.97.97L5.22.97c.3-.3.77-.3 1.06 0Z" fill="currentColor"></path>
+                                </svg></span>
+                        </span>
+                        <span>Я ознакомлен(а) с <a href="https://adminvps.ru/about/privacy.php" target="_blank">политикой</a>,
+                            <a href="https://adminvps.ru/about/rules.php" target="_blank">офертой</a> и даю
+                            <a href="https://adminvps.ru/about/personal-data.php" target="_blank"> согласие</a> на обработку персональных
+                            данных
+                    </span></label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                        </div>
+                                                                <div class="text-center margin-bottom">
+                                                    </div>
+                    
+                    <button type="submit" id="btnCompleteOrder" class="btn btn-primary btn-lg disable-on-click" onclick="ym(30967346, 'reachGoal', 'click_pay_checkout_button');return true;">
+                        Завершить заказ                        &nbsp;<i class="fas fa-arrow-circle-right"></i>
+                    </button>
+                </div>
+            </form>

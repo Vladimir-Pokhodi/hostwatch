@@ -24,6 +24,7 @@ from hostwatch.core.models import (
     BillingModel,
     InvoiceStatus,
     Money,
+    ServerAction,
     ServerKind,
     ServerStatus,
 )
@@ -93,7 +94,13 @@ async def test_regxa_passes_contract(hoster: respx.MockRouter) -> None:
 
 
 def test_capabilities() -> None:
-    assert capabilities(RegxaPlugin) == {Capability.USAGE, Capability.INVOICES, Capability.TOPUP}
+    assert capabilities(RegxaPlugin) == {
+        Capability.USAGE,
+        Capability.INVOICES,
+        Capability.TOPUP,
+        Capability.POWER,
+        Capability.PAY_INVOICE,
+    }
     assert not RegxaPlugin.login_only
 
 
@@ -112,7 +119,9 @@ async def test_servers_map_fields(hoster: respx.MockRouter) -> None:
     assert server.next_charge_at == datetime(2026, 11, 28, tzinfo=UTC)
     assert server.autorenew is Autorenew.NOT_AVAILABLE
     assert server.billing is BillingModel.PERIODIC
-    assert server.actions == frozenset()
+    assert server.actions == frozenset(
+        {ServerAction.START, ServerAction.STOP, ServerAction.RESTART}
+    )
 
 
 async def test_requests_carry_the_session_and_client(hoster: respx.MockRouter) -> None:
@@ -388,7 +397,7 @@ def test_check_regxa_cli(hoster: respx.MockRouter, capsys: pytest.CaptureFixture
 
     out = capsys.readouterr().out
     assert "Balance: $1 125.00" in out
-    assert "Capabilities: invoices, topup, usage" in out
+    assert "Capabilities: invoices, pay_invoice, power, topup, usage" in out
     assert "Servers: 1" in out
     assert (
         "hostname-3 [100003] vps running (Active) ip 192.0.2.12 plan Cloud VPS X1 - Europe"

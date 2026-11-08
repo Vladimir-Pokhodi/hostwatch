@@ -10,6 +10,10 @@ id, IP, autorenewal buttons) and the SolusVM module's JSON (state, traffic): 1 +
 requests, one after another, like a person clicking through.
 
 Top-up by SBP goes through WHMCS «Add funds» and the PayMaster gateway (`paymaster.py`).
+
+Power, autorenewal and renewal are the service page's own forms and the HostingRenewals
+modals (`control.py`). Every action reads the page first: the CSRF token, the form and
+whether the button is there at all come from the page as it is now.
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ import re
 from datetime import UTC, datetime
 from decimal import Decimal
 from fnmatch import fnmatchcase
+from urllib.parse import urljoin
 
 import httpx
 
@@ -32,12 +37,15 @@ from hostwatch.core.errors import (
     describe,
 )
 from hostwatch.core.models import (
+    ActionResult,
     Autorenew,
     Balance,
     BillingModel,
     Money,
     Payment,
+    PowerAction,
     Server,
+    ServerAction,
     ServerKind,
     ServerStatus,
     TopupKind,
@@ -46,7 +54,7 @@ from hostwatch.core.models import (
 )
 from hostwatch.core.plugin import BrowserAuth, Plugin, PluginContext, PluginMeta, cookie_header
 from hostwatch.core.record import Scrubber
-from hostwatch.plugins.adminvps import pages, paymaster
+from hostwatch.plugins.adminvps import control, pages, paymaster
 from hostwatch.plugins.adminvps.scrub import scrub_page
 
 SITE = "https://my.adminvps.ru"
@@ -82,6 +90,11 @@ SBP_METHOD = "paymaster_sbp"
 MIN_TOPUP = Decimal(100)
 MAX_TOPUP = Decimal(200_000)
 FORM_HEADERS = {**HTML_HEADERS, "Origin": SITE, "Referer": f"{CLIENTAREA}?action=addfunds"}
+XHR_HEADERS = {
+    "Accept": "application/json, text/javascript, */*; q=0.01",
+    "X-Requested-With": "XMLHttpRequest",
+}
+DETAIL_LIMIT = 200
 
 log = logging.getLogger(__name__)
 
@@ -165,6 +178,155 @@ class AdminVpsPlugin(Plugin):
             return payment
         return payment.model_copy(update={"url": link, "qr_data": link})
 
+    async def power(self, server_id: str, action: PowerAction) -> ActionResult:
+        """Post the page's own power form; WHMCS answers with the page and a result alert."""
+        page_url = _service_url(server_id)
+        page = pages.parse(await self._page({"action": "productdetails", "id": server_id}))
+        form = control.power_form(page, ServerAction(action.value))
+        if form is None:
+            raise HosterError("the service page has no such power button")
+        html = await self._post_page(urljoin(page_url, form.action or page_url), form.fields)
+        ok, text = control.module_result(html)
+        if ok is None:
+            return ActionResult(ok=False, detail="WHMCS showed no result on the page")
+        if not ok:
+            raise HosterError(text[:DETAIL_LIMIT] or "the module refused")
+        return ActionResult(ok=True, detail=text[:DETAIL_LIMIT])
+
+    async def set_autorenew(self, server_id: str, enabled: bool) -> ActionResult:
+        target = control.TURN_ON if enabled else control.TURN_OFF
+        page, form = await self._modal_form(server_id, target)
+        answer = await self._submit_modal(server_id, form, control.page_token(page))
+        return _mg_result(answer)
+
+    async def renew_price(self, server_id: str) -> Money:
+        _, form = await self._modal_form(server_id, control.RENEW)
+        return await self._renewal_total(server_id, form)
+
+    async def renew(self, server_id: str, price: Money) -> ActionResult:
+        """HostingRenewals renews for the period its form names (a month for these
+        services). If its answer names an invoice, the number goes to the detail."""
+        page, form = await self._modal_form(server_id, control.RENEW)
+        now = await self._renewal_total(server_id, form)
+        if now != price:
+            raise HosterError(f"the renewal costs {now} now, not {price}")
+        token = control.page_token(page)
+        answer = await self._submit_modal(server_id, form, token, {"promoCode": ""})
+        result = _mg_result(answer)
+        invoice = control.invoice_id(answer.text)
+        if invoice is None:
+            return result
+        return result.model_copy(update={"detail": f"{result.detail}; invoice {invoice}"})
+
+    async def _modal_form(
+        self, server_id: str, target: str
+    ) -> tuple[pages.LexborHTMLParser, control.ModalForm]:
+        """Open a HostingRenewals modal the way its button does (`mgformtype=read`)."""
+        service_url = _service_url(server_id)
+        page = pages.parse(await self._page({"action": "productdetails", "id": server_id}))
+        modal = control.renewal_modals(page).get(target)
+        if modal is None:
+            raise HosterError("the service page has no such renewal button")
+        params = {
+            "action": "productdetails",
+            "id": server_id,
+            "loadData": modal.target,
+            "namespace": modal.namespace,
+            "index": modal.index,
+            "mgformtype": "read",
+            "ajax": "1",
+        }
+        response = await self._get(CLIENTAREA, params, {**XHR_HEADERS, "Referer": service_url})
+        answer = control.mg_answer(response.text)
+        if not answer.ok:
+            raise HosterError(answer.message[:DETAIL_LIMIT] or "the modal did not open")
+        form = control.modal_form(answer)
+        if form.fields["hostingID"] != server_id:
+            raise LayoutChanged  # the modal is about another service
+        return page, form
+
+    async def _renewal_total(self, server_id: str, form: control.ModalForm) -> Money:
+        """What the modal asks when it opens (`mgformtype=checkPrice`); nothing changes."""
+        answer = await self._submit_modal(server_id, form, None, {"promoCode": ""}, "checkPrice")
+        if not answer.ok:
+            raise HosterError(answer.message[:DETAIL_LIMIT] or "no renewal price")
+        return Money(amount=control.renewal_total(answer), currency=CURRENCY)
+
+    async def _submit_modal(
+        self,
+        server_id: str,
+        form: control.ModalForm,
+        token: str | None,
+        extra: dict[str, str] | None = None,
+        formtype: str | None = None,
+    ) -> control.MgAnswer:
+        """POST a modal form as the framework does: multipart fields, the form in the URL.
+        The page's CSRF token goes along; WHMCS ignores fields it does not need."""
+        fields = {**form.fields, **(extra or {})}
+        if token:
+            fields["token"] = token
+        params = {
+            "action": "productdetails",
+            "id": server_id,
+            "loadData": form.id,
+            "namespace": form.namespace,
+            "index": form.index,
+            "ajax": "1",
+            "mgformtype": formtype or form.formtype,
+        }
+        headers = {
+            **XHR_HEADERS,
+            "Accept": "*/*",
+            "Origin": SITE,
+            "Referer": _service_url(server_id),
+            "Cookie": cookie_header(self._cookies, AUTH),
+        }
+        try:
+            response = await self.ctx.http.post(
+                CLIENTAREA,
+                params=params,
+                files={name: (None, value) for name, value in fields.items()},
+                headers=headers,
+                follow_redirects=False,
+            )
+        except httpx.TimeoutException:
+            raise TimeoutError from None
+        except httpx.TransportError as exc:
+            raise HosterError(f"network: {type(exc).__name__}") from None
+        await self._keep_cookies(response)
+        _check_status(response)
+        if not response.text.lstrip().startswith("{"):
+            _check_page(response.text)
+            raise LayoutChanged
+        return control.mg_answer(response.text)
+
+    async def _post_page(self, url: str, fields: dict[str, str]) -> str:
+        """POST a form of a cabinet page; WHMCS answers with a page or a redirect to one."""
+        if not url.startswith(SITE + "/"):
+            raise LayoutChanged  # a form must not send the session anywhere else
+        headers = {
+            **HTML_HEADERS,
+            "Origin": SITE,
+            "Referer": url,
+            "Cookie": cookie_header(self._cookies, AUTH),
+        }
+        try:
+            response = await self.ctx.http.post(
+                url, data=fields, headers=headers, follow_redirects=False
+            )
+        except httpx.TimeoutException:
+            raise TimeoutError from None
+        except httpx.TransportError as exc:
+            raise HosterError(f"network: {type(exc).__name__}") from None
+        await self._keep_cookies(response)
+        location = httpx.URL(urljoin(url, response.headers.get("location", "")))
+        if response.is_redirect and str(location).startswith(CLIENTAREA):
+            # WHMCS sends the browser back to the service page, where the result is shown.
+            return await self._page_at(CLIENTAREA, dict(location.params))
+        _check_status(response)
+        _check_page(response.text)
+        return response.text
+
     async def _paymaster(self, form: paymaster.GatewayForm) -> str:
         """What the browser does after WHMCS: post the form, open the page, choose SBP."""
         accept = {"Accept": HTML_HEADERS["Accept"]}
@@ -244,6 +406,7 @@ class AdminVpsPlugin(Plugin):
                     # still right, and this server shows as "unknown" until the next one.
                     log.warning("adminvps: no SolusVM data for a server: %s", describe(exc))
         status, raw_status = _status(row.status, data)
+        actions = details.actions if row.status == "active" else frozenset()
         return Server(
             external_id=row.id,
             name=row.domain or row.product,
@@ -257,6 +420,7 @@ class AdminVpsPlugin(Plugin):
             next_charge_at=row.next_due,
             autorenew=details.autorenew,
             billing=BillingModel.PERIODIC,
+            actions=actions,
         )
 
     async def _services(self) -> pages.LexborHTMLParser:
@@ -326,6 +490,18 @@ class AdminVpsPlugin(Plugin):
     @classmethod
     def record_text(cls, text: str, scrubber: Scrubber) -> str:
         return scrub_page(text, scrubber)
+
+
+def _service_url(server_id: str) -> str:
+    if not server_id.isdigit():
+        raise HosterError(f"bad service id {server_id!r}")
+    return f"{CLIENTAREA}?action=productdetails&id={server_id}"
+
+
+def _mg_result(answer: control.MgAnswer) -> ActionResult:
+    if not answer.ok:
+        raise HosterError(answer.message[:DETAIL_LIMIT] or answer.status or "refused")
+    return ActionResult(ok=True, detail=answer.message[:DETAIL_LIMIT] or "success")
 
 
 def _check_status(response: httpx.Response) -> None:

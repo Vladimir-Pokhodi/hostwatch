@@ -104,6 +104,15 @@ MIGRATIONS: list[str] = [
     ALTER TABLE payments ADD COLUMN external_id TEXT NOT NULL DEFAULT '';
     ALTER TABLE payments ADD COLUMN balance_before TEXT;
     """,
+    # Servers the owner stopped through the bot: no «stopped» alert for them (stage 10).
+    """
+    CREATE TABLE owner_stops (
+        account_id INTEGER NOT NULL REFERENCES accounts (id) ON DELETE CASCADE,
+        server_id TEXT NOT NULL,
+        at TEXT NOT NULL,
+        PRIMARY KEY (account_id, server_id)
+    );
+    """,
 ]
 
 

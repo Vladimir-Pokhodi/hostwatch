@@ -25,11 +25,31 @@ class ServerCb(CallbackData, prefix="s"):
 
 
 class ActionCb(CallbackData, prefix="a"):
-    """A server action. Until stage 10 every one of them leads to a stub."""
+    """A server card action; it asks for confirmation first (`ConfirmCb`)."""
 
     acc: int
     sid: str
     act: str
+
+
+class ConfirmCb(CallbackData, prefix="cf"):
+    """«Yes» or «Cancel» under a confirmation; `n` is the one-time nonce of the action."""
+
+    n: str
+    yes: bool
+
+
+class InvoicesCb(CallbackData, prefix="iv"):
+    """Unpaid invoices of an account, read from the hoster."""
+
+    acc: int
+
+
+class PayCb(CallbackData, prefix="pi", sep="|"):
+    """Pay invoice `inv` from the balance at the hoster; asks for confirmation first."""
+
+    acc: int
+    inv: str
 
 
 class RefreshCb(CallbackData, prefix="r"):

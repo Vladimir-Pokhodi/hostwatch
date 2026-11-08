@@ -51,6 +51,8 @@
 
 QRATOR пропускает запросы из Python и с IP сервера бота (2.56.122.88, проверено 08.11).
 
+Питание (этап 10, по справочнику API `https://timeweb.cloud/api-docs-data/bundle.json`, вживую не вызывалось): `POST /api/v1/servers/{id}/start`, `/shutdown`, `/reboot` с токеном API, ответ 204 без тела. Ошибки — JSON с `error_code`. Старый `POST /servers/{id}/action {"action": ...}` в справочнике помечен устаревшим. У выделенных серверов в API питания нет.
+
 ## Aeza
 
 Сайт работает на том же API, который доступен по ключу: `https://my.aeza.net/api/v2/`. Ключ создаётся в «Настройки → API-ключи» и передаётся в заголовке `X-API-Key`. К ключу можно привязать белый список IP. Сайт сам использует `Authorization: Bearer <сессия>`, сессия живёт 30 дней.
@@ -69,7 +71,12 @@ QRATOR пропускает запросы из Python и с IP сервера �
   - В ответе ещё `id` счёта, `status: "created"`, `amount` в центах, `createdAt`. Списка счетов (`GET /billing/invoices`) нет: 404.
   - Минимумы — поле `min` (в центах) в `/billing/payment-methods`: СБП 50, большинство монет 500, BTC/ETH/USDT ERC20 1000.
 
-Управление (автопродление, продление, питание) я нашёл в коде страниц, но не вызывал.
+Управление (этап 10). Запросы взяты из скриптов кабинета `my.aeza.net/assets/*.js` (08.11). Вживую не вызывались: тестового сервера нет.
+
+- Питание: `POST services/{id}/ctl/resume` без тела, `POST services/{id}/ctl/suspend {"force": false}`, `POST services/{id}/ctl/restart {"force": false}`. `force: true` — принудительное выключение, бот его не шлёт.
+- Автопродление: `PATCH services/{id} {"autoProlong": true|false}`.
+- Продление с баланса: `GET services/{id}/prices` → `{"prices": {"hour": 4, "month": 593, ...}}` в центах (проверено вживую 08.11, цены совпали с ценами услуг), затем `POST services/{id}/prolong {"method": "balance", "paymentTerm": "month", "count": 1}`.
+- Кабинет считает ошибкой и ответ 2xx с телом `{"error": {"message", "slug"}}` (в том числе под `data`). Плагин делает так же.
 
 ## Regxa
 
@@ -87,6 +94,9 @@ QRATOR пропускает запросы из Python и с IP сервера �
 - Без сессии: `/api/auth/session` → `{}`, остальное → 401 или 403 с `{"error": "..."}`.
 - Нагрузка в `vps/status`: `used_cpu` в %, `used_ram` / `ram` в МБ, `used_disk` / `disk` в ГБ, `used_bandwidth` в ГБ за месяц (`bandwidth = 0` — без лимита). Состояние `status`: 1 включён, 0 выключен, 2 приостановлен. Пока VPS создаётся, вместо объекта приходит одно число.
 - Автопродления как функции нет. Сайт сам выставляет счёт перед окончанием срока.
+- Управление (этап 10, по скриптам страниц `/dashboard/services/cloud/[id]` и `/dashboard/billing/invoices/[id]`, 08.11; вживую не вызывалось):
+  - питание: `POST /api/services/vps/power/{start|stop|restart|poweroff}/{vpsid}` без тела, `Content-Type: application/json`. Успех — JSON, иногда с `done_msg`; ошибка — не-2xx с `{"error": "..."}`. Кнопка «Stop VPS» шлёт `stop`, `poweroff` — жёсткое выключение;
+  - оплата счёта с баланса: `POST /api/billing/invoices/apply-credit {"invoiceid": <число>, "amount": <число>}` → `{"success": true}` или `{"success": false, "message": "..."}`. Страница не даёт ввести больше остатка счёта (`balance` в `GET /api/billing/invoices/{id}`) и больше баланса клиента.
 - Пополнение:
   1. `POST /api/billing/addfunds` `{"amount": 5}` → `data.invoiceid`.
   2. `POST /api/billing/cryptomus/create-payment` `{"invoiceId", "returnUrl"}` → ссылка `https://pay.cryptomus.com/pay/<uuid>`.
@@ -106,10 +116,14 @@ QRATOR пропускает запросы из Python и с IP сервера �
   - IP, статус и трафик: `GET modules/servers/solusvmpro/get_client_data.php?vserverid=...` отдаёт JSON (`state`: `online`/`offline`, `mainip`, `bandwidthused` вида «417.7 MB»). Иногда отвечает дольше 20 с.
   - Каждый запрос к кабинету идёт ~1,3 с, поэтому опрос 6 услуг (1 + 2 × 6 запросов) занимает ~18 с.
   - CPU и RAM есть только картинками графиков.
-- Питание: POST на карточку услуги, поля `token` (CSRF со страницы), `id`, `modop=custom`, `a=boot|shutdown|reboot`.
-- Автопродление: модуль ModulesGarden HostingRenewals.
+- Питание: на карточке услуги три формы `POST clientarea.php?action=productdetails&id={id}` с полями `token` (CSRF), `id`, `modop=custom`, `a=boot|shutdown|reboot`. Скрипт страницы после действия ждёт адрес с `&serveraction=custom&a=...` и блок `#alertModuleCustomButtonSuccess`; при ошибке WHMCS показывает `#alertModuleCustomButtonFailed`. Вживую не отправлялось.
+- Автопродление и продление: модуль ModulesGarden HostingRenewals со своим JS-фреймворком (код встроен в страницу услуги, прочитан 08.11).
   - Состояние видно по тому, какая из кнопок `mg-hosting-renewals-turn-on-button` / `turn-off-button` не скрыта.
-  - Действие открывается модальным окном: `loadModal(... 'turnOnRenewals' | 'turnOffRenewals' | 'renewService' ...)`. Как отправляется форма подтверждения, ещё нужно посмотреть на тестовом сервере.
+  - Кнопка вызывает `loadModal($event, target, namespace, index)`. Это `GET` той же карточки с `loadData=<target>&namespace=<namespace>&index=<target>&mgformtype=read&ajax=1`. Ответ — JSON `{"data": {"status": "success", "message": null, "rawData": {"htmlData", "template"}}}`. Проверено вживую 08.11 для `turnOnRenewals`, `turnOffRenewals`, `renewService` (только открытие окна).
+  - В окне форма `<form id namespace index mgformtype>` с полем `hostingID`: `turnOnRenewalsForms` (`mgformtype="turnOn"`), `turnOffRenewalsForms` (`turnOff`), `renewServiceForm` (`renew`, поля `hostingID`, `months=1`, `renewPrice` пустое, `cycle=monthly`, `promoCode`). Форма продления лежит в `template` внутри `<script type="text/x-template">`.
+  - «Подтвердить» (`submitForm`): `POST` той же карточки с `loadData=<form id>&namespace=<form namespace>&index=<form index>&ajax=1&mgformtype=<mgformtype формы>`, поля формы — `multipart/form-data`. Ответ — тот же JSON, `status: "success"` или ошибка с `message`. Вживую не отправлялось.
+  - Цена продления: окно при открытии само шлёт `POST` с `mgformtype=checkPrice` и полями формы. По скрипту ответ — `data.htmlData` с `fullTotal` (числа), `displayFullTotal` (строки с валютой) и `newNextDueDate`. Вживую не проверено: этот POST не отправлялся.
+  - В окне продления написано «Срок действия после оплаты счёта». Похоже, продление создаёт счёт WHMCS, а спишется ли он с баланса сразу, неизвестно. Проверит владелец (`docs/manual-checks.md`).
 - Пополнение:
   1. `POST clientarea.php?action=addfunds` с полями `token`, `amount` (от 100 до 200 000) и `paymentmethod=paymaster_sbp`. Ответ 200 — страница с формой PayMaster (`https://paymaster.ru/Payment/Init`, поля `LMI_*`; номер счёта — `LMI_PAYMENT_NO`). Счёт виден как `viewinvoice.php?id=N`, там та же форма.
   2. Бот отправляет форму сам и получает `302` на `https://paymaster.ru/cpay/<id>` (32 hex без дефисов).

@@ -106,6 +106,8 @@ class AccountView:
     usage: Mapping[str, Usage] = field(default_factory=dict)
     # Failed polls in a row since the last success.
     failures: int = 0
+    # Servers the owner stopped through the bot: their «stopped» is not news.
+    owner_stopped: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -373,8 +375,8 @@ class _Rules:
         events = []
         name = escape(server.name)
         sid = server.external_id
-        # Stage 10 adds power actions; then a stop made through the bot will not alert.
-        if server.status in BAD_STATUSES:
+        own_stop = server.status is ServerStatus.STOPPED and sid in self.view.owner_stopped
+        if server.status in BAD_STATUSES and not own_stop:
             status = t(f"status.{server.status.value}", self.lang)
             events.append(
                 self.event(

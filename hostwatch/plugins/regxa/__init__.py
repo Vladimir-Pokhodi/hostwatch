@@ -13,6 +13,12 @@ Top-up is crypto through Cryptomus only: `addfunds` makes a WHMCS invoice, and
 `cryptomus/create-payment` gives its Cryptomus page. The wallet address is on that page
 only, so a headless tab reads it (see `cryptomus.py`). Without the tab the owner gets the
 page link and chooses the coin there.
+
+Control is what the site's pages send (their scripts, read 2026-11-08; not sent to a live
+server yet): `POST /api/services/vps/power/{start|stop|restart}/{vpsid}` without a body, and
+paying an invoice from the balance with `POST /api/billing/invoices/apply-credit
+{"invoiceid", "amount"}` → `{"success", "message"}`. The plugin pays only renewal invoices
+(with a "Hosting" line), only the confirmed sum, and reads the invoice again afterwards.
 """
 
 from __future__ import annotations
@@ -29,6 +35,7 @@ from pydantic import BaseModel, ValidationError
 
 from hostwatch.core.errors import AuthExpired, Blocked, HosterError, LayoutChanged, RateLimited
 from hostwatch.core.models import (
+    ActionResult,
     Autorenew,
     Balance,
     BillingModel,
@@ -36,7 +43,9 @@ from hostwatch.core.models import (
     InvoiceStatus,
     Money,
     Payment,
+    PowerAction,
     Server,
+    ServerAction,
     ServerKind,
     ServerStatus,
     TopupKind,
@@ -73,12 +82,29 @@ INVOICE_STATUSES = {
     "Paid": InvoiceStatus.PAID,
     "Cancelled": InvoiceStatus.CANCELLED,
 }
+POWER_PATHS = {
+    PowerAction.START: "start",
+    PowerAction.STOP: "stop",
+    PowerAction.RESTART: "restart",
+}
+POWER_ACTIONS = frozenset({ServerAction.START, ServerAction.STOP, ServerAction.RESTART})
+DETAIL_LIMIT = 200
 # An invoice item that renews a service; its `relid` is the service id.
 RENEWAL_ITEM = "Hosting"
 NO_DATE = "0000-00-00"
 # For `record_text`: what the core scrubber does not recognise in WHMCS answers.
 RECORD_IDS = {"userid", "invoiceid", "relid", "vpsid", "billingcid", "paymethodid", "stid"}
-RECORD_MONEY = {"credit", "total", "subtotal", "tax", "tax2", "income", "grossRevenue", "expenses"}
+RECORD_MONEY = {
+    "credit",
+    "total",
+    "balance",
+    "subtotal",
+    "tax",
+    "tax2",
+    "income",
+    "grossRevenue",
+    "expenses",
+}
 
 # Cryptomus networks the bot offers; `cryptomus` alone leaves the choice to the page.
 PAGE_METHOD = "cryptomus"
@@ -180,6 +206,54 @@ class RegxaPlugin(Plugin):
         opened = {row.id: detail for row, detail in zip(unpaid, details, strict=True)}
         return [_invoice(row, opened.get(row.id)) for row in rows]
 
+    async def power(self, server_id: str, action: PowerAction) -> ActionResult:
+        service = next((s for s in await self._list_services() if str(s.id) == server_id), None)
+        vps_id = service.field(VPS_FIELD) if service else None
+        if vps_id is None or not vps_id.isdigit():
+            raise HosterError(f"no VPS with id {server_id}")
+        response = await self._request(
+            f"/api/services/vps/power/{POWER_PATHS[action]}/{vps_id}",
+            {},
+            post=True,
+            referer=f"{SITE}/dashboard/services/cloud/{server_id}",
+        )
+        _raise_for_status(response)
+        return ActionResult(ok=True, detail=_outcome(response).done_msg[:DETAIL_LIMIT] or "done")
+
+    async def pay_invoice(self, invoice_id: str, amount: Money) -> ActionResult:
+        """Pay a renewal invoice with the credit on the account: the sum the owner confirmed."""
+        if not invoice_id.isdigit():
+            raise HosterError(f"bad invoice id {invoice_id!r}")
+        path = f"/api/billing/invoices/{invoice_id}"
+        await self._session()
+        details = await self._get(api.InvoiceDetails, path)
+        if details.status != "Unpaid":
+            raise HosterError(f"the invoice is {details.status or 'unknown'}, not unpaid")
+        if not any(line.type == RENEWAL_ITEM for line in details.lines()):
+            raise HosterError("not a service renewal invoice")
+        if details.balance is None:
+            raise LayoutChanged
+        due = _money(details.balance, self.meta.currency)
+        if amount != due:
+            raise HosterError(f"the invoice is {due} now, not {amount}")
+        credit = (await self.balance()).money
+        if credit < due:
+            raise HosterError(f"the balance is {credit}, less than {due}")
+        response = await self._request(
+            "/api/billing/invoices/apply-credit",
+            {},
+            # The page sends both as JSON numbers; cents survive the float.
+            {"invoiceid": int(invoice_id), "amount": float(due.amount)},
+            referer=f"{SITE}/dashboard/billing/invoices/{invoice_id}",
+        )
+        _raise_for_status(response)
+        outcome = _outcome(response)
+        if not outcome.success:
+            raise HosterError(outcome.message[:DETAIL_LIMIT] or "apply-credit failed")
+        after = await self._get(api.InvoiceDetails, path)
+        detail = f"credit applied; the invoice is {after.status or 'unknown'} now"
+        return ActionResult(ok=after.status == "Paid", detail=detail)
+
     async def topup_methods(self) -> list[TopupMethod]:
         minimum = Money(amount=MIN_TOPUP, currency=self.meta.currency)
         return [
@@ -272,6 +346,8 @@ class RegxaPlugin(Plugin):
             # Regxa has no auto-renewal: it issues an invoice before the term ends.
             autorenew=Autorenew.NOT_AVAILABLE,
             billing=BillingModel.PERIODIC,
+            # A suspended VPS is the hoster's lock: power buttons would only fail.
+            actions=frozenset() if status is ServerStatus.SUSPENDED else POWER_ACTIONS,
         )
 
     async def _status(self, vps_id: str) -> api.VpsStatus:
@@ -358,14 +434,22 @@ class RegxaPlugin(Plugin):
             raise LayoutChanged from None
 
     async def _request(
-        self, path: str, params: dict[str, Any], body: dict[str, Any] | None = None
+        self,
+        path: str,
+        params: dict[str, Any],
+        body: dict[str, Any] | None = None,
+        post: bool = False,
+        referer: str = f"{SITE}/billing/add-funds",
     ) -> httpx.Response:
-        """GET, or POST of a JSON `body` the way the site's pages send it."""
+        """GET, or POST (of a JSON `body`, or empty) the way the site's pages send it."""
         headers = {"Cookie": cookie_header(self.ctx.secrets, AUTH), "Accept": "application/json"}
         try:
-            if body is None:
+            if body is None and not post:
                 return await self.ctx.http.get(SITE + path, params=params, headers=headers)
-            headers |= {"Origin": SITE, "Referer": f"{SITE}/billing/add-funds"}
+            headers |= {"Origin": SITE, "Referer": referer}
+            if body is None:
+                headers["Content-Type"] = "application/json"
+                return await self.ctx.http.post(SITE + path, headers=headers)
             return await self.ctx.http.post(SITE + path, json=body, headers=headers)
         except httpx.TimeoutException:
             raise TimeoutError from None
@@ -423,9 +507,11 @@ def _message(response: httpx.Response) -> str:
 def _invoice(row: api.InvoiceRow, details: api.InvoiceDetails | None) -> Invoice:
     lines = details.lines() if details else []
     renewed = {line.relid for line in lines if line.type == RENEWAL_ITEM and line.relid}
+    # An opened unpaid invoice shows what is left to pay: that is the sum to confirm.
+    left = details.balance if details is not None else None
     return Invoice(
         id=str(row.id),
-        amount=_money(row.total, row.currencycode),
+        amount=_money(row.total if left is None else left, row.currencycode),
         status=INVOICE_STATUSES.get(row.status, InvoiceStatus.UNKNOWN),
         description="; ".join(
             line.description.splitlines()[0] for line in lines if line.description
@@ -434,6 +520,13 @@ def _invoice(row: api.InvoiceRow, details: api.InvoiceDetails | None) -> Invoice
         # Several services on one invoice: none of them owns it.
         server_id=str(renewed.pop()) if len(renewed) == 1 else None,
     )
+
+
+def _outcome(response: httpx.Response) -> api.Outcome:
+    try:
+        return api.Outcome.model_validate_json(response.content or b"{}")
+    except ValidationError:
+        raise LayoutChanged from None
 
 
 def _money(amount: Decimal, currency: str) -> Money:

@@ -101,3 +101,9 @@ class CreatedInvoice(Answer):
     amount: int
     createdAt: AwareDatetime
     payload: InvoicePayload
+
+
+class RenewalPrices(Answer):
+    """`GET services/{id}/prices`: what one more period costs, in cents, by payment term."""
+
+    prices: dict[str, Decimal]

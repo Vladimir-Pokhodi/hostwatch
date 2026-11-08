@@ -1,0 +1,322 @@
+[
+ {
+  "id": 1,
+  "slug": "alma_9",
+  "name": "Alma Linux 9",
+  "group": "alma",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 3,
+  "slug": "rocky_8",
+  "name": "Rocky Linux 8",
+  "group": "rocky",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 4,
+  "slug": "rocky_9",
+  "name": "Rocky Linux 9",
+  "group": "rocky",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 6,
+  "slug": "ubuntu_2204",
+  "name": "Ubuntu 22.04",
+  "group": "ubuntu",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 7,
+  "slug": "ubuntu_2004",
+  "name": "Ubuntu 20.04",
+  "group": "ubuntu",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 9,
+  "slug": "centos_9",
+  "name": "CentOS 9 Stream",
+  "group": "centos",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 11,
+  "slug": "centos_7",
+  "name": "CentOS 7",
+  "group": "centos",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 12,
+  "slug": "debian_12",
+  "name": "Debian 12",
+  "group": "debian",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 13,
+  "slug": "debian_11",
+  "name": "Debian 11",
+  "group": "debian",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 14,
+  "slug": "debian_10",
+  "name": "Debian 10",
+  "group": "debian",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 24,
+  "slug": "alma_8",
+  "name": "Alma Linux 8",
+  "group": "alma",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 5,
+  "slug": "ubuntu_2404",
+  "name": "Ubuntu 24.04",
+  "group": "ubuntu",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 29,
+  "slug": "alma_10",
+  "name": "AlmaLinux 10",
+  "group": "alma",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 32,
+  "slug": "rocky_10",
+  "name": "Rocky Linux 10",
+  "group": "rocky",
+  "username": "root",
+  "enabled": true,
+  "order": 1,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 31,
+  "slug": "centos_10",
+  "name": "CentOS 10 Stream",
+  "group": "centos",
+  "username": "root",
+  "enabled": true,
+  "order": 1,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 33,
+  "slug": "alpine3_24",
+  "name": "Alpine 3.24",
+  "group": "alpine",
+  "username": "root",
+  "enabled": true,
+  "order": 1,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 25,
+  "slug": "debian_13",
+  "name": "Debian 13",
+  "group": "debian",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 34,
+  "slug": "fedora_44",
+  "name": "Fedora 44",
+  "group": "fedora",
+  "username": "root",
+  "enabled": true,
+  "order": 1,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 35,
+  "slug": "fedora_43",
+  "name": "Fedora 43",
+  "group": "fedora",
+  "username": "root",
+  "enabled": true,
+  "order": 2,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 26,
+  "slug": "alpine3_23",
+  "name": "Alpine 3.23",
+  "group": "alpine",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 36,
+  "slug": "nixos_2605",
+  "name": "NixOS 26.05",
+  "group": "nixos",
+  "username": "root",
+  "enabled": true,
+  "order": 10,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 27,
+  "slug": "ubuntu_2604",
+  "name": "Ubuntu 26.04",
+  "group": "ubuntu",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 16,
+  "slug": "windows_server_2022",
+  "name": "Windows Server 2022",
+  "group": "windows_server",
+  "username": "Administrator",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": false
+ },
+ {
+  "id": 17,
+  "slug": "windows_server_2019",
+  "name": "Windows Server 2019",
+  "group": "windows_server",
+  "username": "Administrator",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": false
+ },
+ {
+  "id": 18,
+  "slug": "windows_server_2016",
+  "name": "Windows Server 2016",
+  "group": "windows_server",
+  "username": "Administrator",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": false
+ },
+ {
+  "id": 28,
+  "slug": "archlinux_20260701",
+  "name": "ArchLinux 2026.07.01",
+  "group": "archlinux",
+  "username": "root",
+  "enabled": true,
+  "order": 0,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 37,
+  "slug": "altlinux_10",
+  "name": "ALT Linux 10",
+  "group": "altlinux",
+  "username": "root",
+  "enabled": true,
+  "order": 12,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 38,
+  "slug": "freebsd_14",
+  "name": "FreeBSD 14",
+  "group": "freebsd",
+  "username": "root",
+  "enabled": true,
+  "order": 15,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 39,
+  "slug": "freebsd_15",
+  "name": "FreeBSD 15",
+  "group": "freebsd",
+  "username": "root",
+  "enabled": true,
+  "order": 16,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 40,
+  "slug": "opensuse_15",
+  "name": "openSUSE 15",
+  "group": "opensuse",
+  "username": "root",
+  "enabled": true,
+  "order": 20,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 41,
+  "slug": "opensuse_16",
+  "name": "openSUSE 16",
+  "group": "opensuse",
+  "username": "root",
+  "enabled": true,
+  "order": 20,
+  "supportsSshKeys": true
+ },
+ {
+  "id": 42,
+  "slug": "cachyos",
+  "name": "CachyOS",
+  "group": "cachyos",
+  "username": "root",
+  "enabled": true,
+  "order": 25,
+  "supportsSshKeys": true
+ }
+]

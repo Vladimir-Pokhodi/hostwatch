@@ -8,6 +8,10 @@ session (the `refresh_token` and `device_token` cookies of a browser login). Eve
 the session swaps the refresh token for a new one and kills the old, so the new one is
 saved before anything else happens. The bot and the owner's browser therefore cannot
 share one session.
+
+Power goes through the public API too: `POST servers/{id}/start|shutdown|reboot`, answered
+with 204 (the API reference, 2026-11-08; not sent to a live server yet). Dedicated
+servers have no power control in the API.
 """
 
 from __future__ import annotations
@@ -25,12 +29,15 @@ from pydantic import BaseModel, ValidationError
 
 from hostwatch.core.errors import AuthExpired, Blocked, HosterError, LayoutChanged, RateLimited
 from hostwatch.core.models import (
+    ActionResult,
     Autorenew,
     Balance,
     BillingModel,
     Money,
     Payment,
+    PowerAction,
     Server,
+    ServerAction,
     ServerKind,
     ServerStatus,
     TopupKind,
@@ -77,6 +84,12 @@ CLOUD_STATUSES = {
     "permanent_blocked": ServerStatus.SUSPENDED,
     "no_paid": ServerStatus.UNPAID,
 }
+POWER_PATHS = {
+    PowerAction.START: "start",
+    PowerAction.STOP: "shutdown",
+    PowerAction.RESTART: "reboot",
+}
+CLOUD_ACTIONS = frozenset({ServerAction.START, ServerAction.STOP, ServerAction.RESTART})
 DEDICATED_STATUSES = {
     "on": ServerStatus.RUNNING,
     "off": ServerStatus.STOPPED,
@@ -163,6 +176,24 @@ class TimewebPlugin(Plugin):
             cpu_percent=fmean(recent),
             disk_percent=_disk_percent(server),
         )
+
+    async def power(self, server_id: str, action: PowerAction) -> ActionResult:
+        if server_id.startswith(DEDICATED_PREFIX) or not server_id.isdigit():
+            raise HosterError("the API has no power control for this server")
+        token = self.ctx.secrets.get("api_token")
+        if not token:
+            raise AuthExpired
+        try:
+            response = await self.ctx.http.post(
+                f"{API}servers/{server_id}/{POWER_PATHS[action]}",
+                headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+            )
+        except httpx.TimeoutException:
+            raise TimeoutError from None
+        except httpx.TransportError:
+            raise HosterError("Timeweb is unreachable") from None
+        _raise_for_status(response)
+        return ActionResult(ok=True, detail=f"HTTP {response.status_code}")
 
     async def topup_methods(self) -> list[TopupMethod]:
         minimum = Money(amount=MIN_TOPUP, currency="RUB")
@@ -353,6 +384,7 @@ def _cloud_server(server: CloudServer, cost: ServiceCost | None, currency: str) 
         price=_hourly_price(cost, currency),
         autorenew=Autorenew.NOT_AVAILABLE,
         billing=BillingModel.HOURLY,
+        actions=CLOUD_ACTIONS,
     )
 
 

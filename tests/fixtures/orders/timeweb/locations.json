@@ -1,0 +1,81 @@
+{
+ "locations": [
+  {
+   "location": "ru-1",
+   "location_code": "RU",
+   "availability_zones": [
+    "spb-1",
+    "spb-5",
+    "spb-2",
+    "spb-3",
+    "spb-4"
+   ]
+  },
+  {
+   "location": "ru-3",
+   "location_code": "RU",
+   "availability_zones": [
+    "msk-1"
+   ]
+  },
+  {
+   "location": "pl-1",
+   "location_code": "PL",
+   "availability_zones": [
+    "gdn-1"
+   ]
+  },
+  {
+   "location": "kz-1",
+   "location_code": "KZ",
+   "availability_zones": [
+    "ala-1"
+   ]
+  },
+  {
+   "location": "ru-2",
+   "location_code": "RU",
+   "availability_zones": [
+    "nsk-1"
+   ]
+  },
+  {
+   "location": "nl-1",
+   "location_code": "NL",
+   "availability_zones": [
+    "ams-1"
+   ]
+  },
+  {
+   "location": "us-4",
+   "location_code": "US",
+   "availability_zones": [
+    "buf-2"
+   ]
+  },
+  {
+   "location": "ru-4",
+   "location_code": "RU",
+   "availability_zones": [
+    "ekb-1"
+   ]
+  },
+  {
+   "location": "ru-5",
+   "location_code": "RU",
+   "availability_zones": [
+    "kzn-1"
+   ]
+  },
+  {
+   "location": "de-1",
+   "location_code": "DE",
+   "availability_zones": [
+    "fra-1"
+   ]
+  }
+ ],
+ "meta": {
+  "total": 10
+ }
+}

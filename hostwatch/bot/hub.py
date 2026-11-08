@@ -9,6 +9,7 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Protocol
 
 from hostwatch.core.alerts import AccountView
+from hostwatch.core.control import Confirmations, Request, finished_stops
 from hostwatch.core.forecast import RECONCILE_WINDOW, Forecast, forecast
 from hostwatch.core.models import Account, Balance, Server, Usage
 from hostwatch.core.plugin import ApiKeyAuth, Capability, Plugin, capabilities
@@ -20,6 +21,7 @@ from hostwatch.storage.repositories import (
     AccountRepository,
     BalanceHistoryRepository,
     JournalRepository,
+    OwnerStopRepository,
     PaymentRepository,
     ServerRepository,
     UsageRepository,
@@ -71,6 +73,7 @@ class Hub:
     poller: Poller
     rates: RatesSource
     payments: PaymentRepository
+    owner_stops: OwnerStopRepository
     now: Callable[[], datetime] = field(default=lambda: datetime.now(UTC))
     hidden_plugins: frozenset[str] = HIDDEN_PLUGINS
     # Public IP of the server the bot runs on, once known (spec, decision 17).
@@ -81,6 +84,8 @@ class Hub:
     # After «Paid» the balance is read this many seconds later.
     paid_checks: tuple[float, ...] = (120.0, 300.0, 600.0)
     background: set[asyncio.Task[None]] = field(default_factory=set)
+    # «Yes» buttons of server and money actions waiting for the owner (stage 10).
+    confirmations: Confirmations[Request] = field(default_factory=Confirmations)
 
     def plugins(self) -> list[type[Plugin]]:
         ids = [pid for pid in self.registry.ids() if pid not in self.hidden_plugins]
@@ -141,9 +146,18 @@ class Hub:
                     forecast=data.forecast,
                     usage=usage,
                     failures=0 if schedule is None else schedule.failures,
+                    owner_stopped=self._owner_stopped(acc, data.servers),
                 )
             )
         return views
+
+    def _owner_stopped(self, account_id: int, servers: list[Server]) -> frozenset[str]:
+        """Servers still marked «stopped by the owner»; marks that did their job go away."""
+        marks = self.owner_stops.for_account(account_id)
+        for server_id in finished_stops(marks, servers, self.now()):
+            self.owner_stops.clear(account_id, server_id)
+            del marks[server_id]
+        return frozenset(marks)
 
 
 def key_fields(plugin: type[Plugin]) -> tuple[str, ...]:

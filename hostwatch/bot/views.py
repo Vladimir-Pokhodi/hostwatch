@@ -35,6 +35,7 @@ from .callbacks import (
     ActionCb,
     AddCb,
     HostCb,
+    InvoicesCb,
     JournalCb,
     LabelCb,
     Nav,
@@ -494,6 +495,10 @@ def balance(v: View, accounts: list[AccountData]) -> Screen:
             lines.append(escape(data.forecast.explain(v.lang, v.tz)))
         if Capability.TOPUP in data.caps:
             kb.row(_button(v.t("balance.topup", title=data.title), TopupCb(acc=data.account.id)))
+        if {Capability.INVOICES, Capability.PAY_INVOICE} <= data.caps:
+            kb.row(
+                _button(v.t("balance.invoices", title=data.title), InvoicesCb(acc=data.account.id))
+            )
     if not live:
         lines += ["", v.t("summary.empty")]
     else:
@@ -617,6 +622,36 @@ def login_sent(v: View, hoster: str, back: CallbackData) -> Screen:
 # Journal
 
 
+JOURNAL_ACTIONS = frozenset(
+    {
+        "topup",
+        "login",
+        "start",
+        "stop",
+        "restart",
+        "autorenew_on",
+        "autorenew_off",
+        "renew",
+        "pay_invoice",
+    }
+)
+
+
+def journal_action(v: View, entry: JournalEntry) -> str:
+    """What was done, in the owner's language; the server or invoice when there is one."""
+    name = (
+        v.t(f"journal.action.{entry.action}") if entry.action in JOURNAL_ACTIONS else entry.action
+    )
+    detail = entry.params.get("invoice") if entry.action == "pay_invoice" else None
+    amount = entry.params.get("amount")
+    parts = [name]
+    if detail:
+        parts.append(f"#{detail}")
+    if amount and entry.action in ("renew", "pay_invoice", "topup"):
+        parts.append(f"{amount} {entry.params.get('currency', '')}".strip())
+    return " ".join(parts)
+
+
 def journal(
     v: View, entries: list[JournalEntry], page: int, titles: dict[int, str], has_more: bool
 ) -> Screen:
@@ -631,7 +666,7 @@ def journal(
                 date=v.moment(entry.at),
                 actor=v.t(f"journal.actor.{entry.actor}"),
                 hoster=escape(hoster),
-                action=escape(entry.action),
+                action=escape(journal_action(v, entry)),
                 result=v.t("journal.ok" if entry.ok else "journal.failed"),
             )
         )

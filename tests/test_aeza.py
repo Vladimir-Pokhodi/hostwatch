@@ -20,12 +20,10 @@ from hostwatch.core.errors import (
     RateLimited,
 )
 from hostwatch.core.models import (
-    ActionResult,
     Autorenew,
     BillingModel,
     InvoiceStatus,
     Money,
-    PowerAction,
     ServerAction,
     ServerKind,
     ServerStatus,
@@ -78,7 +76,14 @@ async def test_aeza_passes_contract(hoster: respx.MockRouter) -> None:
 
 
 def test_capabilities() -> None:
-    assert capabilities(AezaPlugin) == {Capability.USAGE, Capability.INVOICES, Capability.TOPUP}
+    assert capabilities(AezaPlugin) == {
+        Capability.USAGE,
+        Capability.INVOICES,
+        Capability.TOPUP,
+        Capability.POWER,
+        Capability.AUTORENEW,
+        Capability.RENEW,
+    }
 
 
 async def test_servers_skip_domains_and_map_fields(hoster: respx.MockRouter) -> None:
@@ -97,8 +102,8 @@ async def test_servers_skip_domains_and_map_fields(hoster: respx.MockRouter) -> 
     assert first.next_charge_at == datetime(2026, 12, 6, 23, 49, 2, tzinfo=UTC)
     assert first.autorenew is Autorenew.ON
     assert first.billing is BillingModel.PERIODIC
-    # The plugin cannot control servers yet, so no buttons whatever Aeza allows.
-    assert first.actions == frozenset()
+    # `ctl` and `ctl.restart` in the service capabilities, and it is paid monthly.
+    assert first.actions == frozenset(ServerAction)
     quarterly = servers[2]
     assert quarterly.price == Money.of("33.83", "EUR")
     assert quarterly.period_months == 3
@@ -212,23 +217,27 @@ async def test_unknown_term_is_layout_change(records: list[dict[str, Any]]) -> N
 
 
 async def test_actions_follow_service_capabilities(records: list[dict[str, Any]]) -> None:
-    class Controlling(AezaPlugin):
-        async def power(self, server_id: str, action: PowerAction) -> ActionResult:
-            return ActionResult(ok=False)
-
-        async def set_autorenew(self, server_id: str, enabled: bool) -> ActionResult:
-            return ActionResult(ok=False)
-
-        async def renew(self, server_id: str) -> ActionResult:
-            return ActionResult(ok=False)
-
     with serving(records):
-        servers = await aeza(Controlling).servers()
+        servers = await aeza().servers()
     assert servers[0].actions == frozenset(ServerAction)
 
     with serving(with_first_vps(records, capabilities=["charts"])):
-        servers = await aeza(Controlling).servers()
+        servers = await aeza().servers()
     assert servers[0].actions == {ServerAction.AUTORENEW, ServerAction.RENEW}
+
+    with serving(with_first_vps(records, paymentTerm="hour")):
+        servers = await aeza().servers()
+    # An hourly service is paid every hour: nothing to renew.
+    assert servers[0].actions == {ServerAction.START, ServerAction.STOP, ServerAction.RESTART}
+
+
+async def test_plugin_without_control_shows_no_actions(records: list[dict[str, Any]]) -> None:
+    class ReadOnly(AezaPlugin):
+        power = None  # type: ignore[assignment]
+
+    with serving(records):
+        servers = await aeza(ReadOnly).servers()
+    assert ServerAction.STOP not in servers[0].actions
 
 
 async def test_short_rate_limit_is_waited_out() -> None:
@@ -297,7 +306,7 @@ def test_check_aeza_cli(hoster: respx.MockRouter, capsys: pytest.CaptureFixture[
 
     out = capsys.readouterr().out
     assert "Balance: €10.00" in out
-    assert "Capabilities: invoices, topup, usage" in out
+    assert "Capabilities: autorenew, invoices, power, renew, topup, usage" in out
     assert "Servers: 4" in out
     assert "name-2 [100006] vps running (active) ip 192.0.2.10 plan CLTs-1 €5.93/1 mo" in out
 

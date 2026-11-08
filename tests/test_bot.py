@@ -67,6 +67,7 @@ from hostwatch.storage.repositories import (
     BalanceHistoryRepository,
     JournalEntry,
     JournalRepository,
+    OwnerStopRepository,
     PaymentRepository,
     ServerRepository,
     SettingsRepository,
@@ -163,6 +164,7 @@ class Harness:
             poller=self.poller,
             rates=FixedRates(),
             payments=PaymentRepository(conn),
+            owner_stops=OwnerStopRepository(conn),
             now=lambda: NOW,
             hidden_plugins=frozenset(),
         )
@@ -354,9 +356,14 @@ def test_server_actions_limit_buttons() -> None:
 
 
 def test_plugin_without_capabilities_shows_no_action_buttons() -> None:
+    class ReadOnly(FakePlugin):
+        power = set_autorenew = renew = renew_price = None  # type: ignore[assignment]
+        pay_invoice = order = catalog = None  # type: ignore[assignment]
+
     server = _server()
-    assert server_actions(_data(AezaPlugin, [server]), server) == []
-    assert server_actions(_data(TimewebPlugin, [server]), server) == []
+    assert server_actions(_data(ReadOnly, [server]), server) == []
+    # Timeweb bills by the hour: power only.
+    assert server_actions(_data(TimewebPlugin, [server]), server) == ["stop", "restart"]
 
 
 async def test_server_card_of_fake_has_its_buttons(harness: Harness) -> None:
@@ -380,8 +387,8 @@ async def test_server_card_of_fake_has_its_buttons(harness: Harness) -> None:
         assert ActionCb(acc=account, sid="1", act=act).pack() in buttons
     assert ActionCb(acc=account, sid="1", act="start").pack() not in buttons
 
-    await harness.press(ActionCb(acc=account, sid="1", act="stop"))
-    assert harness.alerts()[-1] == "Будет на этапе 10."
+    await harness.press(ActionCb(acc=account, sid="1", act="order_same"))
+    assert harness.alerts()[-1] == "Будет на этапе 13."
 
 
 async def test_order_shows_in_menu_only_when_a_plugin_can_order(harness: Harness) -> None:
@@ -501,8 +508,8 @@ async def test_servers_and_cards_of_aeza_and_timeweb(live_like: Harness) -> None
             card = live_like.session.last_text()
             assert f"<b>{server.name}</b> · {d.plugin.meta.name}" in card
             assert "Data from" in card
-            # Neither plugin can act on servers yet: only Refresh and Back.
-            assert all(not b.startswith("a:") for b in live_like.session.buttons())
+            shown = [b for b in live_like.session.buttons() if b.startswith("a:")]
+            assert len(shown) == len(server_actions(d, server))
 
 
 async def test_failed_account_shows_reason_and_data_age(live_like: Harness) -> None:
@@ -758,12 +765,12 @@ async def test_stub_buttons_keep_the_screen(harness: Harness) -> None:
     await harness.press(ServerCb(acc=account, sid="1"))
     calls = len(harness.session.calls)
 
-    await harness.press(ActionCb(acc=account, sid="1", act="renew"))
+    await harness.press(ActionCb(acc=account, sid="1", act="order_same"))
     await harness.press(Nav(to="order"))
 
     new = harness.session.calls[calls:]
     assert all(isinstance(call, AnswerCallbackQuery) for call in new)
-    assert harness.alerts()[-2:] == ["Будет на этапе 10.", "Будет на этапе 13."]
+    assert harness.alerts()[-2:] == ["Будет на этапе 13.", "Будет на этапе 13."]
 
 
 async def test_menu_command_works_in_the_middle_of_a_question(harness: Harness) -> None:

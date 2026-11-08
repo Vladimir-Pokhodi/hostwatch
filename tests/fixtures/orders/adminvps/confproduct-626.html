@@ -1,0 +1,266 @@
+<form id="frmConfigureProduct" data-toggle="validator" data-is-external-product="false">
+                <input type="hidden" name="configure" value="true">
+                <input type="hidden" name="i" value="0">
+
+                <div class="row">
+                    <div class="secondary-cart-body">
+
+                        
+                        
+                        
+                        <div class="alert alert-danger w-hidden" role="alert" id="containerProductValidationErrors">
+                            <p>Для продолжения исправьте ошибки:</p>
+                            <ul id="containerProductValidationErrorsList"></ul>
+                        </div>
+
+                                                    <div class="field-container">
+                                <div class="form-group">
+                                    <label for="inputBillingcycle" style="font-size:16px;line-height: 34px;">Выберите период оплаты</label>
+                                    <br>
+                                    <select name="billingcycle" id="inputBillingcycle" class="form-control select-inline custom-select" onchange="updateConfigurableOptions(0, this.value);">
+                                                                                    <option value="monthly" selected="">
+                                                499.00 руб. ежемесячно
+                                            </option>
+                                                                                                                            <option value="quarterly">
+                                                1452.00 руб. ежеквартально
+                                            </option>
+                                                                                                                            <option value="semiannually">
+                                                2844.00 руб. за полгода
+                                            </option>
+                                                                                                                            <option value="annually">
+                                                5389.00 руб. ежегодно
+                                            </option>
+                                                                                                                            <option value="biennially">
+                                                10180.00 руб. каждые 2 года
+                                            </option>
+                                                                                                                    </select>
+                                </div>
+                            </div>
+                        
+                        
+                                                    <div class="sub-heading">
+                                <span class="primary-bg-color">Настроить сервер</span>
+                            </div>
+
+                            <div class="field-container">
+
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="form-group required">
+                                            <label for="inputHostname" class="control-label" data-toggle="tooltip" data-placement="top" data-original-title="Внимание! Поддерживается домены вида domain.com на латинице без знаков препинания и нижнего подчеркивания, не менее 4-х символов. Hostname не должен содержать adminvps (например, adminvps.ru, adminvps.xyz).">Название сервера <i class="fas fa-question-circle"></i></label>
+                                            <input type="text" name="hostname" class="form-control" id="inputHostname" value="" placeholder="domain.com" data-inputmask="'regex': '[A-Za-z0-9\\.\\-]{4,}', 'placeholder': ' ', 'showMaskOnFocus': false, 'showMaskOnHover': false" data-minlength="4" pattern="[A-Za-z0-9\.\-]+" data-minlength-error="Поле должно содержать не менее 4 символов" data-pattern-error="Поле должно содержать латинские буквы, цифры, а также символы '-' и '.'." required="">
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group" style="display: none;">
+                                            <label for="inputRootpw">Пароль администратора</label>
+                                            <input type="password" name="rootpw" class="form-control" id="inputRootpw" data-validate="false">
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="display: none;">
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="inputNs1prefix">Префикс NS1</label>
+                                            <input type="text" name="ns1prefix" class="form-control" id="inputNs1prefix" placeholder="ns1" value="ns1" data-validate="false">
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="form-group">
+                                            <label for="inputNs2prefix">Префикс NS2</label>
+                                            <input type="text" name="ns2prefix" class="form-control" id="inputNs2prefix" placeholder="ns2" value="ns2" data-validate="false">
+                                            <div class="help-block with-errors"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        
+                                                    <div class="sub-heading">
+                                <span class="primary-bg-color">Настраиваемые параметры</span>
+                            </div>
+                            <div class="product-configurable-options" id="productConfigurableOptions">
+                                <div class="row">
+                                                                                                                                                                                                                                    <div class="col-sm-6">
+                                            <div class="form-group">
+                                                                                                <label for="inputConfigOption37">
+                                                                                                    Операционная система
+                                                                                                </label>
+                                                <select name="configoption[37]" id="inputConfigOption37" class="form-control">
+                                                                                                            <option value="3103" selected="selected">
+                                                            Ubuntu 24.04
+                                                        </option>
+                                                                                                            <option value="2544">
+                                                            Ubuntu 22.04
+                                                        </option>
+                                                                                                            <option value="3197">
+                                                            Ubuntu 26.04
+                                                        </option>
+                                                                                                            <option value="380">
+                                                            Debian 11
+                                                        </option>
+                                                                                                            <option value="3087">
+                                                            Debian 12
+                                                        </option>
+                                                                                                            <option value="3168">
+                                                            Debian 13
+                                                        </option>
+                                                                                                            <option value="3100">
+                                                            Almalinux 9
+                                                        </option>
+                                                                                                            <option value="3195">
+                                                            Almalinux 10.2
+                                                        </option>
+                                                                                                            <option value="3101">
+                                                            Centos 9 Stream
+                                                        </option>
+                                                                                                            <option value="3003">
+                                                            ОС из своего ISO (только Linux OC) + 499.00 руб. Стоимость установки
+                                                        </option>
+                                                                                                    </select>
+                                                                                            </div>
+                                        </div>
+                                                                                                                                                                                                                                                                                                            <div class="col-sm-6">
+                                            <div class="form-group">
+                                                                                                <label for="inputConfigOption12">
+                                                                                                    Маркетплейс
+                                                                                                </label>
+                                                <select name="configoption[12]" id="inputConfigOption12" class="form-control">
+                                                                                                            <option value="81" selected="selected">
+                                                            не установлен
+                                                        </option>
+                                                                                                            <option value="382">
+                                                            Keitaro
+                                                        </option>
+                                                                                                            <option value="384">
+                                                            ispmanager lite
+                                                        </option>
+                                                                                                            <option value="3163">
+                                                            ispmanager pro 599.00 руб.
+                                                        </option>
+                                                                                                            <option value="3164">
+                                                            ispmanager host 1099.00 руб.
+                                                        </option>
+                                                                                                            <option value="385">
+                                                            FASTPANEL
+                                                        </option>
+                                                                                                            <option value="3129">
+                                                            VPN Wireguard (Может не работать в ЕС)
+                                                        </option>
+                                                                                                            <option value="3132">
+                                                            VPN 3x-ui (Рекомендуем)
+                                                        </option>
+                                                                                                            <option value="3162">
+                                                            1C-Bitrix
+                                                        </option>
+                                                                                                    </select>
+                                                                                            </div>
+                                        </div>
+                                                                                                        </div>
+                                <div class="row">
+                                                                                                                                                                                                                                                                                                                                                                                                                                <div class="col-sm-6">
+                                            <div class="form-group">
+                                                                                                <label for="inputConfigOption356">
+                                                                                                    Защита сервера Bitninja
+                                                                                                </label>
+                                                <select name="configoption[356]" id="inputConfigOption356" class="form-control">
+                                                                                                            <option value="3166" selected="selected">
+                                                            Не выбрано
+                                                        </option>
+                                                                                                            <option value="3165">
+                                                            Антивирус 949.00 руб.
+                                                        </option>
+                                                                                                    </select>
+                                                                                            </div>
+                                        </div>
+                                                                                                                                                                                                                            <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label for="inputConfigOption54">Дополнительный IPv4 адрес</label>
+                                                                                                                                                    <script type="text/javascript" src="/assets/js/ion.rangeSlider.min.js.pagespeed.jm.K1azHm8h_t.js"></script>
+                                                <link href="/assets/css/A.ion.rangeSlider.css+ion.rangeSlider.skinModern.css,Mcc.wyn5SBMr5L.css.pagespeed.cf.MFJ4lnvH76.css" rel="stylesheet">
+                                                
+                                                                                                                                                        <input type="text" name="configoption[54]" value="0" id="inputConfigOption54" class="form-control" data-validate="false">
+                                                    <script>var sliderTimeoutId=null;var sliderRangeDifference=10-0;var sliderStepThreshold=25;var setLargerMarkers=sliderRangeDifference>sliderStepThreshold;jQuery("#inputConfigOption54").ionRangeSlider({min:0,max:10,grid:true,grid_snap:setLargerMarkers?false:true,onChange:function(){if(sliderTimeoutId){clearTimeout(sliderTimeoutId);}sliderTimeoutId=setTimeout(function(){sliderTimeoutId=null;recalctotals();},250);}});</script>
+                                                                                            </div>
+                                        </div>
+                                                                                                        </div>
+                                <div class="row">
+                                                                                                                                                                                                                                                                                                                                                            <div class="col-sm-6 cvps-backup-config-col">
+                                            <div class="form-group cvps-backup-config">
+                                                                                                <label for="inputConfigOption354">Настройте резервное копирование перед созданием</label>
+                                                <div class="cvps-backup-config-tile">
+                                                    <div class="cvps-backup-config-tile__top">
+                                                        <div class="cvps-backup-config-tile__icon" aria-hidden="true">
+                                                            <i class="fas fa-clock tab_icons_main"></i>
+                                                        </div>
+                                                        <div class="cvps-backup-config-tile__stepper">
+                                                            <button type="button" class="cvps-backup-qty-minus" aria-label="Уменьшить" tabindex="-1">−</button>
+                                                            <span class="cvps-backup-qty-value">1</span>
+                                                            <button type="button" class="cvps-backup-qty-plus" aria-label="Увеличить" tabindex="-1">+</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="cvps-backup-config-tile__body">
+                                                        <span class="cvps-backup-config-tile__title">Еженедельные бекапы</span>
+                                                        <span class="cvps-backup-config-tile__price"></span>
+                                                    </div>
+                                                </div>
+                                                <select name="configoption[354]" id="inputConfigOption354" class="cvps-backup-config-select sr-only">
+                                                                                                            <option value="3067" selected="selected">
+                                                            Без бэкапов
+                                                        </option>
+                                                                                                            <option value="3061">
+                                                            1 копия 45.00 руб.
+                                                        </option>
+                                                                                                            <option value="3062">
+                                                            2 копии 90.00 руб.
+                                                        </option>
+                                                                                                            <option value="3063">
+                                                            3 копии 135.00 руб.
+                                                        </option>
+                                                                                                            <option value="3064">
+                                                            4 копий 180.00 руб.
+                                                        </option>
+                                                                                                            <option value="3065">
+                                                            5 копий 225.00 руб.
+                                                        </option>
+                                                                                                            <option value="3066">
+                                                            6 копий 270.00 руб.
+                                                        </option>
+                                                                                                    </select>
+                                                                                            </div>
+                                        </div>
+                                                                                                                                                                                                                        </div>
+                            </div>
+
+                        
+                        
+                        
+                        
+                    </div>
+                    <div class="secondary-cart-sidebar" id="scrollingPanelContainer">
+
+                        <div id="orderSummary">
+                            <div class="order-summary">
+                                <div class="loader" id="orderSummaryLoader">
+                                    <i class="fas fa-fw fa-sync fa-spin"></i>
+                                </div>
+                                <h2 class="font-size-30">К оплате</h2>
+                                <div class="summary-container" id="producttotal"></div>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" id="btnCompleteProductConfig" class="btn btn-primary btn-lg">
+                                    Далее
+                                    <i class="fas fa-arrow-circle-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>

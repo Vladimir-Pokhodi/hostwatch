@@ -377,6 +377,33 @@ class JournalRepository:
         return cursor.rowcount
 
 
+class OwnerStopRepository:
+    """Servers the owner stopped through the bot, and when (spec, decision 12)."""
+
+    def __init__(self, conn: sqlite3.Connection) -> None:
+        self._conn = conn
+
+    def mark(self, account_id: int, server_id: str, at: datetime) -> None:
+        with self._conn:
+            self._conn.execute(
+                "INSERT OR REPLACE INTO owner_stops (account_id, server_id, at) VALUES (?, ?, ?)",
+                (account_id, server_id, _ts(at)),
+            )
+
+    def clear(self, account_id: int, server_id: str) -> None:
+        with self._conn:
+            self._conn.execute(
+                "DELETE FROM owner_stops WHERE account_id = ? AND server_id = ?",
+                (account_id, server_id),
+            )
+
+    def for_account(self, account_id: int) -> dict[str, datetime]:
+        rows = self._conn.execute(
+            "SELECT server_id, at FROM owner_stops WHERE account_id = ?", (account_id,)
+        )
+        return {r["server_id"]: datetime.fromisoformat(r["at"]) for r in rows}
+
+
 PaymentStatus = Literal["created", "waiting", "arrived", "not_seen"]
 
 

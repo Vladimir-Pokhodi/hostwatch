@@ -16,7 +16,8 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 from selectolax.lexbor import LexborHTMLParser, LexborNode
 
 from hostwatch.core.errors import LayoutChanged
-from hostwatch.core.models import Autorenew
+from hostwatch.core.models import Autorenew, ServerAction
+from hostwatch.plugins.adminvps import control
 
 # WHMCS shows dates without a time; AdminVPS charges by Moscow time.
 TZ = ZoneInfo("Europe/Moscow")
@@ -66,11 +67,13 @@ class ServiceRow:
 
 @dataclass(frozen=True)
 class ServiceDetails:
-    """What the service page adds: the SolusVM server id, the IP and the autorenewal."""
+    """What the service page adds: the SolusVM server id, the IP, the autorenewal and the
+    actions it has buttons for."""
 
     vserver_id: str | None
     ip: str | None
     autorenew: Autorenew
+    actions: frozenset[ServerAction] = frozenset()
 
 
 class ClientData(BaseModel):
@@ -186,6 +189,7 @@ def details(page: LexborHTMLParser, html: str) -> ServiceDetails:
         vserver_id=vserver.group(1) if vserver else None,
         ip=ip,
         autorenew=autorenew(page),
+        actions=control.actions(page),
     )
 
 

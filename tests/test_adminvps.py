@@ -10,7 +10,7 @@ import pytest
 import respx
 
 from hostwatch.core.errors import AuthExpired, Blocked, HosterError, LayoutChanged, RateLimited
-from hostwatch.core.models import Autorenew, BillingModel, ServerKind, ServerStatus
+from hostwatch.core.models import Autorenew, BillingModel, ServerAction, ServerKind, ServerStatus
 from hostwatch.core.plugin import Capability, PluginContext, Secrets, capabilities
 from hostwatch.core.record import MASK, Scrubber
 from hostwatch.plugins.adminvps import CLIENT_DATA, CLIENTAREA, AdminVpsPlugin, pages
@@ -70,7 +70,13 @@ async def test_adminvps_passes_contract(hoster: respx.MockRouter) -> None:
 
 
 def test_capabilities() -> None:
-    assert capabilities(AdminVpsPlugin) == {Capability.USAGE, Capability.TOPUP}
+    assert capabilities(AdminVpsPlugin) == {
+        Capability.USAGE,
+        Capability.TOPUP,
+        Capability.POWER,
+        Capability.AUTORENEW,
+        Capability.RENEW,
+    }
     assert not AdminVpsPlugin.login_only
 
 
@@ -92,7 +98,8 @@ async def test_servers_from_recorded_cabinet(hoster: respx.MockRouter) -> None:
     assert first.billing is BillingModel.PERIODIC
     assert first.next_charge_at is not None
     assert first.next_charge_at.isoformat() == "2026-11-27T00:00:00+03:00"
-    assert first.actions == frozenset()
+    # The page has the power forms and the HostingRenewals buttons.
+    assert first.actions == frozenset(ServerAction)
     assert [s.autorenew for s in servers] == [Autorenew.OFF] * 5 + [Autorenew.ON]
 
 

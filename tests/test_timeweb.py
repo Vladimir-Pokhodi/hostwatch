@@ -31,6 +31,7 @@ from hostwatch.core.models import (
     Autorenew,
     BillingModel,
     Money,
+    ServerAction,
     ServerKind,
     ServerStatus,
 )
@@ -92,7 +93,7 @@ def test_meta_has_token_and_panel_login() -> None:
     browser = auth[1]
     assert isinstance(browser, BrowserAuth)
     assert "refresh_token" in browser.cookies
-    assert capabilities(TimewebPlugin) == {Capability.USAGE, Capability.TOPUP}
+    assert capabilities(TimewebPlugin) == {Capability.USAGE, Capability.TOPUP, Capability.POWER}
 
 
 async def test_servers_from_recording(api: respx.MockRouter, plugin: TimewebPlugin) -> None:
@@ -110,7 +111,9 @@ async def test_servers_from_recording(api: respx.MockRouter, plugin: TimewebPlug
     assert preset.billing is BillingModel.HOURLY
     assert preset.autorenew is Autorenew.NOT_AVAILABLE
     assert preset.period_months is None and preset.next_charge_at is None
-    assert preset.actions == frozenset()
+    assert preset.actions == frozenset(
+        {ServerAction.START, ServerAction.STOP, ServerAction.RESTART}
+    )
     # Main IPv4 even when an IPv6 address comes first.
     assert configured.ip == "192.0.2.11"
     assert configured.plan == "2 CPU, 2 GB RAM, 15 GB"

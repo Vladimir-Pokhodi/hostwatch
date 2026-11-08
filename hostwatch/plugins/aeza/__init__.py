@@ -1,8 +1,19 @@
-"""Aeza (aeza.net) through its API key: servers, balance, load, charges and top-up invoices.
+"""Aeza (aeza.net) through its API key: servers, balance, load, charges, top-up invoices,
+power, autorenewal and renewal.
 
 A top-up invoice is `POST /billing/invoices`. For SBP it carries a ЮKassa page, which
 `core.payments.yookassa` turns into a `qr.nspk.ru` link; for crypto (`pawnow:*`) it carries
 the address, the amount in the coin and the QR text right away.
+
+Control requests are the ones the cabinet's own scripts send (my.aeza.net, read 2026-11-08);
+none of them was sent to a live server yet:
+- power: `POST services/{id}/ctl/resume`, `ctl/suspend {"force": false}`,
+  `ctl/restart {"force": false}`;
+- autorenewal: `PATCH services/{id} {"autoProlong": bool}`;
+- renewal from the balance: `GET services/{id}/prices` → `{"prices": {term: cents}}`, then
+  `POST services/{id}/prolong {"method": "balance", "paymentTerm": term, "count": 1}`.
+Aeza may answer 2xx with `{"error": {...}}`; the cabinet treats that as a failure, and so
+does the plugin.
 """
 
 from __future__ import annotations
@@ -23,6 +34,7 @@ from hostwatch.core.errors import (
     RateLimited,
 )
 from hostwatch.core.models import (
+    ActionResult,
     Autorenew,
     Balance,
     BillingModel,
@@ -30,6 +42,7 @@ from hostwatch.core.models import (
     InvoiceStatus,
     Money,
     Payment,
+    PowerAction,
     Server,
     ServerAction,
     ServerKind,
@@ -79,7 +92,14 @@ SERVICE_ACTIONS = {
     "ctl": {ServerAction.START, ServerAction.STOP},
     "ctl.restart": {ServerAction.RESTART},
 }
-ALWAYS_ACTIONS = {ServerAction.AUTORENEW, ServerAction.RENEW}
+# Periodic services; an hourly one is paid from the balance every hour anyway.
+PERIODIC_ACTIONS = {ServerAction.AUTORENEW, ServerAction.RENEW}
+POWER_CALLS: dict[PowerAction, tuple[str, dict[str, Any] | None]] = {
+    PowerAction.START: ("ctl/resume", None),
+    PowerAction.STOP: ("ctl/suspend", {"force": False}),
+    PowerAction.RESTART: ("ctl/restart", {"force": False}),
+}
+DETAIL_LIMIT = 200
 TRANSACTION_STATUSES = {"performed": InvoiceStatus.PAID, "cancelled": InvoiceStatus.CANCELLED}
 REPLENISHMENT = "replenishment"
 SBP_METHOD = "yookassa:sbp"
@@ -221,6 +241,47 @@ class AezaPlugin(Plugin):
             qr_data=qr,
         )
 
+    async def power(self, server_id: str, action: PowerAction) -> ActionResult:
+        path, body = POWER_CALLS[action]
+        response = await self._send("POST", f"services/{_id(server_id)}/{path}", json=body)
+        return _done(response)
+
+    async def set_autorenew(self, server_id: str, enabled: bool) -> ActionResult:
+        response = await self._send(
+            "PATCH", f"services/{_id(server_id)}", json={"autoProlong": enabled}
+        )
+        return _done(response)
+
+    async def renew_price(self, server_id: str) -> Money:
+        service = await self._service(server_id)
+        return await self._renewal_price(service)
+
+    async def renew(self, server_id: str, price: Money) -> ActionResult:
+        service = await self._service(server_id)
+        now = await self._renewal_price(service)
+        if now != price:
+            raise HosterError(f"the renewal costs {now} now, not {price}")
+        body = {"method": "balance", "paymentTerm": service.paymentTerm, "count": 1}
+        response = await self._send("POST", f"services/{service.id}/prolong", json=body)
+        return _done(response)
+
+    async def _service(self, server_id: str) -> api.Service:
+        services = await self._get(api.Services, "services", offset=0, limit=PAGE)
+        found = next((s for s in services.items if str(s.id) == server_id), None)
+        if found is None:
+            raise HosterError(f"no service {server_id}")
+        return found
+
+    async def _renewal_price(self, service: api.Service) -> Money:
+        if service.paymentTerm == "hour":
+            raise HosterError("an hourly service is not renewed")
+        currency = (await self._me()).currency
+        prices = await self._get(api.RenewalPrices, f"services/{service.id}/prices")
+        cents = prices.prices.get(service.paymentTerm)
+        if cents is None or cents <= 0:
+            raise LayoutChanged
+        return _money(cents, currency)
+
     async def _me(self) -> api.Account:
         if self._account is None:
             self._account = await self._get(api.Account, "accounts/me")
@@ -265,7 +326,7 @@ class AezaPlugin(Plugin):
     @staticmethod
     def _server(service: api.Service, currency: str, allowed: set[ServerAction]) -> Server:
         hourly = service.paymentTerm == "hour"
-        actions = set(ALWAYS_ACTIONS)
+        actions = set() if hourly else set(PERIODIC_ACTIONS)
         for capability in service.capabilities:
             actions |= SERVICE_ACTIONS.get(capability, set())
         return Server(
@@ -283,6 +344,39 @@ class AezaPlugin(Plugin):
             billing=BillingModel.HOURLY if hourly else BillingModel.PERIODIC,
             actions=frozenset(actions & allowed),
         )
+
+
+def _id(server_id: str) -> int:
+    """Service ids are numbers; anything else must not reach a URL path."""
+    if not server_id.isdigit():
+        raise HosterError(f"bad service id {server_id!r}")
+    return int(server_id)
+
+
+def _done(response: httpx.Response) -> ActionResult:
+    """A control answer: an HTTP error or an `{"error": ...}` body raise, anything else is
+    success. The body goes to the journal, shortened."""
+    _raise_for_status(response)
+    message = _error_in_body(response)
+    if message is not None:
+        raise HosterError(message[:DETAIL_LIMIT] or "Aeza refused")
+    text = response.text.strip()
+    detail = f"HTTP {response.status_code}" + (f": {text[:DETAIL_LIMIT]}" if text else "")
+    return ActionResult(ok=True, detail=detail)
+
+
+def _error_in_body(response: httpx.Response) -> str | None:
+    """`{"error": {"message", "slug"}}`, also under `data`, the way the cabinet reads it."""
+    try:
+        body = response.json()
+    except ValueError:
+        return None
+    for holder in (body, body.get("data") if isinstance(body, dict) else None):
+        if isinstance(holder, dict) and isinstance(holder.get("error"), dict):
+            error = holder["error"]
+            text = error.get("message") or error.get("slug") or ""
+            return text if isinstance(text, str) else ""
+    return None
 
 
 def _short_wait(response: httpx.Response) -> float | None:

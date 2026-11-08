@@ -1,0 +1,13 @@
+{
+ "data": {
+  "status": "success",
+  "message": null,
+  "refreshIds": [],
+  "customParams": [],
+  "rawData": {
+   "htmlData": "\n<div class=\"lu-modal show lu-modal--info modal--sm modal--zoomIn\" id=\"confirmationModal\">\n    <div class=\"lu-modal__dialog\">\n        <div class=\"lu-modal__content\" id=\"mgModalContainer\">\n            <div class=\"lu-modal__top lu-top\">\n                <i class=\"lu-top__icon lu-zmdi lu-zmdi-alert-circle-o lu-text-danger\"></i>\n                <div class=\"lu-top__title lu-type-4 lu-text-danger\">\n                    Отключить автопродление                </div>\n                <div class=\"lu-top__toolbar\">\n                    <button class=\"lu-btn lu-btn--xs lu-btn--default lu-btn--icon lu-btn--link lu-btn--plain closeModal\" data-dismiss=\"lu-modal\" aria-label=\"Close\" @click='closeModal($event)'>\n                        <i class=\"lu-btn__icon lu-zmdi lu-zmdi-close\"></i>\n                    </button>\n                </div>\n            </div>\n            <div class=\"lu-modal__body\">\n                                    \n            Вы уверены, что хотите выключить автопродление для данной услуги? Отключение данной функции приведет к тому, что счета не будут выставляться в автоматическом режиме для данной услуги\n    \n<form id=\"turnOffRenewalsForms\" namespace=\"ModulesGarden_HostingRenewals_App_UI_Client_ButtonsPanel_Forms_TurnOffRenewalsForms\" index=\"turnOffRenewalsForms\" mgformtype=\"turnOff\"\n       onsubmit=\"return false;\" >\n                                        <input type=\"hidden\" name=\"hostingID\" value=\"100001\"  @keyup.enter=\"submitFormByField($event)\"  />\n                        </form>\n\n                            </div>\n            <div class=\"lu-modal__actions\">\n                                    \n<button class=\"lu-btn lu-btn--danger submitForm\"  @click=\"submitForm($event)\" >\n    Подтвердить\n</button>\n\n                                    \n<button class=\"lu-btn lu-btn--danger lu-btn--outline lu-btn--plain closeModal\"  @click=\"closeModal($event)\" >\n    Отменить\n</button>\n\n                 \n            </div>\n                    </div>\n    </div>\n</div>\n",
+   "template": "",
+   "registrations": []
+  }
+ }
+}

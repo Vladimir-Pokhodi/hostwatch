@@ -6,7 +6,8 @@ Secrets it understands:
   layout_changed, hoster_error or crash (a plain RuntimeError);
 - `sleep`: seconds to wait before answering;
 - `token`: with `rotate` set to any value, every call replaces it with `<token>+`,
-  the way Timeweb rotates its refresh token, before failing or answering.
+  the way Timeweb rotates its refresh token, before failing or answering;
+- `renew_price`: what a renewal costs, default 4.50; the invoice of server 1 is 4.50.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ import asyncio
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from typing import ClassVar
 
 from hostwatch.core.errors import AuthExpired, Blocked, HosterError, LayoutChanged, RateLimited
 from hostwatch.core.models import (
@@ -57,6 +59,9 @@ def eur(amount: str) -> Money:
 
 
 class FakePlugin(Plugin):
+    # Control calls that reached the "hoster", for tests: «nothing without confirmation».
+    calls: ClassVar[list[str]] = []
+
     meta = PluginMeta(
         id="fake",
         name="Fake hoster",
@@ -100,20 +105,32 @@ class FakePlugin(Plugin):
         await self._behave()
         return [Invoice(id="100", amount=eur("4.50"), status=InvoiceStatus.UNPAID, server_id="1")]
 
-    async def pay_invoice(self, invoice_id: str) -> ActionResult:
+    async def pay_invoice(self, invoice_id: str, amount: Money) -> ActionResult:
         await self._behave()
+        self.calls.append(f"pay_invoice {invoice_id} {amount.amount}")
+        if amount != eur("4.50"):
+            raise HosterError("the invoice sum has changed")
         return ActionResult(ok=True, detail=f"invoice {invoice_id} paid")
 
     async def set_autorenew(self, server_id: str, enabled: bool) -> ActionResult:
         await self._behave()
+        self.calls.append(f"autorenew {server_id} {'on' if enabled else 'off'}")
         return ActionResult(ok=True, detail=f"autorenew {'on' if enabled else 'off'}")
 
-    async def renew(self, server_id: str) -> ActionResult:
+    async def renew_price(self, server_id: str) -> Money:
         await self._behave()
+        return eur(self.ctx.secrets.get("renew_price", "4.50"))
+
+    async def renew(self, server_id: str, price: Money) -> ActionResult:
+        await self._behave()
+        self.calls.append(f"renew {server_id} {price.amount}")
+        if price != await self.renew_price(server_id):
+            raise HosterError("the price has changed")
         return ActionResult(ok=True, detail=f"server {server_id} renewed")
 
     async def power(self, server_id: str, action: PowerAction) -> ActionResult:
         await self._behave()
+        self.calls.append(f"power {server_id} {action.value}")
         return ActionResult(ok=True, detail=f"server {server_id}: {action.value}")
 
     async def topup_methods(self) -> list[TopupMethod]:

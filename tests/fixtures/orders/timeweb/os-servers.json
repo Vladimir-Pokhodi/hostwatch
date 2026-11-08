@@ -1,0 +1,276 @@
+{
+ "servers_os": [
+  {
+   "id": 37,
+   "family": "windows",
+   "name": "windows",
+   "version": "2012",
+   "version_codename": "standard",
+   "description": "",
+   "requirements": {
+    "disk_min": 35840
+   }
+  },
+  {
+   "id": 50,
+   "family": "windows",
+   "name": "windows",
+   "version": "2016",
+   "version_codename": "datacenter",
+   "description": "",
+   "requirements": {
+    "disk_min": 35840
+   }
+  },
+  {
+   "id": 51,
+   "family": "windows",
+   "name": "windows",
+   "version": "2019",
+   "version_codename": "datacenter",
+   "description": "",
+   "requirements": {
+    "disk_min": 35840
+   }
+  },
+  {
+   "id": 67,
+   "family": "linux",
+   "name": "debian",
+   "version": "11",
+   "version_codename": "bullseye",
+   "description": ""
+  },
+  {
+   "id": 69,
+   "family": "windows",
+   "name": "windows",
+   "version": "2022",
+   "version_codename": "datacenter",
+   "description": "",
+   "requirements": {
+    "disk_min": 35840
+   }
+  },
+  {
+   "id": 75,
+   "family": "linux",
+   "name": "almalinux",
+   "version": "8.5",
+   "version_codename": "Arctic Sphynx",
+   "description": ""
+  },
+  {
+   "id": 79,
+   "family": "linux",
+   "name": "ubuntu",
+   "version": "22.04",
+   "version_codename": "jammy",
+   "description": ""
+  },
+  {
+   "id": 81,
+   "family": "linux",
+   "name": "archlinux",
+   "version": "1",
+   "version_codename": "archlinux",
+   "description": ""
+  },
+  {
+   "id": 89,
+   "family": "linux",
+   "name": "astralinux",
+   "version": "2.12",
+   "version_codename": "orel",
+   "description": "",
+   "requirements": {
+    "disk_min": 30720
+   }
+  },
+  {
+   "id": 91,
+   "family": "linux",
+   "name": "almalinux",
+   "version": "9.0",
+   "version_codename": "Emerald Puma",
+   "description": ""
+  },
+  {
+   "id": 95,
+   "family": "linux",
+   "name": "debian",
+   "version": "12",
+   "version_codename": "bookworm",
+   "description": ""
+  },
+  {
+   "id": 97,
+   "family": "linux",
+   "name": "centos",
+   "version": "9",
+   "version_codename": "stream",
+   "description": ""
+  },
+  {
+   "id": 99,
+   "family": "linux",
+   "name": "ubuntu",
+   "version": "24.04",
+   "version_codename": "noble",
+   "description": ""
+  },
+  {
+   "id": 107,
+   "family": "linux",
+   "name": "bitrix",
+   "version": "9",
+   "version_codename": "",
+   "description": "",
+   "requirements": {
+    "cpu_min": 2,
+    "disk_min": 15360,
+    "ram_min": 4096
+   }
+  },
+  {
+   "id": 109,
+   "family": "linux",
+   "name": "debian",
+   "version": "13",
+   "version_codename": "trixie",
+   "description": ""
+  },
+  {
+   "id": 113,
+   "family": "linux",
+   "name": "centos",
+   "version": "10",
+   "version_codename": "stream",
+   "description": ""
+  },
+  {
+   "id": 115,
+   "family": "linux",
+   "name": "almalinux",
+   "version": "10.0",
+   "version_codename": "Purple Lion",
+   "description": ""
+  },
+  {
+   "id": 121,
+   "family": "linux",
+   "name": "fedora",
+   "version": "43",
+   "version_codename": "fedora",
+   "description": ""
+  },
+  {
+   "id": 123,
+   "family": "linux",
+   "name": "rocky",
+   "version": "8",
+   "version_codename": "rocky",
+   "description": "",
+   "requirements": {
+    "ram_min": 2048
+   }
+  },
+  {
+   "id": 125,
+   "family": "BSD",
+   "name": "freebsd",
+   "version": "14",
+   "version_codename": "freebsd",
+   "description": ""
+  },
+  {
+   "id": 127,
+   "family": "BSD",
+   "name": "freebsd",
+   "version": "15",
+   "version_codename": "freebsd",
+   "description": ""
+  },
+  {
+   "id": 129,
+   "family": "BSD",
+   "name": "freebsd",
+   "version": "16",
+   "version_codename": "freebsd",
+   "description": ""
+  },
+  {
+   "id": 131,
+   "family": "linux",
+   "name": "rocky",
+   "version": "9",
+   "version_codename": "rocky",
+   "description": "",
+   "requirements": {
+    "ram_min": 2048
+   }
+  },
+  {
+   "id": 133,
+   "family": "linux",
+   "name": "rocky",
+   "version": "10",
+   "version_codename": "rocky",
+   "description": "",
+   "requirements": {
+    "ram_min": 2048
+   }
+  },
+  {
+   "id": 137,
+   "family": "linux",
+   "name": "alpine",
+   "version": "3.24",
+   "version_codename": "alpine",
+   "description": ""
+  },
+  {
+   "id": 139,
+   "family": "linux",
+   "name": "nixos",
+   "version": "25.11",
+   "version_codename": "nixos",
+   "description": ""
+  },
+  {
+   "id": 141,
+   "family": "linux",
+   "name": "altlinux",
+   "version": "10",
+   "version_codename": "altlinux",
+   "description": ""
+  },
+  {
+   "id": 143,
+   "family": "linux",
+   "name": "opensuse",
+   "version": "16",
+   "version_codename": "opensuse",
+   "description": ""
+  },
+  {
+   "id": 145,
+   "family": "linux",
+   "name": "ubuntu",
+   "version": "26.04",
+   "version_codename": "resolute",
+   "description": ""
+  },
+  {
+   "id": 146,
+   "family": "linux",
+   "name": "fedora",
+   "version": "44",
+   "version_codename": "fedora",
+   "description": ""
+  }
+ ],
+ "meta": {
+  "total": 30
+ }
+}

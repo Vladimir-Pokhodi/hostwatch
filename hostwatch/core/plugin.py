@@ -181,7 +181,13 @@ class SupportsInvoices(Protocol):
 
 @runtime_checkable
 class SupportsPayInvoice(Protocol):
-    async def pay_invoice(self, invoice_id: str) -> ActionResult: ...
+    """Pays an invoice the hoster issued, from the balance at the hoster.
+
+    `amount` is what the owner confirmed. The plugin reads the invoice again and refuses
+    (`HosterError`) when it is no longer unpaid or its sum is not `amount` any more.
+    """
+
+    async def pay_invoice(self, invoice_id: str, amount: Money) -> ActionResult: ...
 
 
 @runtime_checkable
@@ -191,7 +197,16 @@ class SupportsAutorenew(Protocol):
 
 @runtime_checkable
 class SupportsRenew(Protocol):
-    async def renew(self, server_id: str) -> ActionResult: ...
+    """Renews a server for one more period from the balance at the hoster.
+
+    `renew_price` asks the hoster what the renewal costs now; the bot shows it before the
+    owner confirms. `renew` gets the confirmed price and refuses (`HosterError`) when the
+    hoster asks for a different one.
+    """
+
+    async def renew_price(self, server_id: str) -> Money: ...
+
+    async def renew(self, server_id: str, price: Money) -> ActionResult: ...
 
 
 @runtime_checkable

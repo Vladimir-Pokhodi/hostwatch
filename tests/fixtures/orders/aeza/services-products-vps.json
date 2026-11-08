@@ -1,0 +1,8732 @@
+{
+ "items": [
+  {
+   "id": 462,
+   "name": "Custom SPBs",
+   "groupId": 67,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 67,
+    "name": "Shared"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 4752,
+    "month": 450,
+    "half_year": 2457,
+    "quarter_year": 1283
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 4752,
+     "month": 450,
+     "half_year": 2457,
+     "quarter_year": 1283
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 146,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 110,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 11,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 458,
+   "name": "Custom VIEs",
+   "groupId": 21,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 21,
+    "name": "Shared"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 4752,
+    "month": 450,
+    "half_year": 2457,
+    "quarter_year": 1283
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 4752,
+     "month": 450,
+     "half_year": 2457,
+     "quarter_year": 1283
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 146,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 110,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 11,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 463,
+   "name": "Custom CLTs",
+   "groupId": 46,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 46,
+    "name": "Shared"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 5808,
+    "month": 550,
+    "half_year": 3003,
+    "quarter_year": 1568
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 5808,
+     "month": 550,
+     "half_year": 3003,
+     "quarter_year": 1568
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 146,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 110,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 11,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 467,
+   "name": "Custom NLs",
+   "groupId": 28,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 28,
+    "name": "Shared"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 4752,
+    "month": 450,
+    "half_year": 2457,
+    "quarter_year": 1283
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 4752,
+     "month": 450,
+     "half_year": 2457,
+     "quarter_year": 1283
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 146,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 110,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 11,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 459,
+   "name": "Custom DEs",
+   "groupId": 24,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 24,
+    "name": "Shared"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 4752,
+    "month": 450,
+    "half_year": 2457,
+    "quarter_year": 1283
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 4752,
+     "month": 450,
+     "half_year": 2457,
+     "quarter_year": 1283
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 146,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 110,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 11,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 473,
+   "name": "Custom SPB",
+   "groupId": 66,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 66,
+    "name": "Dedicated"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 7920,
+    "month": 750,
+    "half_year": 4095,
+    "quarter_year": 2138
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 7920,
+     "month": 750,
+     "half_year": 4095,
+     "quarter_year": 2138
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 390,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 120,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 468,
+   "name": "Custom WAW",
+   "groupId": 76,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 76,
+    "name": "Dedicated"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 7920,
+    "month": 750,
+    "half_year": 4095,
+    "quarter_year": 2138
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 7920,
+     "month": 750,
+     "half_year": 4095,
+     "quarter_year": 2138
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 390,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 120,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 464,
+   "name": "Custom HELs",
+   "groupId": 35,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 35,
+    "name": "Shared"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 4752,
+    "month": 450,
+    "half_year": 2457,
+    "quarter_year": 1283
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 4752,
+     "month": 450,
+     "half_year": 2457,
+     "quarter_year": 1283
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 146,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 110,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 11,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 469,
+   "name": "Custom DE",
+   "groupId": 25,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 25,
+    "name": "Dedicated"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 7920,
+    "month": 750,
+    "half_year": 4095,
+    "quarter_year": 2138
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 7920,
+     "month": 750,
+     "half_year": 4095,
+     "quarter_year": 2138
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 390,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 120,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 465,
+   "name": "Custom SWEs",
+   "groupId": 38,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 38,
+    "name": "Shared"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 4752,
+    "month": 450,
+    "half_year": 2457,
+    "quarter_year": 1283
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 4752,
+     "month": 450,
+     "half_year": 2457,
+     "quarter_year": 1283
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 130,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 110,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 471,
+   "name": "Custom VIE",
+   "groupId": 22,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 22,
+    "name": "Dedicated"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 7920,
+    "month": 750,
+    "half_year": 4095,
+    "quarter_year": 2138
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 7920,
+     "month": 750,
+     "half_year": 4095,
+     "quarter_year": 2138
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 390,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 120,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 474,
+   "name": "Custom MSK",
+   "groupId": 1,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 1,
+    "name": "Dedicated"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 7920,
+    "month": 750,
+    "half_year": 4095,
+    "quarter_year": 2138
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 7920,
+     "month": 750,
+     "half_year": 4095,
+     "quarter_year": 2138
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 390,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 120,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 456,
+   "name": "Custom MSK-s",
+   "groupId": 2,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 2,
+    "name": "Shared"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 4752,
+    "month": 450,
+    "half_year": 2457,
+    "quarter_year": 1283
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 4752,
+     "month": 450,
+     "half_year": 2457,
+     "quarter_year": 1283
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 146,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 110,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 11,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 475,
+   "name": "Custom PAR",
+   "groupId": 42,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 42,
+    "name": "Dedicated"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 7920,
+    "month": 750,
+    "half_year": 4095,
+    "quarter_year": 2138
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 7920,
+     "month": 750,
+     "half_year": 4095,
+     "quarter_year": 2138
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 390,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 120,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 478,
+   "name": "Custom HEL",
+   "groupId": 36,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 36,
+    "name": "Dedicated"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 7920,
+    "month": 750,
+    "half_year": 4095,
+    "quarter_year": 2138
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 7920,
+     "month": 750,
+     "half_year": 4095,
+     "quarter_year": 2138
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 390,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 120,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 460,
+   "name": "Custom WAWs",
+   "groupId": 77,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 77,
+    "name": "Shared"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 4752,
+    "month": 450,
+    "half_year": 2457,
+    "quarter_year": 1283
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 4752,
+     "month": 450,
+     "half_year": 2457,
+     "quarter_year": 1283
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 146,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 110,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 11,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 470,
+   "name": "Custom NL",
+   "groupId": 29,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 29,
+    "name": "Dedicated"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 7920,
+    "month": 750,
+    "half_year": 4095,
+    "quarter_year": 2138
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 7920,
+     "month": 750,
+     "half_year": 4095,
+     "quarter_year": 2138
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 390,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 120,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 476,
+   "name": "Custom CLT",
+   "groupId": 47,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 47,
+    "name": "Dedicated"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 8976,
+    "month": 850,
+    "half_year": 4641,
+    "quarter_year": 2423
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 8976,
+     "month": 850,
+     "half_year": 4641,
+     "quarter_year": 2423
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 390,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 120,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 477,
+   "name": "Custom SWE",
+   "groupId": 39,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 39,
+    "name": "Dedicated"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 7920,
+    "month": 750,
+    "half_year": 4095,
+    "quarter_year": 2138
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 7920,
+     "month": 750,
+     "half_year": 4095,
+     "quarter_year": 2138
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 390,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 120,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 472,
+   "name": "Custom LND",
+   "groupId": 53,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 53,
+    "name": "Dedicated"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 8976,
+    "month": 850,
+    "half_year": 4641,
+    "quarter_year": 2423
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 8976,
+     "month": 850,
+     "half_year": 4641,
+     "quarter_year": 2423
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 390,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 120,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 461,
+   "name": "Custom PARs",
+   "groupId": 41,
+   "payload": {
+    "cpu": {
+     "max": 16,
+     "step": 1,
+     "price": 130
+    },
+    "ram": {
+     "max": 32,
+     "step": 1,
+     "price": 110
+    },
+    "rom": {
+     "max": 480,
+     "step": 1,
+     "price": 10
+    }
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 41,
+    "name": "Shared"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 4752,
+    "month": 450,
+    "half_year": 2457,
+    "quarter_year": 1283
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 4752,
+     "month": 450,
+     "half_year": 2457,
+     "quarter_year": 1283
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 146,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 110,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 11,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 466,
+   "name": "Custom LNDs",
+   "groupId": 52,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 52,
+    "name": "Shared"
+   },
+   "order": 0,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "year": 4752,
+    "month": 450,
+    "half_year": 2457,
+    "quarter_year": 1283
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "year": 4752,
+     "month": 450,
+     "half_year": 2457,
+     "quarter_year": 1283
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 130,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 110,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": [
+    "custom"
+   ]
+  },
+  {
+   "id": 337,
+   "name": "CLTs-1",
+   "groupId": 46,
+   "payload": {
+    "isDisabled": false,
+    "windowsDisabled": true
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 46,
+    "name": "Shared"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 4,
+    "year": 6263,
+    "month": 593,
+    "half_year": 3238,
+    "quarter_year": 1691
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 4,
+     "year": 6263,
+     "month": 593,
+     "half_year": 3238,
+     "quarter_year": 1691
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": [
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 401,
+   "name": "PAR-1",
+   "groupId": 42,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 42,
+    "name": "Dedicated"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 5,
+    "year": 8966,
+    "month": 849,
+    "half_year": 4636,
+    "quarter_year": 2420
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 5,
+     "year": 8966,
+     "month": 849,
+     "half_year": 4636,
+     "quarter_year": 2420
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 148,
+   "name": "MSK-1",
+   "groupId": 1,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 1,
+    "name": "Dedicated"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 5,
+    "year": 8966,
+    "month": 849,
+    "half_year": 4636,
+    "quarter_year": 2420
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 5,
+     "year": 8966,
+     "month": 849,
+     "half_year": 4636,
+     "quarter_year": 2420
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 153,
+   "name": "MSKs-1",
+   "groupId": 2,
+   "payload": {
+    "windowsDisabled": "true"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 2,
+    "name": "Shared"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 4,
+    "year": 6263,
+    "month": 593,
+    "half_year": 3238,
+    "quarter_year": 1691
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 4,
+     "year": 6263,
+     "month": 593,
+     "half_year": 3238,
+     "quarter_year": 1691
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": [
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 380,
+   "name": "LND-1",
+   "groupId": 53,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 53,
+    "name": "Dedicated"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 7,
+    "year": 12863,
+    "month": 1218,
+    "half_year": 6651,
+    "quarter_year": 3472
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 12863,
+     "month": 1218,
+     "half_year": 6651,
+     "quarter_year": 3472
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 385,
+   "name": "LNDs-1",
+   "groupId": 52,
+   "payload": {
+    "windowsDisabled": true
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 52,
+    "name": "Shared"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 5,
+    "year": 8987,
+    "month": 851,
+    "half_year": 4647,
+    "quarter_year": 2426
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 5,
+     "year": 8987,
+     "month": 851,
+     "half_year": 4647,
+     "quarter_year": 2426
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": [
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 259,
+   "name": "SPB-1",
+   "groupId": 66,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 66,
+    "name": "Dedicated"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 5,
+    "year": 8966,
+    "month": 849,
+    "half_year": 4636,
+    "quarter_year": 2420
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 5,
+     "year": 8966,
+     "month": 849,
+     "half_year": 4636,
+     "quarter_year": 2420
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 406,
+   "name": "PARs-1",
+   "groupId": 41,
+   "payload": {
+    "windowsDisabled": true
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 41,
+    "name": "Shared"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 4,
+    "year": 6263,
+    "month": 593,
+    "half_year": 3238,
+    "quarter_year": 1691
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 4,
+     "year": 6263,
+     "month": 593,
+     "half_year": 3238,
+     "quarter_year": 1691
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": [
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 264,
+   "name": "SPBs-1",
+   "groupId": 67,
+   "payload": {
+    "windowsDisabled": "true"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 67,
+    "name": "Shared"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 4,
+    "year": 6263,
+    "month": 593,
+    "half_year": 3238,
+    "quarter_year": 1691
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 4,
+     "year": 6263,
+     "month": 593,
+     "half_year": 3238,
+     "quarter_year": 1691
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": [
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 332,
+   "name": "CLT-1",
+   "groupId": 47,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 47,
+    "name": "Dedicated"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 5,
+    "year": 8966,
+    "month": 849,
+    "half_year": 4636,
+    "quarter_year": 2420
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 5,
+     "year": 8966,
+     "month": 849,
+     "half_year": 4636,
+     "quarter_year": 2420
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 350,
+   "name": "HEL-1",
+   "groupId": 36,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 36,
+    "name": "Dedicated"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 5,
+    "year": 8966,
+    "month": 849,
+    "half_year": 4636,
+    "quarter_year": 2420
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 5,
+     "year": 8966,
+     "month": 849,
+     "half_year": 4636,
+     "quarter_year": 2420
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 355,
+   "name": "HELs-1",
+   "groupId": 35,
+   "payload": {
+    "mgr": "hel",
+    "windowsDisabled": true
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 35,
+    "name": "Shared"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 4,
+    "year": 6263,
+    "month": 593,
+    "half_year": 3238,
+    "quarter_year": 1691
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 4,
+     "year": 6263,
+     "month": 593,
+     "half_year": 3238,
+     "quarter_year": 1691
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": [
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 375,
+   "name": "DEs-1",
+   "groupId": 24,
+   "payload": {
+    "windowsDisabled": "true"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 24,
+    "name": "Shared"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 4,
+    "year": 6263,
+    "month": 593,
+    "half_year": 3238,
+    "quarter_year": 1691
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 4,
+     "year": 6263,
+     "month": 593,
+     "half_year": 3238,
+     "quarter_year": 1691
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": [
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 394,
+   "name": "NLs-1",
+   "groupId": 28,
+   "payload": {
+    "windowsDisabled": "true"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 28,
+    "name": "Shared"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 4,
+    "year": 6263,
+    "month": 593,
+    "half_year": 3238,
+    "quarter_year": 1691
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 4,
+     "year": 6263,
+     "month": 593,
+     "half_year": 3238,
+     "quarter_year": 1691
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": [
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 369,
+   "name": "SWE-1",
+   "groupId": 39,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 39,
+    "name": "Dedicated"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 5,
+    "year": 8966,
+    "month": 849,
+    "half_year": 4636,
+    "quarter_year": 2420
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 5,
+     "year": 8966,
+     "month": 849,
+     "half_year": 4636,
+     "quarter_year": 2420
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 364,
+   "name": "SWEs-1",
+   "groupId": 38,
+   "payload": {
+    "mgr": "hel",
+    "windowsDisabled": true
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 38,
+    "name": "Shared"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 4,
+    "year": 6263,
+    "month": 593,
+    "half_year": 3238,
+    "quarter_year": 1691
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 4,
+     "year": 6263,
+     "month": 593,
+     "half_year": 3238,
+     "quarter_year": 1691
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": [
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 370,
+   "name": "DE-1",
+   "groupId": 25,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 25,
+    "name": "Dedicated"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 5,
+    "year": 8966,
+    "month": 849,
+    "half_year": 4636,
+    "quarter_year": 2420
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 5,
+     "year": 8966,
+     "month": 849,
+     "half_year": 4636,
+     "quarter_year": 2420
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 399,
+   "name": "NL-1",
+   "groupId": 29,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 29,
+    "name": "Dedicated"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 5,
+    "year": 8966,
+    "month": 849,
+    "half_year": 4636,
+    "quarter_year": 2420
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 5,
+     "year": 8966,
+     "month": 849,
+     "half_year": 4636,
+     "quarter_year": 2420
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 416,
+   "name": "VIEs-1",
+   "groupId": 21,
+   "payload": {
+    "windowsDisabled": "true"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 21,
+    "name": "Shared"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 4,
+    "year": 6263,
+    "month": 593,
+    "half_year": 3238,
+    "quarter_year": 1691
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 4,
+     "year": 6263,
+     "month": 593,
+     "half_year": 3238,
+     "quarter_year": 1691
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": [
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 441,
+   "name": "WAWs-1",
+   "groupId": 77,
+   "payload": {
+    "windowsDisabled": "true"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 77,
+    "name": "Shared"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 4,
+    "year": 6263,
+    "month": 593,
+    "half_year": 3238,
+    "quarter_year": 1691
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 4,
+     "year": 6263,
+     "month": 593,
+     "half_year": 3238,
+     "quarter_year": 1691
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": [
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 446,
+   "name": "RX32-1",
+   "groupId": 78,
+   "payload": {},
+   "type": {
+    "slug": "hicpu",
+    "name": "Enterprise сервер"
+   },
+   "group": {
+    "id": 78,
+    "name": "AMD"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 7,
+    "year": 11870,
+    "month": 1124,
+    "half_year": 6138,
+    "quarter_year": 3204
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 11870,
+     "month": 1124,
+     "half_year": 6138,
+     "quarter_year": 3204
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 562,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 205,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 16,
+     "max": 0,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 436,
+   "name": "WAW-1",
+   "groupId": 76,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 76,
+    "name": "Dedicated"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 5,
+    "year": 8966,
+    "month": 849,
+    "half_year": 4636,
+    "quarter_year": 2420
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 5,
+     "year": 8966,
+     "month": 849,
+     "half_year": 4636,
+     "quarter_year": 2420
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 411,
+   "name": "VIE-1",
+   "groupId": 22,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 22,
+    "name": "Dedicated"
+   },
+   "order": 1,
+   "parameters": {
+    "cpu": 1,
+    "net": 1000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 5,
+    "year": 8966,
+    "month": 849,
+    "half_year": 4636,
+    "quarter_year": 2420
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 5,
+     "year": 8966,
+     "month": 849,
+     "half_year": 4636,
+     "quarter_year": 2420
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 1,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 2,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 30,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 402,
+   "name": "PAR-2",
+   "groupId": 42,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 42,
+    "name": "Dedicated"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 10,
+    "year": 17931,
+    "month": 1698,
+    "half_year": 9272,
+    "quarter_year": 4840
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 10,
+     "year": 17931,
+     "month": 1698,
+     "half_year": 9272,
+     "quarter_year": 4840
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 386,
+   "name": "LNDs-2",
+   "groupId": 52,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 52,
+    "name": "Shared"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 10,
+    "year": 17995,
+    "month": 1704,
+    "half_year": 9304,
+    "quarter_year": 4857
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 10,
+     "year": 17995,
+     "month": 1704,
+     "half_year": 9304,
+     "quarter_year": 4857
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 447,
+   "name": "RX32-2",
+   "groupId": 78,
+   "payload": {},
+   "type": {
+    "slug": "hicpu",
+    "name": "Enterprise сервер"
+   },
+   "group": {
+    "id": 78,
+    "name": "AMD"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 13,
+    "year": 23750,
+    "month": 2249,
+    "half_year": 12280,
+    "quarter_year": 6410
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 13,
+     "year": 23750,
+     "month": 2249,
+     "half_year": 12280,
+     "quarter_year": 6410
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 562,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 205,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 16,
+     "max": 0,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 363,
+   "name": "SWEs-2",
+   "groupId": 38,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 38,
+    "name": "Shared"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 7,
+    "year": 12535,
+    "month": 1187,
+    "half_year": 6482,
+    "quarter_year": 3383
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 12535,
+     "month": 1187,
+     "half_year": 6482,
+     "quarter_year": 3383
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 368,
+   "name": "SWE-2",
+   "groupId": 39,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 39,
+    "name": "Dedicated"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 10,
+    "year": 17931,
+    "month": 1698,
+    "half_year": 9272,
+    "quarter_year": 4840
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 10,
+     "year": 17931,
+     "month": 1698,
+     "half_year": 9272,
+     "quarter_year": 4840
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 265,
+   "name": "SPBs-2",
+   "groupId": 67,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 67,
+    "name": "Shared"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 7,
+    "year": 12535,
+    "month": 1187,
+    "half_year": 6482,
+    "quarter_year": 3383
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 12535,
+     "month": 1187,
+     "half_year": 6482,
+     "quarter_year": 3383
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 338,
+   "name": "CLTs-2",
+   "groupId": 46,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 46,
+    "name": "Shared"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 7,
+    "year": 12535,
+    "month": 1187,
+    "half_year": 6482,
+    "quarter_year": 3383
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 12535,
+     "month": 1187,
+     "half_year": 6482,
+     "quarter_year": 3383
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 442,
+   "name": "WAWs-2",
+   "groupId": 77,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 77,
+    "name": "Shared"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 7,
+    "year": 12535,
+    "month": 1187,
+    "half_year": 6482,
+    "quarter_year": 3383
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 12535,
+     "month": 1187,
+     "half_year": 6482,
+     "quarter_year": 3383
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 407,
+   "name": "PARs-2",
+   "groupId": 41,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 41,
+    "name": "Shared"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 7,
+    "year": 12535,
+    "month": 1187,
+    "half_year": 6482,
+    "quarter_year": 3383
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 12535,
+     "month": 1187,
+     "half_year": 6482,
+     "quarter_year": 3383
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 260,
+   "name": "SPB-2",
+   "groupId": 66,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 66,
+    "name": "Dedicated"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 10,
+    "year": 17931,
+    "month": 1698,
+    "half_year": 9272,
+    "quarter_year": 4840
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 10,
+     "year": 17931,
+     "month": 1698,
+     "half_year": 9272,
+     "quarter_year": 4840
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 437,
+   "name": "WAW-2",
+   "groupId": 76,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 76,
+    "name": "Dedicated"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 10,
+    "year": 17931,
+    "month": 1698,
+    "half_year": 9272,
+    "quarter_year": 4840
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 10,
+     "year": 17931,
+     "month": 1698,
+     "half_year": 9272,
+     "quarter_year": 4840
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 381,
+   "name": "LND-2",
+   "groupId": 53,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 53,
+    "name": "Dedicated"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 14,
+    "year": 25756,
+    "month": 2439,
+    "half_year": 13317,
+    "quarter_year": 6952
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 14,
+     "year": 25756,
+     "month": 2439,
+     "half_year": 13317,
+     "quarter_year": 6952
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 417,
+   "name": "VIEs-2",
+   "groupId": 21,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 21,
+    "name": "Shared"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 7,
+    "year": 12535,
+    "month": 1187,
+    "half_year": 6482,
+    "quarter_year": 3383
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 12535,
+     "month": 1187,
+     "half_year": 6482,
+     "quarter_year": 3383
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 398,
+   "name": "NL-2",
+   "groupId": 29,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 29,
+    "name": "Dedicated"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 10,
+    "year": 17931,
+    "month": 1698,
+    "half_year": 9272,
+    "quarter_year": 4840
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 10,
+     "year": 17931,
+     "month": 1698,
+     "half_year": 9272,
+     "quarter_year": 4840
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 149,
+   "name": "MSK-2",
+   "groupId": 1,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 1,
+    "name": "Dedicated"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 10,
+    "year": 17931,
+    "month": 1698,
+    "half_year": 9272,
+    "quarter_year": 4840
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 10,
+     "year": 17931,
+     "month": 1698,
+     "half_year": 9272,
+     "quarter_year": 4840
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 154,
+   "name": "MSKs-2",
+   "groupId": 2,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 2,
+    "name": "Shared"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 7,
+    "year": 12535,
+    "month": 1187,
+    "half_year": 6482,
+    "quarter_year": 3383
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 12535,
+     "month": 1187,
+     "half_year": 6482,
+     "quarter_year": 3383
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 393,
+   "name": "NLs-2",
+   "groupId": 28,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 28,
+    "name": "Shared"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 7,
+    "year": 12535,
+    "month": 1187,
+    "half_year": 6482,
+    "quarter_year": 3383
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 12535,
+     "month": 1187,
+     "half_year": 6482,
+     "quarter_year": 3383
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 412,
+   "name": "VIE-2",
+   "groupId": 22,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 22,
+    "name": "Dedicated"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 10,
+    "year": 17931,
+    "month": 1698,
+    "half_year": 9272,
+    "quarter_year": 4840
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 10,
+     "year": 17931,
+     "month": 1698,
+     "half_year": 9272,
+     "quarter_year": 4840
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 376,
+   "name": "DEs-2",
+   "groupId": 24,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 24,
+    "name": "Shared"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 7,
+    "year": 12535,
+    "month": 1187,
+    "half_year": 6482,
+    "quarter_year": 3383
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 12535,
+     "month": 1187,
+     "half_year": 6482,
+     "quarter_year": 3383
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 356,
+   "name": "HELs-2",
+   "groupId": 35,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 35,
+    "name": "Shared"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 7,
+    "year": 12535,
+    "month": 1187,
+    "half_year": 6482,
+    "quarter_year": 3383
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 7,
+     "year": 12535,
+     "month": 1187,
+     "half_year": 6482,
+     "quarter_year": 3383
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 371,
+   "name": "DE-2",
+   "groupId": 25,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 25,
+    "name": "Dedicated"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 10,
+    "year": 17931,
+    "month": 1698,
+    "half_year": 9272,
+    "quarter_year": 4840
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 10,
+     "year": 17931,
+     "month": 1698,
+     "half_year": 9272,
+     "quarter_year": 4840
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 351,
+   "name": "HEL-2",
+   "groupId": 36,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 36,
+    "name": "Dedicated"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 1000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 10,
+    "year": 17931,
+    "month": 1698,
+    "half_year": 9272,
+    "quarter_year": 4840
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 10,
+     "year": 17931,
+     "month": 1698,
+     "half_year": 9272,
+     "quarter_year": 4840
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 333,
+   "name": "CLT-2",
+   "groupId": 47,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 47,
+    "name": "Dedicated"
+   },
+   "order": 2,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 10,
+    "year": 17931,
+    "month": 1698,
+    "half_year": 9272,
+    "quarter_year": 4840
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 10,
+     "year": 17931,
+     "month": 1698,
+     "half_year": 9272,
+     "quarter_year": 4840
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 2,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 4,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 60,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 377,
+   "name": "DEs-3",
+   "groupId": 24,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 24,
+    "name": "Shared"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 14,
+    "year": 25059,
+    "month": 2373,
+    "half_year": 12957,
+    "quarter_year": 6764
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 14,
+     "year": 25059,
+     "month": 2373,
+     "half_year": 12957,
+     "quarter_year": 6764
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 397,
+   "name": "NL-3",
+   "groupId": 29,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 29,
+    "name": "Dedicated"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 19,
+    "year": 35841,
+    "month": 3394,
+    "half_year": 18532,
+    "quarter_year": 9673
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 19,
+     "year": 35841,
+     "month": 3394,
+     "half_year": 18532,
+     "quarter_year": 9673
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 362,
+   "name": "SWEs-3",
+   "groupId": 38,
+   "payload": {
+    "mgr": "hel",
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 38,
+    "name": "Shared"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 14,
+    "year": 25059,
+    "month": 2373,
+    "half_year": 12957,
+    "quarter_year": 6764
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 14,
+     "year": 25059,
+     "month": 2373,
+     "half_year": 12957,
+     "quarter_year": 6764
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 418,
+   "name": "VIEs-3",
+   "groupId": 21,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 21,
+    "name": "Shared"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 14,
+    "year": 25059,
+    "month": 2373,
+    "half_year": 12957,
+    "quarter_year": 6764
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 14,
+     "year": 25059,
+     "month": 2373,
+     "half_year": 12957,
+     "quarter_year": 6764
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 387,
+   "name": "LNDs-3",
+   "groupId": 52,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 52,
+    "name": "Shared"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 19,
+    "year": 35968,
+    "month": 3406,
+    "half_year": 18597,
+    "quarter_year": 9708
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 19,
+     "year": 35968,
+     "month": 3406,
+     "half_year": 18597,
+     "quarter_year": 9708
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 261,
+   "name": "SPB-3",
+   "groupId": 66,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 66,
+    "name": "Dedicated"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 19,
+    "year": 35841,
+    "month": 3394,
+    "half_year": 18532,
+    "quarter_year": 9673
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 19,
+     "year": 35841,
+     "month": 3394,
+     "half_year": 18532,
+     "quarter_year": 9673
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 438,
+   "name": "WAW-3",
+   "groupId": 76,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 76,
+    "name": "Dedicated"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 19,
+    "year": 35841,
+    "month": 3394,
+    "half_year": 18532,
+    "quarter_year": 9673
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 19,
+     "year": 35841,
+     "month": 3394,
+     "half_year": 18532,
+     "quarter_year": 9673
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 413,
+   "name": "VIE-3",
+   "groupId": 22,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 22,
+    "name": "Dedicated"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 19,
+    "year": 35841,
+    "month": 3394,
+    "half_year": 18532,
+    "quarter_year": 9673
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 19,
+     "year": 35841,
+     "month": 3394,
+     "half_year": 18532,
+     "quarter_year": 9673
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 392,
+   "name": "NLs-3",
+   "groupId": 28,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 28,
+    "name": "Shared"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 14,
+    "year": 25059,
+    "month": 2373,
+    "half_year": 12957,
+    "quarter_year": 6764
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 14,
+     "year": 25059,
+     "month": 2373,
+     "half_year": 12957,
+     "quarter_year": 6764
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 408,
+   "name": "PARs-3",
+   "groupId": 41,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 41,
+    "name": "Shared"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 14,
+    "year": 25059,
+    "month": 2373,
+    "half_year": 12957,
+    "quarter_year": 6764
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 14,
+     "year": 25059,
+     "month": 2373,
+     "half_year": 12957,
+     "quarter_year": 6764
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 269,
+   "name": "SWE-PROMO",
+   "groupId": 43,
+   "payload": {
+    "mgr": "hel",
+    "isPromo": true
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 43,
+    "name": "Promo"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 1,
+    "net": 300,
+    "ram": 4,
+    "rom": 10
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "month": 199
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "month": 199
+    },
+    "first": {}
+   },
+   "resources": {},
+   "tags": [
+    "promo",
+    "windows_disabled",
+    "windows_server_disabled"
+   ]
+  },
+  {
+   "id": 448,
+   "name": "RX32-3",
+   "groupId": 78,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "hicpu",
+    "name": "Enterprise сервер"
+   },
+   "group": {
+    "id": 78,
+    "name": "AMD"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 25,
+    "year": 47478,
+    "month": 4496,
+    "half_year": 24549,
+    "quarter_year": 12814
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 25,
+     "year": 47478,
+     "month": 4496,
+     "half_year": 24549,
+     "quarter_year": 12814
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 562,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 205,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 16,
+     "max": 0,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 155,
+   "name": "MSKs-3",
+   "groupId": 2,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 2,
+    "name": "Shared"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 14,
+    "year": 25059,
+    "month": 2373,
+    "half_year": 12957,
+    "quarter_year": 6764
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 14,
+     "year": 25059,
+     "month": 2373,
+     "half_year": 12957,
+     "quarter_year": 6764
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 150,
+   "name": "MSK-3",
+   "groupId": 1,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 1,
+    "name": "Dedicated"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 19,
+    "year": 35841,
+    "month": 3394,
+    "half_year": 18532,
+    "quarter_year": 9673
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 19,
+     "year": 35841,
+     "month": 3394,
+     "half_year": 18532,
+     "quarter_year": 9673
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 352,
+   "name": "HEL-3",
+   "groupId": 36,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 36,
+    "name": "Dedicated"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 19,
+    "year": 35841,
+    "month": 3394,
+    "half_year": 18532,
+    "quarter_year": 9673
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 19,
+     "year": 35841,
+     "month": 3394,
+     "half_year": 18532,
+     "quarter_year": 9673
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 266,
+   "name": "SPBs-3",
+   "groupId": 67,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 67,
+    "name": "Shared"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 14,
+    "year": 25059,
+    "month": 2373,
+    "half_year": 12957,
+    "quarter_year": 6764
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 14,
+     "year": 25059,
+     "month": 2373,
+     "half_year": 12957,
+     "quarter_year": 6764
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 357,
+   "name": "HELs-3",
+   "groupId": 35,
+   "payload": {
+    "mgr": "hel",
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 35,
+    "name": "Shared"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 14,
+    "year": 25059,
+    "month": 2373,
+    "half_year": 12957,
+    "quarter_year": 6764
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 14,
+     "year": 25059,
+     "month": 2373,
+     "half_year": 12957,
+     "quarter_year": 6764
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 339,
+   "name": "CLTs-3",
+   "groupId": 46,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 46,
+    "name": "Shared"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 14,
+    "year": 25059,
+    "month": 2373,
+    "half_year": 12957,
+    "quarter_year": 6764
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 14,
+     "year": 25059,
+     "month": 2373,
+     "half_year": 12957,
+     "quarter_year": 6764
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 334,
+   "name": "CLT-3",
+   "groupId": 47,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 47,
+    "name": "Dedicated"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 19,
+    "year": 35841,
+    "month": 3394,
+    "half_year": 18532,
+    "quarter_year": 9673
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 19,
+     "year": 35841,
+     "month": 3394,
+     "half_year": 18532,
+     "quarter_year": 9673
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 403,
+   "name": "PAR-3",
+   "groupId": 42,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 42,
+    "name": "Dedicated"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 19,
+    "year": 35841,
+    "month": 3394,
+    "half_year": 18532,
+    "quarter_year": 9673
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 19,
+     "year": 35841,
+     "month": 3394,
+     "half_year": 18532,
+     "quarter_year": 9673
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 367,
+   "name": "SWE-3",
+   "groupId": 39,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 39,
+    "name": "Dedicated"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 19,
+    "year": 35841,
+    "month": 3394,
+    "half_year": 18532,
+    "quarter_year": 9673
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 19,
+     "year": 35841,
+     "month": 3394,
+     "half_year": 18532,
+     "quarter_year": 9673
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 443,
+   "name": "WAWs-3",
+   "groupId": 77,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 77,
+    "name": "Shared"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 14,
+    "year": 25059,
+    "month": 2373,
+    "half_year": 12957,
+    "quarter_year": 6764
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 14,
+     "year": 25059,
+     "month": 2373,
+     "half_year": 12957,
+     "quarter_year": 6764
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 372,
+   "name": "DE-3",
+   "groupId": 25,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 25,
+    "name": "Dedicated"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 19,
+    "year": 35841,
+    "month": 3394,
+    "half_year": 18532,
+    "quarter_year": 9673
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 19,
+     "year": 35841,
+     "month": 3394,
+     "half_year": 18532,
+     "quarter_year": 9673
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 382,
+   "name": "LND-3",
+   "groupId": 53,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 53,
+    "name": "Dedicated"
+   },
+   "order": 3,
+   "parameters": {
+    "cpu": 4,
+    "net": 1000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 28,
+    "year": 51480,
+    "month": 4875,
+    "half_year": 26618,
+    "quarter_year": 13894
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 28,
+     "year": 51480,
+     "month": 4875,
+     "half_year": 26618,
+     "quarter_year": 13894
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 4,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 8,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 120,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 335,
+   "name": "CLT-4",
+   "groupId": 47,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 47,
+    "name": "Dedicated"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 38,
+    "year": 71661,
+    "month": 6786,
+    "half_year": 37052,
+    "quarter_year": 19341
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 38,
+     "year": 71661,
+     "month": 6786,
+     "half_year": 37052,
+     "quarter_year": 19341
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 439,
+   "name": "WAW-4",
+   "groupId": 76,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 76,
+    "name": "Dedicated"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 38,
+    "year": 71661,
+    "month": 6786,
+    "half_year": 37052,
+    "quarter_year": 19341
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 38,
+     "year": 71661,
+     "month": 6786,
+     "half_year": 37052,
+     "quarter_year": 19341
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 409,
+   "name": "PARs-4",
+   "groupId": 41,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 41,
+    "name": "Shared"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 27,
+    "year": 50108,
+    "month": 4745,
+    "half_year": 25908,
+    "quarter_year": 13524
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 27,
+     "year": 50108,
+     "month": 4745,
+     "half_year": 25908,
+     "quarter_year": 13524
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 419,
+   "name": "VIEs-4",
+   "groupId": 21,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 21,
+    "name": "Shared"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 27,
+    "year": 50108,
+    "month": 4745,
+    "half_year": 25908,
+    "quarter_year": 13524
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 27,
+     "year": 50108,
+     "month": 4745,
+     "half_year": 25908,
+     "quarter_year": 13524
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 353,
+   "name": "HEL-4",
+   "groupId": 36,
+   "payload": {
+    "mgr": "hel",
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 36,
+    "name": "Dedicated"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 38,
+    "year": 71661,
+    "month": 6786,
+    "half_year": 37052,
+    "quarter_year": 19341
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 38,
+     "year": 71661,
+     "month": 6786,
+     "half_year": 37052,
+     "quarter_year": 19341
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 396,
+   "name": "NL-4",
+   "groupId": 29,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 29,
+    "name": "Dedicated"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 38,
+    "year": 71661,
+    "month": 6786,
+    "half_year": 37052,
+    "quarter_year": 19341
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 38,
+     "year": 71661,
+     "month": 6786,
+     "half_year": 37052,
+     "quarter_year": 19341
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 340,
+   "name": "CLTs-4",
+   "groupId": 46,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 46,
+    "name": "Shared"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 27,
+    "year": 50108,
+    "month": 4745,
+    "half_year": 25908,
+    "quarter_year": 13524
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 27,
+     "year": 50108,
+     "month": 4745,
+     "half_year": 25908,
+     "quarter_year": 13524
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 151,
+   "name": "MSK-4",
+   "groupId": 1,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 1,
+    "name": "Dedicated"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 38,
+    "year": 71661,
+    "month": 6786,
+    "half_year": 37052,
+    "quarter_year": 19341
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 38,
+     "year": 71661,
+     "month": 6786,
+     "half_year": 37052,
+     "quarter_year": 19341
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 378,
+   "name": "DEs-4",
+   "groupId": 24,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 24,
+    "name": "Shared"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 27,
+    "year": 50108,
+    "month": 4745,
+    "half_year": 25908,
+    "quarter_year": 13524
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 27,
+     "year": 50108,
+     "month": 4745,
+     "half_year": 25908,
+     "quarter_year": 13524
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 388,
+   "name": "LNDs-4",
+   "groupId": 52,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 52,
+    "name": "Shared"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 38,
+    "year": 71925,
+    "month": 6811,
+    "half_year": 37189,
+    "quarter_year": 19412
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 38,
+     "year": 71925,
+     "month": 6811,
+     "half_year": 37189,
+     "quarter_year": 19412
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 383,
+   "name": "LND-4",
+   "groupId": 53,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 53,
+    "name": "Dedicated"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 55,
+    "year": 102939,
+    "month": 9748,
+    "half_year": 53225,
+    "quarter_year": 27782
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 55,
+     "year": 102939,
+     "month": 9748,
+     "half_year": 53225,
+     "quarter_year": 27782
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 262,
+   "name": "SPB-4",
+   "groupId": 66,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 66,
+    "name": "Dedicated"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 38,
+    "year": 71661,
+    "month": 6786,
+    "half_year": 37052,
+    "quarter_year": 19341
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 38,
+     "year": 71661,
+     "month": 6786,
+     "half_year": 37052,
+     "quarter_year": 19341
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 391,
+   "name": "NLs-4",
+   "groupId": 28,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 28,
+    "name": "Shared"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 27,
+    "year": 50108,
+    "month": 4745,
+    "half_year": 25908,
+    "quarter_year": 13524
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 27,
+     "year": 50108,
+     "month": 4745,
+     "half_year": 25908,
+     "quarter_year": 13524
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 444,
+   "name": "WAWs-4",
+   "groupId": 77,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 77,
+    "name": "Shared"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 27,
+    "year": 50108,
+    "month": 4745,
+    "half_year": 25908,
+    "quarter_year": 13524
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 27,
+     "year": 50108,
+     "month": 4745,
+     "half_year": 25908,
+     "quarter_year": 13524
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 720,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 373,
+   "name": "DE-4",
+   "groupId": 25,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 25,
+    "name": "Dedicated"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 38,
+    "year": 71661,
+    "month": 6786,
+    "half_year": 37052,
+    "quarter_year": 19341
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 38,
+     "year": 71661,
+     "month": 6786,
+     "half_year": 37052,
+     "quarter_year": 19341
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 449,
+   "name": "RX32-4",
+   "groupId": 78,
+   "payload": {},
+   "type": {
+    "slug": "hicpu",
+    "name": "Enterprise сервер"
+   },
+   "group": {
+    "id": 78,
+    "name": "AMD"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 50,
+    "year": 94945,
+    "month": 8991,
+    "half_year": 49091,
+    "quarter_year": 25625
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 50,
+     "year": 94945,
+     "month": 8991,
+     "half_year": 49091,
+     "quarter_year": 25625
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 562,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 205,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 16,
+     "max": 0,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 404,
+   "name": "PAR-4",
+   "groupId": 42,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 42,
+    "name": "Dedicated"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 38,
+    "year": 71661,
+    "month": 6786,
+    "half_year": 37052,
+    "quarter_year": 19341
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 38,
+     "year": 71661,
+     "month": 6786,
+     "half_year": 37052,
+     "quarter_year": 19341
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 267,
+   "name": "SPBs-4",
+   "groupId": 67,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 67,
+    "name": "Shared"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 27,
+    "year": 50108,
+    "month": 4745,
+    "half_year": 25908,
+    "quarter_year": 13524
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 27,
+     "year": 50108,
+     "month": 4745,
+     "half_year": 25908,
+     "quarter_year": 13524
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 720,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 156,
+   "name": "MSKs-4",
+   "groupId": 2,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 2,
+    "name": "Shared"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 27,
+    "year": 50108,
+    "month": 4745,
+    "half_year": 25908,
+    "quarter_year": 13524
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 27,
+     "year": 50108,
+     "month": 4745,
+     "half_year": 25908,
+     "quarter_year": 13524
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 414,
+   "name": "VIE-4",
+   "groupId": 22,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 22,
+    "name": "Dedicated"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 38,
+    "year": 71661,
+    "month": 6786,
+    "half_year": 37052,
+    "quarter_year": 19341
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 38,
+     "year": 71661,
+     "month": 6786,
+     "half_year": 37052,
+     "quarter_year": 19341
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 366,
+   "name": "SWE-4",
+   "groupId": 39,
+   "payload": {
+    "mgr": "hel",
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 39,
+    "name": "Dedicated"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 38,
+    "year": 71661,
+    "month": 6786,
+    "half_year": 37052,
+    "quarter_year": 19341
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 38,
+     "year": 71661,
+     "month": 6786,
+     "half_year": 37052,
+     "quarter_year": 19341
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 358,
+   "name": "HELs-4",
+   "groupId": 35,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 35,
+    "name": "Shared"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 27,
+    "year": 50108,
+    "month": 4745,
+    "half_year": 25908,
+    "quarter_year": 13524
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 27,
+     "year": 50108,
+     "month": 4745,
+     "half_year": 25908,
+     "quarter_year": 13524
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 361,
+   "name": "SWEs-4",
+   "groupId": 38,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 38,
+    "name": "Shared"
+   },
+   "order": 4,
+   "parameters": {
+    "cpu": 8,
+    "net": 1000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 27,
+    "year": 50108,
+    "month": 4745,
+    "half_year": 25908,
+    "quarter_year": 13524
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 27,
+     "year": 50108,
+     "month": 4745,
+     "half_year": 25908,
+     "quarter_year": 13524
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 8,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 16,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 360,
+   "name": "SWEs-5",
+   "groupId": 38,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 38,
+    "name": "Shared"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 53,
+    "year": 100204,
+    "month": 9489,
+    "half_year": 51810,
+    "quarter_year": 27044
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 53,
+     "year": 100204,
+     "month": 9489,
+     "half_year": 51810,
+     "quarter_year": 27044
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 415,
+   "name": "VIE-5",
+   "groupId": 22,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 22,
+    "name": "Dedicated"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 76,
+    "year": 143321,
+    "month": 13572,
+    "half_year": 74104,
+    "quarter_year": 38681
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 76,
+     "year": 143321,
+     "month": 13572,
+     "half_year": 74104,
+     "quarter_year": 38681
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 420,
+   "name": "VIEs-5",
+   "groupId": 21,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 21,
+    "name": "Shared"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 53,
+    "year": 100204,
+    "month": 9489,
+    "half_year": 51810,
+    "quarter_year": 27044
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 53,
+     "year": 100204,
+     "month": 9489,
+     "half_year": 51810,
+     "quarter_year": 27044
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 445,
+   "name": "WAWs-5",
+   "groupId": 77,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 77,
+    "name": "Shared"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 53,
+    "year": 100204,
+    "month": 9489,
+    "half_year": 51810,
+    "quarter_year": 27044
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 53,
+     "year": 100204,
+     "month": 9489,
+     "half_year": 51810,
+     "quarter_year": 27044
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 157,
+   "name": "MSKs-5",
+   "groupId": 2,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 2,
+    "name": "Shared"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 53,
+    "year": 100204,
+    "month": 9489,
+    "half_year": 51810,
+    "quarter_year": 27044
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 53,
+     "year": 100204,
+     "month": 9489,
+     "half_year": 51810,
+     "quarter_year": 27044
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 379,
+   "name": "DEs-5",
+   "groupId": 24,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 24,
+    "name": "Shared"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 53,
+    "year": 100204,
+    "month": 9489,
+    "half_year": 51810,
+    "quarter_year": 27044
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 53,
+     "year": 100204,
+     "month": 9489,
+     "half_year": 51810,
+     "quarter_year": 27044
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 390,
+   "name": "NLs-5",
+   "groupId": 28,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 28,
+    "name": "Shared"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 53,
+    "year": 100204,
+    "month": 9489,
+    "half_year": 51810,
+    "quarter_year": 27044
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 53,
+     "year": 100204,
+     "month": 9489,
+     "half_year": 51810,
+     "quarter_year": 27044
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 263,
+   "name": "SPB-5",
+   "groupId": 66,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 66,
+    "name": "Dedicated"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 76,
+    "year": 143321,
+    "month": 13572,
+    "half_year": 74104,
+    "quarter_year": 38681
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 76,
+     "year": 143321,
+     "month": 13572,
+     "half_year": 74104,
+     "quarter_year": 38681
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 384,
+   "name": "LND-5",
+   "groupId": 53,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 53,
+    "name": "Dedicated"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 109,
+    "year": 205857,
+    "month": 19494,
+    "half_year": 106438,
+    "quarter_year": 55558
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 109,
+     "year": 205857,
+     "month": 19494,
+     "half_year": 106438,
+     "quarter_year": 55558
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 268,
+   "name": "SPBs-5",
+   "groupId": 67,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 67,
+    "name": "Shared"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 53,
+    "year": 100204,
+    "month": 9489,
+    "half_year": 51810,
+    "quarter_year": 27044
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 53,
+     "year": 100204,
+     "month": 9489,
+     "half_year": 51810,
+     "quarter_year": 27044
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 341,
+   "name": "CLTs-5",
+   "groupId": 46,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 46,
+    "name": "Shared"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 53,
+    "year": 100204,
+    "month": 9489,
+    "half_year": 51810,
+    "quarter_year": 27044
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 53,
+     "year": 100204,
+     "month": 9489,
+     "half_year": 51810,
+     "quarter_year": 27044
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 359,
+   "name": "HELs-5",
+   "groupId": 35,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 35,
+    "name": "Shared"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 53,
+    "year": 100204,
+    "month": 9489,
+    "half_year": 51810,
+    "quarter_year": 27044
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 53,
+     "year": 100204,
+     "month": 9489,
+     "half_year": 51810,
+     "quarter_year": 27044
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 336,
+   "name": "CLT-5",
+   "groupId": 47,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 47,
+    "name": "Dedicated"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 76,
+    "year": 143321,
+    "month": 13572,
+    "half_year": 74104,
+    "quarter_year": 38681
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 76,
+     "year": 143321,
+     "month": 13572,
+     "half_year": 74104,
+     "quarter_year": 38681
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 405,
+   "name": "PAR-5",
+   "groupId": 42,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 42,
+    "name": "Dedicated"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 76,
+    "year": 143321,
+    "month": 13572,
+    "half_year": 74104,
+    "quarter_year": 38681
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 76,
+     "year": 143321,
+     "month": 13572,
+     "half_year": 74104,
+     "quarter_year": 38681
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 16,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 32,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 480,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 450,
+   "name": "RX32-5",
+   "groupId": 78,
+   "payload": {},
+   "type": {
+    "slug": "hicpu",
+    "name": "Enterprise сервер"
+   },
+   "group": {
+    "id": 78,
+    "name": "AMD"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 91,
+    "year": 172614,
+    "month": 16346,
+    "half_year": 89250,
+    "quarter_year": 46587
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 91,
+     "year": 172614,
+     "month": 16346,
+     "half_year": 89250,
+     "quarter_year": 46587
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 562,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 205,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 16,
+     "max": 0,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 389,
+   "name": "LNDs-5",
+   "groupId": 52,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 52,
+    "name": "Shared"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 76,
+    "year": 143838,
+    "month": 13621,
+    "half_year": 74371,
+    "quarter_year": 38820
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 76,
+     "year": 143838,
+     "month": 13621,
+     "half_year": 74371,
+     "quarter_year": 38820
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 354,
+   "name": "HEL-5",
+   "groupId": 36,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 36,
+    "name": "Dedicated"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 76,
+    "year": 143321,
+    "month": 13572,
+    "half_year": 74104,
+    "quarter_year": 38681
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 76,
+     "year": 143321,
+     "month": 13572,
+     "half_year": 74104,
+     "quarter_year": 38681
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 440,
+   "name": "WAW-5",
+   "groupId": 76,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 76,
+    "name": "Dedicated"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 76,
+    "year": 143321,
+    "month": 13572,
+    "half_year": 74104,
+    "quarter_year": 38681
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 76,
+     "year": 143321,
+     "month": 13572,
+     "half_year": 74104,
+     "quarter_year": 38681
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 410,
+   "name": "PARs-5",
+   "groupId": 41,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 41,
+    "name": "Shared"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 53,
+    "year": 100204,
+    "month": 9489,
+    "half_year": 51810,
+    "quarter_year": 27044
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 53,
+     "year": 100204,
+     "month": 9489,
+     "half_year": 51810,
+     "quarter_year": 27044
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 220,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 147,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 10,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 365,
+   "name": "SWE-5",
+   "groupId": 39,
+   "payload": {
+    "mgr": "hel"
+   },
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 39,
+    "name": "Dedicated"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 76,
+    "year": 143321,
+    "month": 13572,
+    "half_year": 74104,
+    "quarter_year": 38681
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 76,
+     "year": 143321,
+     "month": 13572,
+     "half_year": 74104,
+     "quarter_year": 38681
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 152,
+   "name": "MSK-5",
+   "groupId": 1,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 1,
+    "name": "Dedicated"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 76,
+    "year": 143321,
+    "month": 13572,
+    "half_year": 74104,
+    "quarter_year": 38681
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 76,
+     "year": 143321,
+     "month": 13572,
+     "half_year": 74104,
+     "quarter_year": 38681
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 374,
+   "name": "DE-5",
+   "groupId": 25,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 25,
+    "name": "Dedicated"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 76,
+    "year": 143321,
+    "month": 13572,
+    "half_year": 74104,
+    "quarter_year": 38681
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 76,
+     "year": 143321,
+     "month": 13572,
+     "half_year": 74104,
+     "quarter_year": 38681
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 395,
+   "name": "NL-5",
+   "groupId": 29,
+   "payload": {},
+   "type": {
+    "slug": "vps",
+    "name": "Виртуальный сервер"
+   },
+   "group": {
+    "id": 29,
+    "name": "Dedicated"
+   },
+   "order": 5,
+   "parameters": {
+    "cpu": 16,
+    "net": 1000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": true,
+   "rawPrices": {
+    "hour": 76,
+    "year": 143321,
+    "month": 13572,
+    "half_year": 74104,
+    "quarter_year": 38681
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 76,
+     "year": 143321,
+     "month": 13572,
+     "half_year": 74104,
+     "quarter_year": 38681
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 457,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 167,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 13,
+     "max": 240,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 342,
+   "name": "EFH-1",
+   "groupId": 33,
+   "payload": {},
+   "type": {
+    "slug": "hicpu",
+    "name": "Enterprise сервер"
+   },
+   "group": {
+    "id": 33,
+    "name": "AMD"
+   },
+   "order": 6,
+   "parameters": {
+    "cpu": 1,
+    "net": 25000,
+    "ram": 2,
+    "rom": 30
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 4,
+    "week": 498,
+    "year": 9378,
+    "month": 888,
+    "half_year": 4848,
+    "quarter_year": 2531
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 4,
+     "week": 498,
+     "year": 9378,
+     "month": 888,
+     "half_year": 4848,
+     "quarter_year": 2531
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 562,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 205,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 16,
+     "max": 0,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 343,
+   "name": "EFH-2",
+   "groupId": 33,
+   "payload": {},
+   "type": {
+    "slug": "hicpu",
+    "name": "Enterprise сервер"
+   },
+   "group": {
+    "id": 33,
+    "name": "AMD"
+   },
+   "order": 7,
+   "parameters": {
+    "cpu": 2,
+    "net": 25000,
+    "ram": 4,
+    "rom": 60
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 6,
+    "week": 996,
+    "year": 18768,
+    "month": 1778,
+    "half_year": 9704,
+    "quarter_year": 5066
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 6,
+     "week": 996,
+     "year": 18768,
+     "month": 1778,
+     "half_year": 9704,
+     "quarter_year": 5066
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 562,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 205,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 16,
+     "max": 0,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 344,
+   "name": "EFH-3",
+   "groupId": 33,
+   "payload": {
+    "popular": "popular plan"
+   },
+   "type": {
+    "slug": "hicpu",
+    "name": "Enterprise сервер"
+   },
+   "group": {
+    "id": 33,
+    "name": "AMD"
+   },
+   "order": 8,
+   "parameters": {
+    "cpu": 4,
+    "net": 25000,
+    "ram": 8,
+    "rom": 120
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 12,
+    "week": 1991,
+    "year": 37523,
+    "month": 3554,
+    "half_year": 19401,
+    "quarter_year": 10127
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 12,
+     "week": 1991,
+     "year": 37523,
+     "month": 3554,
+     "half_year": 19401,
+     "quarter_year": 10127
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 562,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 205,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 16,
+     "max": 0,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 345,
+   "name": "EFH-4",
+   "groupId": 33,
+   "payload": {},
+   "type": {
+    "slug": "hicpu",
+    "name": "Enterprise сервер"
+   },
+   "group": {
+    "id": 33,
+    "name": "AMD"
+   },
+   "order": 9,
+   "parameters": {
+    "cpu": 8,
+    "net": 25000,
+    "ram": 16,
+    "rom": 240
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 24,
+    "week": 3980,
+    "year": 75045,
+    "month": 7107,
+    "half_year": 38801,
+    "quarter_year": 20254
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 24,
+     "week": 3980,
+     "year": 75045,
+     "month": 7107,
+     "half_year": 38801,
+     "quarter_year": 20254
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 562,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 205,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 16,
+     "max": 0,
+     "step": 1
+    }
+   },
+   "tags": []
+  },
+  {
+   "id": 346,
+   "name": "EFH-5",
+   "groupId": 33,
+   "payload": {},
+   "type": {
+    "slug": "hicpu",
+    "name": "Enterprise сервер"
+   },
+   "group": {
+    "id": 33,
+    "name": "AMD"
+   },
+   "order": 10,
+   "parameters": {
+    "cpu": 16,
+    "net": 25000,
+    "ram": 32,
+    "rom": 480
+   },
+   "isPublic": true,
+   "isAvailable": false,
+   "rawPrices": {
+    "hour": 48,
+    "week": 7960,
+    "year": 150088,
+    "month": 14213,
+    "half_year": 77602,
+    "quarter_year": 40506
+   },
+   "firstPrices": {},
+   "localedPayload": {},
+   "prices": {
+    "base": {
+     "hour": 48,
+     "week": 7960,
+     "year": 150088,
+     "month": 14213,
+     "half_year": 77602,
+     "quarter_year": 40506
+    },
+    "first": {}
+   },
+   "resources": {
+    "cpu": {
+     "price": 562,
+     "max": 0,
+     "step": 1
+    },
+    "ram": {
+     "price": 205,
+     "max": 0,
+     "step": 1
+    },
+    "rom": {
+     "price": 16,
+     "max": 0,
+     "step": 1
+    }
+   },
+   "tags": []
+  }
+ ],
+ "total": 143
+}
