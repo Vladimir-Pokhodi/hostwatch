@@ -33,6 +33,7 @@ from hostwatch.scheduler.maintenance import Backups, ReleaseCheck, every, ping, 
 from hostwatch.scheduler.polling import Poller, PollEvent
 from hostwatch.storage.autopay import AutopayStore
 from hostwatch.storage.db import connect
+from hostwatch.storage.history import HistoryRepository
 from hostwatch.storage.repositories import (
     AccountRepository,
     AlertRepository,
@@ -238,6 +239,7 @@ async def run(settings: Settings) -> None:
         UsageRepository(conn),
         BalanceHistoryRepository(conn),
         _log_event,
+        history=HistoryRepository(conn),
     )
     settings_repo = SettingsRepository(conn)
     prefs = Prefs(settings_repo)

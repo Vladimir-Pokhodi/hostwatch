@@ -111,7 +111,7 @@ def forecast(
         paid=paid,
         shortfall=shortfall,
         not_renewing=not_renewing,
-        reconciliation=_reconcile(history, hourly_rate, renewing, now, currency),
+        reconciliation=_reconcile(history, balance.money, hourly_rate, renewing, now),
         renewing_count=len(renewing),
     )
 
@@ -248,18 +248,22 @@ def _hours(delta: timedelta) -> Decimal:
 
 def _reconcile(
     history: Iterable[tuple[datetime, Money]],
+    current: Money,
     hourly_rate: Money,
     renewing: Sequence[Server],
     now: datetime,
-    currency: str,
 ) -> Reconciliation | None:
-    points = sorted(
-        (at, money)
-        for at, money in history
-        if money.currency == currency and now - RECONCILE_WINDOW <= at <= now
-    )
-    if len(points) < 2 or now - points[0][0] < RECONCILE_MIN_SPAN:
+    """`history` is a step line: a point when the balance changed. A point before the
+    window is the balance at the window's start, and `current` is the balance now."""
+    currency = current.currency
+    window = now - RECONCILE_WINDOW
+    known = sorted((at, m) for at, m in history if m.currency == currency and at <= now)
+    earlier = [money for at, money in known if at < window]
+    points = [(window, earlier[-1])] if earlier else []
+    points += [(at, money) for at, money in known if at >= window]
+    if not points or now - points[0][0] < RECONCILE_MIN_SPAN:
         return None
+    points.append((now, current))
     start = points[0][0]
     actual = Money(amount=Decimal(0), currency=currency)
     for (_, before), (_, after) in pairwise(points):

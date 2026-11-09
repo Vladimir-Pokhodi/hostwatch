@@ -384,7 +384,7 @@ class BotLogin(LoginEvents):
             account_id = hub.accounts.add(plugin.meta.id, self._free_label(target), secrets)
         else:
             hub.accounts.save_secrets(account_id, secrets)
-            hub.accounts.set_status(account_id, AccountStatus.OK)
+            hub.accounts.set_status(account_id, AccountStatus.OK, actor="owner")
         hub.journal.add(
             JournalEntry(
                 at=hub.now(),

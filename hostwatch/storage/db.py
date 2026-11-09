@@ -133,6 +133,105 @@ MIGRATIONS: list[str] = [
         PRIMARY KEY (account_id, invoice_id)
     );
     """,
+    # 6. History (1.1, part 4), kept forever: load samples (the last 30 days, then rolled
+    # into hours), hourly load, server changes, money in and out, and which servers had
+    # their past load read from the hoster. A balance row is now written only on a
+    # change; `checked_at` says when the same balance was last read.
+    """
+    CREATE TABLE usage_samples (
+        account_id INTEGER NOT NULL REFERENCES accounts (id) ON DELETE CASCADE,
+        server_id TEXT NOT NULL,
+        at TEXT NOT NULL,
+        cpu REAL,
+        ram REAL,
+        disk REAL,
+        traffic_gb REAL,
+        net_in_mbits REAL,
+        net_out_mbits REAL,
+        PRIMARY KEY (account_id, server_id, at)
+    );
+    CREATE INDEX usage_samples_at ON usage_samples (at);
+
+    CREATE TABLE usage_hourly (
+        account_id INTEGER NOT NULL REFERENCES accounts (id) ON DELETE CASCADE,
+        server_id TEXT NOT NULL,
+        hour TEXT NOT NULL,
+        cpu_avg REAL,
+        cpu_max REAL,
+        ram_avg REAL,
+        ram_max REAL,
+        disk_avg REAL,
+        disk_max REAL,
+        traffic_gb_avg REAL,
+        traffic_gb_max REAL,
+        net_in_mbits_avg REAL,
+        net_in_mbits_max REAL,
+        net_out_mbits_avg REAL,
+        net_out_mbits_max REAL,
+        samples INTEGER NOT NULL,
+        PRIMARY KEY (account_id, server_id, hour)
+    );
+
+    CREATE TABLE server_events (
+        id INTEGER PRIMARY KEY,
+        account_id INTEGER NOT NULL REFERENCES accounts (id) ON DELETE CASCADE,
+        server_id TEXT NOT NULL,
+        at TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        old TEXT,
+        new TEXT
+    );
+    CREATE INDEX server_events_server ON server_events (account_id, server_id, at);
+    CREATE INDEX server_events_at ON server_events (at);
+
+    CREATE TABLE money_events (
+        id INTEGER PRIMARY KEY,
+        account_id INTEGER NOT NULL REFERENCES accounts (id) ON DELETE CASCADE,
+        at TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK (kind IN ('topup', 'charge')),
+        amount TEXT NOT NULL,
+        currency TEXT NOT NULL,
+        server_id TEXT,
+        source TEXT NOT NULL CHECK (source IN ('observed', 'hoster')),
+        external_id TEXT,
+        description TEXT NOT NULL DEFAULT '',
+        UNIQUE (account_id, source, external_id)
+    );
+    CREATE INDEX money_events_account_at ON money_events (account_id, at);
+
+    CREATE TABLE usage_backfills (
+        account_id INTEGER NOT NULL REFERENCES accounts (id) ON DELETE CASCADE,
+        server_id TEXT NOT NULL,
+        at TEXT NOT NULL,
+        attempts INTEGER NOT NULL,
+        done INTEGER NOT NULL,
+        points INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (account_id, server_id)
+    );
+
+    ALTER TABLE balance_history ADD COLUMN checked_at TEXT;
+    """,
+    # 7. The journal also takes the bot's own actions (actor 'system'). SQLite cannot
+    # change a CHECK constraint, so the table is rebuilt with every row kept.
+    """
+    CREATE TABLE journal_new (
+        id INTEGER PRIMARY KEY,
+        at TEXT NOT NULL,
+        actor TEXT NOT NULL CHECK (actor IN ('owner', 'autopay', 'system')),
+        account_id INTEGER REFERENCES accounts (id) ON DELETE SET NULL,
+        action TEXT NOT NULL,
+        params TEXT NOT NULL,
+        response TEXT NOT NULL,
+        ok INTEGER NOT NULL
+    );
+    INSERT INTO journal_new (id, at, actor, account_id, action, params, response, ok)
+        SELECT id, at, actor, account_id, action, params, response, ok FROM journal;
+    DROP TABLE journal;
+    ALTER TABLE journal_new RENAME TO journal;
+    CREATE INDEX journal_at ON journal (at);
+    CREATE INDEX journal_account_at ON journal (account_id, at);
+    CREATE INDEX journal_action ON journal (action);
+    """,
 ]
 
 

@@ -168,6 +168,8 @@ class AutopayJob:
         if old is not None and old.reason == reason and old.amount == invoice.amount:
             return
         self._store.put_notice(plan.account_id, invoice.id, reason, invoice.amount, self._now())
+        sid = invoice.server_id or ""
+        self._store.note_hold(plan.account_id, invoice.id, sid, reason, invoice.amount)
         await self._report(Event(plan.account_id, decision, plan.rule, plan.balance))
 
     async def _pay(self, plan: Plan, decision: Decision) -> Outcome:

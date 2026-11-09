@@ -51,6 +51,8 @@
 
 QRATOR пропускает запросы из Python и с IP сервера бота (<server-ip>, проверено 08.11).
 
+Прошлая нагрузка (проверено 09.11): `GET servers/{id}/statistics/{конец}/{часов}/{ключи}` — время в пути это конец периода. За 720 часов приходит примерно точка в час, за 24 часа — раз в 5 минут. Ключи `system.cpu.util`, `network.request`, `network.response`; единицы сети в справочнике не описаны, бот берёт только CPU. Старый `servers/{id}/statistics?date_from&date_to` отдал лишь несколько точек `ram` и `disk`.
+
 Питание (этап 10, по справочнику API `https://timeweb.cloud/api-docs-data/bundle.json`, вживую не вызывалось): `POST /api/v1/servers/{id}/start`, `/shutdown`, `/reboot` с токеном API, ответ 204 без тела. Ошибки — JSON с `error_code`. Старый `POST /servers/{id}/action {"action": ...}` в справочнике помечен устаревшим. У выделенных серверов в API питания нет.
 
 ## Aeza
@@ -61,6 +63,7 @@ QRATOR пропускает запросы из Python и с IP сервера �
 - `GET /services?offset=0&limit=50` — услуги. У каждой есть `ip`, `status`, `expiresAt`, `autoProlong`, `price` (в центах за `paymentTerm`), `product.prices` по всем периодам и `capabilities`. По `capabilities` видно, что можно делать с услугой: `ctl.restart`, `ctl.force_off`, `charts`, `remote.vnc` и так далее. Отсюда бот решает, какие кнопки показывать.
 - `GET /billing/transactions?offset=0&limit=N` — история списаний, из неё считается реальный расход.
 - Нагрузка: `GET /services/{id}/stats/{cpu_usage|memory_usage|net_read_mbits|net_write_mbits}?resolution=300&fromDate=...&toDate=...` → `{"data": [[unix, значение], ...]}`.
+- Прошлая нагрузка (проверено 09.11): `resolution=3600` отдаёт точку в час примерно на 40 дней назад, `resolution=300` обрывается на 1000 точках (3,5 дня), `resolution=86400` — 500. Метрик `disk_usage` и `traffic` нет (400). Бот при первой встрече сервера берёт 30 дней по часам, метрики по одной.
 - Автопродление: `PATCH /services/{id}` `{"autoProlong": true}`.
 - Продление: `GET services/{id}/prices`, затем `POST services/{id}/prolong`.
 - Питание: `POST /services/{id}/ctl/restart`, `/ctl/suspend` `{"force": false}`, `/ctl/resume`.

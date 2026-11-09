@@ -12,6 +12,7 @@ from decimal import Decimal, InvalidOperation
 
 from hostwatch.core.autopay import DEFAULT_DAYS, MAX_DAYS, Ledger, Rule
 from hostwatch.core.models import Money
+from hostwatch.storage.repositories import SettingsRepository, write_journal
 
 PAY_ACTION = "pay_invoice"
 DAYS_KEY = "autopay.days"
@@ -68,6 +69,8 @@ class AutopayStore:
                     "DELETE FROM autopay_servers WHERE account_id = ? AND server_id = ?",
                     (account_id, server_id),
                 )
+            params = {"server": server_id, "on": "yes" if on else "no"}
+            write_journal(self._conn, "owner", "autopay_mark", account_id, params, at=at)
 
     # Rule settings, kept in `settings`
 
@@ -157,6 +160,20 @@ class AutopayStore:
                 (response, int(ok), row_id),
             )
 
+    def note_hold(
+        self, account_id: int, invoice_id: str, server_id: str, reason: str, amount: Money
+    ) -> None:
+        """An invoice the rule held, once per reason and sum (the caller checks)."""
+        params = {
+            "invoice": invoice_id,
+            "server": server_id,
+            "reason": reason,
+            "amount": str(amount.amount),
+            "currency": amount.currency,
+        }
+        with self._conn:
+            write_journal(self._conn, "autopay", "autopay_hold", account_id, params, ok=False)
+
     # Notices
 
     def notice(self, account_id: int, invoice_id: str) -> Notice | None:
@@ -193,6 +210,9 @@ class AutopayStore:
                 f" AND reason IN ({placeholders})",
                 (to, account_id, invoice_id, *sorted(reasons)),
             )
+            if cursor.rowcount == 1:
+                params = {"invoice": invoice_id, "answer": to}
+                write_journal(self._conn, "owner", "autopay_answer", account_id, params)
         return cursor.rowcount == 1
 
     def _setting(self, key: str) -> str | None:
@@ -200,10 +220,8 @@ class AutopayStore:
         return None if row is None else str(row["value"])
 
     def _set_setting(self, key: str, value: str) -> None:
-        with self._conn:
-            self._conn.execute(
-                "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value)
-            )
+        # Through the repository, so the change is in the journal.
+        SettingsRepository(self._conn).set(key, value)
 
 
 def _money(params: dict[str, str]) -> Money | None:

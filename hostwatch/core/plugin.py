@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Awaitable, Callable, Iterable, Mapping
 from contextlib import AbstractAsyncContextManager
 from dataclasses import dataclass
+from datetime import datetime
 from enum import StrEnum
 from fnmatch import fnmatchcase
 from typing import TYPE_CHECKING, Any, ClassVar, Protocol, runtime_checkable
@@ -165,6 +166,18 @@ class SupportsLoginCheck(Protocol):
 @runtime_checkable
 class SupportsUsage(Protocol):
     async def usage(self, server_id: str) -> Usage: ...
+
+
+@runtime_checkable
+class SupportsUsageHistory(Protocol):
+    """Past load the hoster keeps, read once per server so charts do not start empty.
+
+    Returns measurements from `since` till now, oldest first, at whatever step the hoster
+    gives (Aeza and Timeweb: an hour). Optional and not a `Capability`: the bot shows no
+    button for it.
+    """
+
+    async def usage_history(self, server_id: str, since: datetime) -> list[Usage]: ...
 
 
 @runtime_checkable

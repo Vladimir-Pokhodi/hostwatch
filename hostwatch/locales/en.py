@@ -216,6 +216,7 @@ MESSAGES: dict[str, str] = {
     "journal.line": "{date} · {actor} · {hoster}: {action} — {result}",
     "journal.actor.owner": "you",
     "journal.actor.autopay": "autopay",
+    "journal.actor.system": "bot",
     "journal.ok": "done",
     "journal.failed": "failed",
     "settings.title": "<b>Settings</b>",

@@ -1,4 +1,5 @@
-"""Housekeeping jobs: database backups, heartbeat, release check, own public IP."""
+"""Housekeeping jobs: database backups with the nightly history rollup, heartbeat, release
+check, own public IP."""
 
 from __future__ import annotations
 
@@ -14,6 +15,7 @@ from pathlib import Path
 
 import httpx
 
+from hostwatch.storage.history import HistoryRepository
 from hostwatch.storage.repositories import SettingsRepository
 
 log = logging.getLogger(__name__)
@@ -37,7 +39,10 @@ async def every(seconds: float, job: Callable[[], Awaitable[None]], name: str) -
 
 
 class Backups:
-    """`.backup` of the live database into `folder`, one a night, the last 7 kept."""
+    """`.backup` of the live database into `folder`, one a night, the last 7 kept.
+
+    Right after the backup, load samples older than 30 days are rolled into hours.
+    """
 
     def __init__(
         self,
@@ -63,6 +68,8 @@ class Backups:
         path = self.make()
         self._settings.set(BACKUP_DONE_KEY, today)
         log.info("database backup written to %s", path)
+        rolled = HistoryRepository(self._conn).rollup(self._now())
+        log.info("%d load samples rolled into hours", rolled)
 
     def make(self) -> Path:
         self.folder.mkdir(parents=True, exist_ok=True)
