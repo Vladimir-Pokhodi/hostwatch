@@ -71,7 +71,7 @@ async def test_amount_screen_offers_minimum_month_and_custom(harness: Harness) -
     buttons = harness.session.keyboard()
     assert TopupAmountCb(acc=acc, m="sbp", amt="0.5").pack() in buttons
     assert TopupAmountCb(acc=acc, m="sbp", amt="").pack() in buttons
-    until = [text for text in buttons.values() if "До конца следующего месяца" in text]
+    until = [text for text in buttons.values() if "до конца след. мес." in text]
     assert until, buttons
 
 
@@ -81,8 +81,8 @@ async def test_sbp_invoice_comes_with_qr_and_paid_button(harness: Harness) -> No
     await harness.press(TopupAmountCb(acc=acc, m="sbp", amt="0.5"))
 
     photo = next(c for c in harness.session.calls if isinstance(c, SendPhoto))
-    assert photo.caption is not None and "https://qr.nspk.ru/" in photo.caption
-    assert "€0.50" in photo.caption
+    assert photo.caption is not None and "Шаг 3 из 3 · оплата" in photo.caption
+    assert "€0.50 · SBP · №" in photo.caption
     markup = photo.reply_markup
     assert markup is not None
     data = [b.callback_data for row in markup.inline_keyboard for b in row]  # type: ignore[union-attr]
@@ -158,7 +158,7 @@ async def test_paid_says_when_nothing_arrived(harness: Harness) -> None:
     await harness.press(PaidCb(pay=1))
     await asyncio.gather(*harness.hub.background)
 
-    assert "пополнение не видно" in harness.session.last_text()
+    assert "пополнения пока не видно" in harness.session.last_text()
     assert harness.hub.payments.get(1).status == "not_seen"
 
 
@@ -181,7 +181,7 @@ async def test_coin_is_chosen_under_the_invoice(harness: Harness) -> None:
     # One network: the coin button gets the address at once.
     assert coins[PayOptCb(pay=1, o="BTC.btc").pack()] == "BTC"
     assert PaidCb(pay=1).pack() in coins
-    assert "Выберите монету и сеть" in harness.session.last_text()
+    assert "Выберите монету — я возьму адрес" in harness.session.last_text()
     assert harness.hub.payments.get(1).url == "https://pay.example.com/pay/fake-invoice"
 
     await harness.press(PayOptCb(pay=1, c="USDT"))

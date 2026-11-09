@@ -20,39 +20,33 @@ MESSAGES: dict[str, str] = {
         "Реальный расход за 14 дней {actual}, по прогнозу {predicted}. Прогноз может быть неточным."
     ),
     # Bot
-    "button.cancel": "Отмена",
-    "button.refresh": "Обновить",
-    "button.yes_delete": "Да, удалить",
-    "bot.button.back": "⬅️ Назад",
-    "bot.button.home": "🏠 Меню",
-    "bot.servers.hoster": "<b>{title}</b>: серверов {count}",
-    "bot.servers.problems": "есть проблемы",
-    "bot.servers.page": "Страница {page} из {pages}",
-    "bot.servers.line": "{name} — {status}, {ip}",
-    "bot.integrations.empty": "Пока ничего не подключено. Нажмите «+ Подключить».",
-    "bot.integrations.connect": "+ Подключить",
-    "bot.connect.title": "<b>Подключить хостера</b>",
-    "bot.connect.choose": "Выберите, кого подключить:",
-    "bot.connect.line": "• {hoster} — {site}",
+    "button.cancel": "✖️ Отмена",
+    "button.refresh": "🔃 Обновить",
+    "button.yes_delete": "🗑 Да, удалить",
+    "bot.button.back": "‹ Назад",
+    "bot.button.home": "🏠 Главная",
+    "bot.servers.page": "Стр. {page} из {pages}",
+    "bot.integrations.empty": "Нажмите «＋ Подключить» и выберите хостера.",
+    "bot.integrations.connect": "＋ Подключить",
+    "bot.connect.title": "<b>＋ Подключить хостера</b>",
+    "bot.connect.choose": "Выберите хостера.",
     "bot.connect.all_connected": "Все хостеры уже подключены.",
-    "bot.connect.more": "Можно добавить ещё один аккаунт у уже подключённого хостера.",
-    "bot.connect.another": "+ ещё аккаунт {hoster}",
+    "bot.connect.more": "Второй аккаунт того же хостера — кнопки «＋ ещё».",
+    "bot.connect.another": "＋ ещё {hoster}",
     "bot.login.link_gone": "Ссылка больше не действует.",
     "stub": "Будет на этапе {stage}.",
-    "menu.title": "<b>hostwatch</b>\nВыберите раздел.",
-    "menu.summary": "Сводка",
-    "menu.servers": "Серверы",
-    "menu.balance": "Баланс",
-    "menu.integrations": "Интеграции",
-    "menu.order": "Заказать",
-    "menu.journal": "Журнал",
-    "menu.settings": "Настройки",
+    "menu.servers": "🖥 Серверы",
+    "menu.balance": "💰 Деньги",
+    "menu.integrations": "🔌 Хостеры",
+    "menu.order": "🛒 Заказать",
+    "menu.journal": "📜 Журнал",
+    "menu.settings": "⚙️ Настройки",
     "onboarding.language": "Выберите язык.",
     "onboarding.timezone": (
         "Часовой пояс для дат и тихих часов. Предлагаю {suggested}, можно выбрать другой."
     ),
     "onboarding.currency": "В какой валюте считать итоги по всем хостерам?",
-    "onboarding.done": "Готово. Подключите первого хостера.",
+    "onboarding.done": "✅ Готово. Подключите первого хостера.",
     "error.auth_expired": "ключ или вход больше не действует",
     "error.rate_limited": "хостер просит обращаться реже",
     "error.blocked": "хостер заблокировал запрос",
@@ -62,27 +56,22 @@ MESSAGES: dict[str, str] = {
     "error.plugin_error": "ошибка плагина",
     "error.timeout": "хостер не ответил вовремя",
     "error.unexpected": "непредвиденная ошибка",
-    "account.failed": "<b>{title}</b>: не удалось получить данные ({reason}), данные от {date}",
-    "account.failed_never": "<b>{title}</b>: не удалось получить данные ({reason})",
-    "account.no_data": "<b>{title}</b>: данных пока нет",
-    "account.disabled_line": "<b>{title}</b>: отключено",
-    "account.status.ok": "подключено",
-    "account.status.relogin": "надо войти заново",
+    "account.failed": "нет связи ({reason}), данные от {date}",
+    "account.failed_never": "нет связи ({reason})",
+    "account.status.ok": "подключён",
+    "account.status.relogin": "нужен вход",
     "account.status.error": "ошибка",
-    "account.status.disabled": "отключено",
-    "account.card.status": "Статус: {status}",
-    "account.card.last_ok": "Последний успешный опрос: {date}",
-    "account.card.error": "Ошибка: {reason}",
-    "account.card.servers": "Серверов: {count}",
-    "account.never": "ещё не было",
-    "account.relogin": "Войти заново",
-    "account.change_key": "Изменить ключ",
-    "account.disable": "Отключить",
-    "account.enable": "Включить",
-    "account.delete": "Удалить",
+    "account.status.disabled": "отключён",
+    "account.card.last_ok": "🕓 Опрос: {date}",
+    "account.never": "🕓 Опросов ещё не было",
+    "account.relogin": "🔑 Войти заново",
+    "account.change_key": "🗝 Сменить ключ",
+    "account.disable": "⏸ Отключить",
+    "account.enable": "▶️ Включить",
+    "account.delete": "🗑 Удалить",
     "account.delete_confirm": (
-        "Удалить аккаунт <b>{title}</b> из бота? Сохранённые серверы и история баланса"
-        " тоже удалятся. У хостера ничего не изменится."
+        "<b>🗑 Удалить {title}?</b>\nСерверы и история в боте удалятся.\nУ хостера ничего "
+        "не изменится."
     ),
     "account.gone": "Такого аккаунта уже нет.",
     "status.running": "работает",
@@ -90,180 +79,136 @@ MESSAGES: dict[str, str] = {
     "status.suspended": "приостановлен",
     "status.unpaid": "не оплачен",
     "status.unknown": "неизвестно",
-    "autorenew.on": "вкл.",
-    "autorenew.off": "выкл.",
+    "autorenew.on": "вкл",
+    "autorenew.off": "выкл",
     "autorenew.na": "у хостера нет",
-    "summary.title": "<b>Сводка</b> на {date}",
-    "summary.empty": "Хостеры не подключены. Откройте «Интеграции».",
-    "summary.lasts_until": "хватит до {date}",
-    "summary.no_spending": "не тратится",
-    "summary.servers": "Серверы: {count} ({statuses})",
-    "summary.problem_status": "{server}: {status}",
-    "summary.problem_not_renewing": "{server} не продлевается",
-    "summary.problem_ends": "{server} не продлевается, закончится {date}",
-    "summary.problem_relogin": "надо войти заново",
-    "summary.total_balance": "Всего на балансах ≈ {amount}",
-    "summary.total_month": "Всего в месяц ≈ {amount}",
-    "summary.rate_note": "≈ по курсу ЦБ РФ на {date}",
-    "summary.no_rates": "Итогов в {currency} нет: нет курса ЦБ РФ.",
-    "servers.title": "<b>Серверы</b>",
-    "servers.empty": "Серверов пока нет.",
+    "summary.title": "<b>📰 Сводка · {date}</b>",
+    "servers.empty": "Хостеры не подключены",
     "servers.gone": "Этого сервера больше нет в данных хостера.",
     "servers.kind.vps": "VPS",
-    "servers.kind.dedicated": "Выделенные серверы",
-    "price.hourly": "{amount} в час",
-    "price.month": "{amount} в месяц",
+    "servers.kind.dedicated": "выделенный",
+    "price.hourly": "{amount}/ч · {month}/мес",
+    "price.month": "{amount}/мес",
     "price.months": "{amount} за {months} мес.",
-    "card.kind": "Тип: {kind}",
-    "card.ip": "IP: <code>{ip}</code>",
-    "card.plan": "Тариф: {plan}",
-    "card.status": "Статус: {status} ({raw})",
-    "card.price": "Цена: {price}",
-    "card.next_charge": "Следующее списание: {date}",
-    "card.ends": "Оплачен до: {date}",
-    "card.autorenew": "Автопродление: {value}",
-    "card.usage": "Нагрузка: {value}",
-    "card.usage_unsupported": "хостер не отдаёт нагрузку",
-    "card.usage_none": "данных нет",
-    "card.disk": "диск",
+    "card.ip": "IP <code>{ip}</code>",
+    "card.price": "💳 {price}",
+    "card.next_charge": "списание {date} ({left})",
+    "card.ends": "оплачен до {date} ({left})",
+    "card.autorenew": "🔁 Автопродление: {value}",
+    "card.usage_unsupported": "Нагрузку хостер не отдаёт",
+    "card.usage_none": "Нагрузки пока нет",
+    "card.disk": "Диск",
     "card.traffic": "трафик {gb} ГБ",
-    "card.data_at": "Данные от {date}",
-    "action.start": "Включить",
-    "action.stop": "Выключить",
-    "action.restart": "Перезагрузить",
-    "action.autorenew_on": "Включить автопродление",
-    "action.autorenew_off": "Выключить автопродление",
-    "action.renew": "Продлить",
-    "action.autopay": "Автооплата",
-    "action.order_same": "Заказать такой же",
-    "refresh.started": "Обновляю…",
+    "card.data_at": "🕓 Данные от {date}",
+    "action.start": "▶️ Включить",
+    "action.stop": "⏻ Выключить",
+    "action.restart": "🔄 Перезагрузить",
+    "action.autorenew_on": "🔁 Вкл. продление",
+    "action.autorenew_off": "🔁 Выкл. продление",
+    "action.renew": "📅 Продлить",
+    "action.autopay": "💳 Автооплата",
+    "action.order_same": "🛒 Ещё такой",
+    "refresh.started": "🔃 Обновляю…",
     "refresh.too_often": "Обновлять можно раз в минуту на аккаунт. Попробуйте чуть позже.",
     "balance.title": "<b>Баланс</b>",
     "balance.line": "<b>{title}</b>: {amount} (на {date})",
-    "balance.hours_left": "Хостер считает, что хватит на {hours} ч.",
-    "balance.topup": "Пополнить {title}",
-    "topup.title": "<b>Пополнение: {title}</b>",
+    "balance.hours_left": "Хостер считает: хватит на {hours} ч.",
+    "balance.topup": "💰 Пополнить {title}",
+    "topup.title": "<b>💰 Пополнение · {title}</b>",
     "topup.balance": "Баланс: {amount}",
-    "topup.choose_method": "Как платить?",
     "topup.choose_coin": "Какая монета?",
     "topup.choose_coin_network": "Какая сеть для {coin}?",
-    "topup.invoice_amount": "Сумма: {amount}",
-    "topup.choose_after": (
-        "Выберите монету и сеть: я возьму адрес со страницы оплаты."
-        " Можно выбрать и на самой странице."
-    ),
-    "topup.getting_address": "Беру адрес со страницы оплаты, это до минуты…",
+    "topup.choose_after": "Выберите монету — я возьму адрес со страницы оплаты.",
+    "topup.getting_address": "⏳ Беру адрес со страницы оплаты, это до минуты…",
     "topup.address_failed": (
-        "Адрес не получен: {reason}. Выберите другую монету или оплатите на странице оплаты."
+        "🔴 Адрес не получен: {reason}.\nВыберите другую монету или оплатите на странице."
     ),
-    "topup.options_failed": (
-        "Не прочитал монеты страницы оплаты: {reason}. Выберите на самой странице."
-    ),
-    "topup.sbp": "СБП ({name})",
-    "topup.crypto": "Криптовалюта",
-    "topup.crypto_one": "Криптовалюта ({name})",
+    "topup.options_failed": "🔴 Не прочитал монеты: {reason}.\nВыберите на странице оплаты.",
+    "topup.sbp": "⚡ СБП · {name}",
+    "topup.crypto": "🪙 Криптовалюта",
+    "topup.crypto_one": "🪙 {name}",
     "topup.method": "Способ: {name}",
-    "topup.minimum": "Минимум: {amount}",
+    "topup.minimum": "минимум {amount}",
     "topup.choose_amount": "Какую сумму?",
-    "topup.amount_minimum": "Минимум: {amount}",
-    "topup.amount_until": "До конца следующего месяца: {amount}",
-    "topup.amount_custom": "Своя сумма",
-    "topup.ask_amount": "Напишите сумму в {currency}, например 500 или 12.50.",
-    "topup.below_minimum": "Это меньше минимума ({amount}). Напишите сумму побольше.",
-    "topup.creating": "Создаю счёт у хостера…",
-    "topup.invoice_title": "<b>Счёт на пополнение: {title}</b>",
-    "topup.invoice_line": "Сумма: {amount}, способ: {method}",
-    "topup.invoice_id": "Номер счёта у хостера: {id}",
-    "topup.pay_sbp": (
-        '<a href="{url}">Оплатить по СБП</a>: на телефоне откроется выбор банка.'
-        " С другого устройства отсканируйте QR. Ссылка живёт около 10 минут."
-    ),
-    "topup.pay_page": '<a href="{url}">Страница оплаты</a>. Там же можно выбрать способ.',
+    "topup.amount_minimum": "{amount} · минимум",
+    "topup.amount_until": "{amount} · до конца след. мес.",
+    "topup.amount_custom": "✏️ Своя сумма",
+    "topup.ask_amount": "✏️ Напишите сумму в {currency}, например 500.",
+    "topup.below_minimum": "⚠️ Это меньше минимума ({amount}).",
+    "topup.creating": "⏳ Создаю счёт у хостера…",
+    "topup.invoice_title": "<b>💰 Счёт · {title}</b>",
+    "topup.invoice_line": "{amount} · {method} · №{id}",
+    "topup.pay_sbp": "⏳ Ссылка живёт около 10 минут. QR — для оплаты с другого устройства.",
+    "topup.pay_page": "Способ можно выбрать на странице оплаты.",
     "topup.send_exactly": "Переведите ровно {amount} на адрес:",
-    "topup.expires": "Адрес действует до {date}.",
-    "topup.press_paid": "Когда оплатите, нажмите «Оплатил»: я проверю баланс.",
-    "topup.open": "Открыть оплату",
+    "topup.expires": "⏳ Адрес действует до {date}.",
+    "topup.press_paid": "Оплатите и нажмите «✅ Оплатил».",
+    "topup.open": "💳 Оплатить",
     "topup.paid": "✅ Оплатил",
-    "topup.page": "Страница пополнения у хостера",
+    "topup.page": "🌐 На сайте хостера",
     "topup.need_login": (
-        "Чтобы выставить счёт в {title}, нужен вход в кабинет. Войдите заново"
-        " или пополните на странице хостера."
+        "🔴 Для счёта в {title} нужен вход в кабинет.\nВойдите заново или пополните на "
+        "сайте хостера."
     ),
-    "topup.failed": "Счёт не создался: {reason}. Можно пополнить на странице хостера.",
-    "topup.will_check": "Проверю баланс через 2, 5 и 10 минут.",
+    "topup.failed": "🔴 Счёт не создался: {reason}.\nМожно пополнить на сайте хостера.",
+    "topup.will_check": "🔃 Проверю баланс через 2, 5 и 10 минут.",
     "topup.already_checking": "Уже проверяю баланс по этому счёту.",
-    "topup.arrived": "<b>Пополнение дошло: {title}</b>\nБаланс: {amount}",
+    "topup.arrived": "<b>🟢 Пополнение дошло · {title}</b>\nБаланс: {amount}",
     "topup.not_seen": (
-        "{title}: за {minutes} минут пополнение не видно. Если деньги списались,"
-        " они придут позже: баланс я продолжу читать по расписанию."
+        "<b>🟡 {title}: пополнения пока не видно</b>\nПрошло {minutes} мин. Если деньги "
+        "списались, они придут позже: баланс я читаю по расписанию."
     ),
-    "integrations.title": "<b>Интеграции</b>",
-    "integrations.account": "{title}: {status}",
     "integrations.ask_label": (
-        "Подпись для аккаунта {hoster}, например «личный». Она нужна, если аккаунтов"
-        " у хостера несколько. Напишите её или нажмите кнопку."
+        "<b>🏷 Подпись для {hoster}</b>\nНапример «личный»: нужна, если аккаунтов "
+        "несколько.\nНапишите её или нажмите кнопку."
     ),
     "integrations.label_default": "Без подписи ({name})",
-    "integrations.label_taken": "Подпись «{label}» уже занята. Напишите другую.",
+    "integrations.label_taken": "⚠️ Подпись «{label}» уже занята. Напишите другую.",
     "integrations.ask_key": (
-        "Пришлите {field} от {hoster} одним сообщением. Я сразу удалю его из чата"
-        " и сохраню в базе в зашифрованном виде."
+        "<b>🗝 {field} от {hoster}</b>\nПришлите одним сообщением.\nЯ сразу удалю его из "
+        "чата и сохраню зашифрованным."
     ),
-    "integrations.checking": "Ключ сохранён, проверяю доступ…",
-    "journal.title": "<b>Журнал</b>",
-    "journal.empty": "Пока пусто. Здесь появятся действия с серверами и деньгами.",
-    "journal.line": "{date} · {actor} · {hoster}: {action} — {result}",
-    "journal.actor.owner": "вы",
-    "journal.actor.autopay": "автооплата",
-    "journal.ok": "успешно",
-    "journal.failed": "ошибка",
-    "settings.title": "<b>Настройки</b>",
-    "settings.language": "Язык: {value}",
-    "settings.timezone": "Часовой пояс: {value}",
-    "settings.currency": "Валюта итогов: {value}",
-    "settings.thresholds": "<b>Пороги уведомлений</b>",
-    "settings.thresholds_note": (
-        "Обычные уведомления в тихие часы копятся и приходят в конце тихих часов,"
-        " критические приходят сразу."
-    ),
-    "settings.button.language": "Язык",
-    "settings.button.timezone": "Часовой пояс",
-    "settings.button.currency": "Валюта",
+    "integrations.checking": "🔃 Ключ сохранён, проверяю доступ…",
+    "journal.title": "📜 Журнал",
+    "journal.empty": "Пока пусто: здесь будут действия с серверами и деньгами.",
+    "journal.line": "{mark} {date} · {who}{hoster} · {action}",
+    "settings.title": "Настройки",
+    "settings.button.language": "🌐 Язык",
+    "settings.button.timezone": "🕓 Часовой пояс",
+    "settings.button.currency": "💱 Валюта",
     "settings.timezone_other": "Другой…",
     "settings.timezone_ask": "Напишите название часового пояса, например Asia/Omsk.",
-    "settings.timezone_bad": "Не знаю такого пояса. Пример: Europe/Moscow.",
-    "threshold.balance_days": "Баланс кончится меньше чем через {value} дн.",
-    "threshold.load_percent": "CPU или RAM выше {value}%",
-    "threshold.disk_percent": "Диск выше {value}%",
-    "threshold.quiet_hours": "Тихие часы: {value}",
-    "threshold.summary_time": "Сводка в {value}",
-    "threshold.button.balance_days": "Порог баланса",
-    "threshold.button.load_percent": "Порог CPU и RAM",
-    "threshold.button.disk_percent": "Порог диска",
-    "threshold.button.quiet_hours": "Тихие часы",
-    "threshold.button.summary_time": "Время сводки",
+    "settings.timezone_bad": "⚠️ Не знаю такого пояса. Пример: Europe/Moscow.",
+    "threshold.button.balance_days": "🔔 Порог денег",
+    "threshold.button.load_percent": "📈 CPU и RAM",
+    "threshold.button.disk_percent": "💾 Диск",
+    "threshold.button.quiet_hours": "🌙 Тихие часы",
+    "threshold.button.summary_time": "📰 Время сводки",
     "threshold.ask.balance_days": "Сейчас {value}. За сколько дней предупреждать? От 1 до 60.",
     "threshold.ask.load_percent": "Сейчас {value}%. Порог CPU и RAM в процентах, от 1 до 100.",
     "threshold.ask.disk_percent": "Сейчас {value}%. Порог диска в процентах, от 1 до 100.",
-    "threshold.ask.quiet_hours": "Сейчас {value}. Напишите тихие часы так: 23:00-08:00.",
+    "threshold.ask.quiet_hours": (
+        "Сейчас {value}. Напишите тихие часы так: 23:00-08:00.\nОбычные уведомления в эти "
+        "часы ждут их конца, критические приходят сразу."
+    ),
     "threshold.ask.summary_time": "Сейчас {value}. Во сколько присылать сводку? Например, 09:00.",
-    "threshold.bad": "Не понял значение. Попробуйте ещё раз.",
+    "threshold.bad": "⚠️ Не понял значение. Попробуйте ещё раз.",
     # Alerts, backups, releases
-    "alert.balance_low": "⚠ <b>{title}</b>: на балансе {amount}, денег хватит до {date}.",
+    "alert.balance_low": "💰 <b>{title}: деньги до {date}</b>\nНа балансе {amount}.",
     "alert.balance_low_own": (
-        "Здесь работает сам hostwatch, поэтому предупреждаю на {days} дн. раньше."
+        "Здесь работает hostwatch, поэтому предупреждаю на {days} дн. раньше."
     ),
-    "alert.server_status": "‼ <b>{title}</b>: сервер {server} — {status}.",
-    "alert.ends_soon": "⚠ <b>{title}</b>: {server} не продлевается и закончится {date}.",
+    "alert.server_status": "🔴 <b>{title} · {server}: {status}</b>",
+    "alert.ends_soon": ("⚠️ <b>{title} · {server}: закончится {date}</b>\nАвтопродление выключено."),
     "alert.ends_soon_short": (
-        "⚠ <b>{title}</b>: {server} закончится {date}, на продление не хватит денег."
+        "⚠️ <b>{title} · {server}: закончится {date}</b>\nНа продление не хватит денег."
     ),
-    "alert.load": "⚠ <b>{title}</b>: у {server} {metric} выше {percent}% {polls} опроса подряд.",
-    "alert.disk": "⚠ <b>{title}</b>: на {server} диск занят на {percent}%.",
-    "alert.relogin": "⚠ <b>{title}</b>: надо войти заново. Откройте «Интеграции».",
-    "alert.plugin_broken": "⚠ <b>{title}</b>: не получается получить данные ({reason}).",
-    "alert.reminder": "Напоминание. {text}",
-    "alert.resolved": "✅ Решено: {subject}.",
+    "alert.load": ("⚠️ <b>{title} · {server}: {metric} выше {percent}%</b>\n{polls} опроса подряд."),
+    "alert.disk": "⚠️ <b>{title} · {server}: диск {percent}%</b>",
+    "alert.relogin": "🔴 <b>{title}: нужен вход</b>",
+    "alert.plugin_broken": "🔴 <b>{title}: нет данных</b>\n{reason}.",
+    "alert.reminder": "⏰ Напоминание\n{text}",
+    "alert.resolved": "🟢 Решено: {subject}.",
     "alert.subject.balance_low": "баланс {title}",
     "alert.subject.server": "{title}, сервер {server}",
     "alert.subject.ends_soon": "{title}, окончание {server}",
@@ -272,12 +217,12 @@ MESSAGES: dict[str, str] = {
     "alert.subject.relogin": "{title}, вход",
     "alert.subject.plugin_broken": "{title}, получение данных",
     "release.new": "Вышла версия hostwatch {version}. Что нового: {url}",
-    "settings.button.backup": "Прислать бэкап",
+    "settings.button.backup": "📦 Бэкап",
     "backup.caption": (
         "Бэкап базы на {date}. Секреты в нём зашифрованы, ключа HOSTWATCH_KEY в нём нет."
     ),
     "backup.failed": "Не получилось сделать бэкап. Подробности в логах.",
-    "card.own": "Это сервер hostwatch: о балансе этого аккаунта предупрежу на {days} дн. раньше.",
+    "card.own": "ℹ️ Это сервер hostwatch: о деньгах предупрежу на {days} дн. раньше",
     "servers.own": "hostwatch",
     # Login page and browser login
     "web.title": "Вход: {hoster}",
@@ -305,21 +250,21 @@ MESSAGES: dict[str, str] = {
     "web.end_replaced": "Этот вход закрыт: в боте попросили новую ссылку.",
     "web.end_failed": "Вход прервался из-за ошибки. Попросите в боте новую ссылку.",
     "login.link": (
-        "Вход в <b>{hoster}</b>: откройте ссылку на телефоне или компьютере.\n{url}\n\nСсылка "
-        "одноразовая и действует 10 минут. На странице войдите на сайт как обычно, затем "
-        "нажмите «Готово»."
+        "<b>🔑 Вход в {hoster}</b>\nОткройте ссылку на телефоне или "
+        "компьютере:\n{url}\nВойдите на сайт как обычно и нажмите «Готово».\n⏳ Ссылка "
+        "одноразовая, живёт 10 минут."
     ),
-    "login.open": "Открыть вход",
+    "login.open": "🔑 Открыть вход",
     "login.no_address": (
         "Не знаю адрес этого сервера. Задайте HOSTWATCH_IP или HOSTWATCH_DOMAIN в .env и "
         "перезапустите бота."
     ),
     "login.opened": "🔑 Ссылку входа в {hoster} открыли: {ip}, {browser}.",
-    "login.not_me": "Это не я",
+    "login.not_me": "🚫 Это не я",
     "login.killed": "Вход закрыт.",
-    "login.connected": "✅ {hoster} подключён.",
+    "login.connected": "🟢 {hoster} подключён.",
     "login.connected_unchecked": (
-        "✅ {hoster}: сессия сохранена, но проверить её без браузера не удалось ({reason})."
+        "🟡 {hoster}: сессия сохранена, но проверить её без браузера не удалось ({reason})."
     ),
     "login.ended.cancelled": "Вход в {hoster} отменён.",
     "login.ended.idle": "Вход в {hoster} закрыт: 15 минут без действий.",
@@ -339,15 +284,14 @@ MESSAGES: dict[str, str] = {
     ),
     "cookie.missing": "Не хватает cookie: {names}. Пришлите ещё раз или /cookie для отмены.",
     "cookie.bad": "Не разобрал cookie. Нужна строка <code>имя=значение; …</code> или JSON.",
-    "control.confirm_title": "<b>Подтвердите действие</b>",
-    "control.what": "Что: {what}",
-    "control.where": "Где: {where}",
-    "control.how_much": "Сколько: {amount}",
+    "control.confirm_title": "<b>❓ {what}?</b>",
+    "control.where": "🖥 {where}",
+    "control.how_much": "💰 {amount}",
     "control.yes": "✅ Да",
-    "control.charge": "{amount} с баланса у хостера",
-    "control.charge_with_balance": "{amount} с баланса у хостера (сейчас там {balance})",
-    "control.later_charges": "сейчас ничего, дальше {price} при каждом продлении",
-    "control.no_charge": "без списания",
+    "control.charge": "Спишется {amount} с баланса",
+    "control.charge_with_balance": "Спишется {amount} · на балансе {balance}",
+    "control.later_charges": "Сейчас без списания, дальше {price} за каждое продление",
+    "control.no_charge": "Без списания",
     "control.what.start": "включить сервер",
     "control.what.stop": "выключить сервер",
     "control.what.restart": "перезагрузить сервер",
@@ -355,54 +299,49 @@ MESSAGES: dict[str, str] = {
     "control.what.autorenew_off": "выключить автопродление",
     "control.what.renew": "продлить на один период",
     "control.what.pay_invoice": "оплатить счёт #{id} с баланса",
-    "control.need_login": "Сессия {title} закончилась. Войдите заново и повторите.",
-    "control.cannot": "Не получилось: {reason}.",
+    "control.need_login": "🔴 Сессия {title} закончилась. Войдите заново и повторите.",
+    "control.cannot": "🔴 Не получилось: {reason}.",
     "control.unavailable": "Это действие сейчас недоступно. Показываю свежую карточку.",
     "control.asking_price": "Узнаю цену у хостера…",
     "control.expired": "Кнопка устарела или уже нажата. Ничего не сделал.",
     "control.cancelled": "Отменено. Ничего не сделал.",
     "control.running": "Выполняю…",
-    "control.running_what": "Выполняю: {what}…",
+    "control.running_what": "⏳ Выполняю: {what}…",
     "control.timeout": (
-        "Хостер не ответил вовремя: {what}, {where}. Результат неизвестен,"
-        " проверьте в кабинете и нажмите «Обновить» на карточке."
+        "<b>🟡 Результат неизвестен</b>\n{what} · {where}\nХостер не ответил вовремя. "
+        "Проверьте в кабинете и нажмите «🔃 Обновить»."
     ),
-    "control.failed": "Не получилось: {what}, {where}. Причина: {reason}.",
-    "control.done": "Готово: {what}, {where}.\nОтвет хостера: {detail}",
+    "control.failed": "<b>🔴 Не получилось</b>\n{what} · {where}\nПричина: {reason}.",
+    "control.done": "<b>✅ Готово</b>\n{what} · {where}\nОтвет хостера: {detail}",
     "control.unclear": (
-        "Хостер принял запрос, но не подтвердил результат: {what}, {where}.\n"
-        "Ответ: {detail}\nПроверьте в кабинете."
+        "<b>🟡 Хостер не подтвердил</b>\n{what} · {where}\nОтвет: {detail}\nПроверьте в кабинете."
     ),
-    "control.money_notice": "💸 <b>Действие с деньгами</b>\n{text}",
-    "autopay.button.on": "Включить автооплату",
-    "autopay.button.off": "Выключить автооплату",
+    "control.money_notice": "💸 Действие с деньгами\n{text}",
+    "autopay.button.on": "💳 Вкл. автооплату",
+    "autopay.button.off": "💳 Выкл. автооплату",
     "autopay.button.pay": "✅ Оплатить",
-    "autopay.button.skip": "Не платить",
-    "autopay.button.topup": "Пополнить баланс",
-    "autopay.button.invoices": "Счета хостера",
-    "autopay.card.on": "Автооплата бота: вкл.",
-    "autopay.card.off": "Автооплата бота: выкл.",
-    "autopay.card.native_hint": (
-        "У хостера есть своё автопродление: включите его кнопкой ниже, а бот последит,"
-        " чтобы на балансе хватало денег."
-    ),
+    "autopay.button.skip": "✖️ Не платить",
+    "autopay.button.topup": "💰 Пополнить",
+    "autopay.button.invoices": "🧾 Счета",
+    "autopay.card.on": "💳 Автооплата бота: вкл",
+    "autopay.card.off": "💳 Автооплата бота: выкл",
+    "autopay.card.native_hint": "💡 У хостера есть автопродление — включите его кнопкой ниже.",
     "autopay.settings.button": "💳 Автооплата",
-    "autopay.settings.title": "<b>Автооплата</b>",
+    "autopay.settings.title": "<b>💳 Автооплата</b>",
     "autopay.settings.about": (
-        "Бот сам оплачивает с баланса уже выставленный хостером счёт на продление,"
-        " когда до срока осталось не больше указанного числа дней. Только для серверов"
-        " с отметкой «автооплата» (кнопка на карточке) и только у хостеров без своего"
-        " автопродления. Если сумма выросла больше чем на 10 %, бот спросит."
+        "Бот оплачивает с баланса счёт на продление незадолго до срока.\nТолько для "
+        "отмеченных серверов и хостеров без своего автопродления.\nЕсли сумма выросла "
+        "больше чем на 10 %, бот спросит."
     ),
     "autopay.settings.off": "Автооплата недоступна в этом запуске.",
-    "autopay.settings.days": "Срок: за {days} дн. до окончания",
+    "autopay.settings.days": "⏰ Платить за {days} дн. до срока",
     "autopay.settings.no_accounts": "Нет хостеров, у которых бот умеет оплачивать счета.",
     "autopay.settings.account": (
-        "{title}: лимит {limit} в месяц, потрачено {spent}, серверов с автооплатой: {count}"
+        "{title}: лимит {limit}/мес · потрачено {spent} · серверов {count}"
     ),
-    "autopay.settings.zero_limit": "  Лимит 0: бот ничего не оплатит, пока вы его не зададите.",
-    "autopay.settings.button.days": "Срок: {days} дн.",
-    "autopay.settings.button.limit": "Лимит: {title}",
+    "autopay.settings.zero_limit": "  ⚠️ Лимит 0: ничего не оплачу, пока не зададите.",
+    "autopay.settings.button.days": "⏰ Срок: {days} дн.",
+    "autopay.settings.button.limit": "💰 Лимит {title}",
     "autopay.ask_days": "За сколько дней до срока платить? Сейчас {days}. Число от 1 до {max}.",
     "autopay.ask_limit": (
         "Месячный лимит автооплаты для {title}. Сейчас {limit}. Напишите сумму в валюте"
@@ -420,47 +359,46 @@ MESSAGES: dict[str, str] = {
         " не зададите его в «Настройки → Автооплата»."
     ),
     "autopay.report.paid": (
-        "Автооплата: оплачен счёт #{id} за {server} · {title}: {amount}.\nОтвет хостера: {detail}"
+        "<b>✅ Автооплата: счёт #{id}</b>\n{server} · {title} · {amount}\nОтвет хостера: {detail}"
     ),
-    "autopay.report.limit": "Лимит месяца: потрачено {spent} из {limit}.",
+    "autopay.report.limit": "Лимит месяца: {spent} из {limit}.",
     "autopay.report.unclear": (
-        "Автооплата: хостер принял оплату счёта #{id} за {server} · {title} ({amount}),"
-        " но не подтвердил её.\nОтвет: {detail}\nПроверьте в кабинете. Сам бот этот счёт"
-        " больше не тронет."
+        "<b>🟡 Автооплата: счёт #{id} не подтверждён</b>\n{server} · {title} · "
+        "{amount}\nОтвет: {detail}\nПроверьте в кабинете. Бот этот счёт больше не тронет."
     ),
     "autopay.report.failed": (
-        "Автооплата не оплатила счёт #{id} за {server} · {title} ({amount}). Причина: {reason}."
-        "\nСам бот этот счёт больше не тронет: проверьте в кабинете и оплатите вручную."
+        "<b>🔴 Автооплата: счёт #{id} не оплачен</b>\n{server} · {title} · "
+        "{amount}\nПричина: {reason}.\nБот этот счёт больше не тронет: оплатите вручную."
     ),
     "autopay.report.grown": (
-        "⚠️ Счёт #{id} за {server} · {title} вырос: {amount} вместо {reference}."
-        " Автооплата его не оплатила. Оплатить?"
+        "<b>⚠️ Счёт #{id} вырос</b>\n{server} · {title}: {amount} вместо "
+        "{reference}\nАвтооплата не платила. Оплатить?"
     ),
     "autopay.report.new": (
-        "⚠️ Счёт #{id} за {server} · {title} на {amount}: не с чем сравнить сумму."
-        " Автооплата его не оплатила. Оплатить?"
+        "<b>⚠️ Счёт #{id}: не с чем сравнить</b>\n{server} · {title}: {amount}\nАвтооплата "
+        "не платила. Оплатить?"
     ),
     "autopay.report.over_limit": (
-        "Счёт #{id} за {server} · {title} ({amount}) не оплачен автооплатой: не хватает"
-        " месячного лимита (потрачено {spent} из {limit})."
+        "<b>🟡 Счёт #{id} ждёт: лимит</b>\n{server} · {title}: {amount}\nПотрачено {spent} "
+        "из {limit} за месяц."
     ),
     "autopay.report.low_balance": (
-        "Счёт #{id} за {server} · {title} ({amount}) не оплачен автооплатой: на балансе"
-        " {balance}, не хватает {missing}."
+        "<b>🟡 Счёт #{id} ждёт: мало денег</b>\n{server} · {title}: {amount}\nНа балансе "
+        "{balance}, не хватает {missing}."
     ),
     "autopay.declined": "Хорошо, счёт #{id} бот оплачивать не будет.",
     "autopay.changed": "Сумма счёта снова изменилась, теперь {amount}. Ничего не оплачено.",
-    "invoices.title": "<b>Счета к оплате: {title}</b>",
-    "invoices.none": "Неоплаченных счетов нет.",
-    "invoices.line": "Счёт #{id}: {amount}, срок {due}",
-    "invoices.for_server": "За сервер {server}",
-    "invoices.pay": "Оплатить #{id} · {amount}",
-    "invoices.not_service": "Не продление сервера: оплатите в кабинете, если нужно.",
+    "invoices.title": "<b>🧾 Счета · {title} · {count}</b>",
+    "invoices.none": "🟢 Неоплаченных счетов нет.",
+    "invoices.line": "#{id} · {amount}",
+    "invoices.due": "до {due}",
+    "invoices.pay": "💳 #{id} · {amount}",
+    "invoices.not_service": "Счета «не продление» оплатите в кабинете.",
     "invoices.loading": "Читаю счета у хостера…",
     "invoices.not_payable": (
-        "Этот счёт уже нельзя оплатить из бота: он оплачен, отменён или изменился."
+        "🟡 Этот счёт уже нельзя оплатить из бота: он оплачен, отменён или изменился."
     ),
-    "balance.invoices": "Счета {title}",
+    "balance.invoices": "🧾 Счета {title}",
     "journal.action.topup": "счёт на пополнение",
     "journal.action.login": "вход",
     "journal.action.start": "включение",
@@ -471,50 +409,40 @@ MESSAGES: dict[str, str] = {
     "journal.action.renew": "продление",
     "journal.action.pay_invoice": "оплата счёта",
     # Ordering servers (stage 13)
-    "order.title_any": "<b>Заказ сервера</b>",
-    "order.title": "<b>Заказ сервера · {title}</b>",
+    "order.title_any": "<b>🛒 Заказ сервера</b>",
+    "order.title": "<b>🛒 Заказ · {title}</b>",
     "order.no_accounts": "Нет подключённых хостеров, у которых бот умеет заказывать серверы.",
-    "order.choose_account": "У какого хостера заказать?",
-    "order.choose_location": "Выберите локацию:",
+    "order.choose_account": "Выберите хостера.",
+    "order.choose_location": "Выберите локацию.",
     "order.location_button": "{name} · от {amount}/мес",
     "order.empty": "Хостер сейчас ничего не продаёт.",
-    "order.location": "Локация: {name}",
-    "order.choose_plan": "Выберите тариф:",
+    "order.location": "📍 {name}",
+    "order.choose_plan": "Выберите тариф.",
     "order.plan_line": "• <b>{name}</b> — {specs}, от {amount}/мес",
     "order.plan_button": "{name} · {amount}/мес",
     "order.more_plans": "И ещё тарифов: {count}. Показаны самые дешёвые.",
-    "order.plan": "Тариф: {name} ({specs})",
-    "order.choose_os": "Выберите ОС:",
+    "order.plan": "📦 {name} · {specs}",
+    "order.choose_os": "Выберите ОС.",
     "order.no_os": "Для этого тарифа нет ОС, которую бот умеет заказать.",
-    "order.os": "ОС: {name}",
-    "order.choose_period": "Выберите срок:",
+    "order.os": "💿 {name}",
+    "order.choose_period": "Выберите срок.",
     "order.period_hourly": "Почасово · ≈{amount}/мес",
     "order.period_months": "{months} мес. · {amount}",
-    "order.period": "Срок: {period}",
+    "order.period": "📅 {period}",
     "order.hourly": "почасово",
     "order.months": "{months} мес.",
-    "order.price": "Цена: {price}",
-    "order.price_hourly": "≈{amount} в месяц, списывается почасово ({hour} в час)",
+    "order.price": "💳 {price}",
+    "order.price_hourly": "≈{amount}/мес, почасово ({hour}/ч)",
     "order.price_changed": "⚠️ Цена изменилась: в каталоге было {old}, хостер просит {new}.",
-    "order.balance": "Баланс: {amount}",
-    "order.key_set": "SSH-ключ: поставлю ключ из настроек ({name}).",
-    "order.key_missing": (
-        "SSH-ключ: не задан в настройках. Войти можно будет по паролю"
-        " (кнопка «Показать пароль» на карточке)."
-    ),
-    "order.key_not_supported": (
-        "SSH-ключ: этот хостер не ставит ключ при заказе. Войти можно будет по паролю."
-    ),
-    "order.limit_ok": "Лимит заказов: потрачено {spent} из {limit} в этом месяце.",
-    "order.limit_over": (
-        "Лимит заказов: потрачено {spent} из {limit} в этом месяце."
-        " Заказ выше лимита, спрошу ещё раз."
-    ),
-    "order.untested": (
-        "⚠️ Заказ у этого хостера не проверен вживую: после заказа проверьте кабинет."
-    ),
-    "order.ask": "Заказать за {price}?",
-    "order.second_title": "<b>Заказ выше месячного лимита</b>",
+    "order.balance": "💰 Баланс: {amount}",
+    "order.key_set": "🔑 SSH-ключ из настроек ({name})",
+    "order.key_missing": "🔑 Ключа нет: вход по паролю (кнопка «🔑 Пароль» на карточке)",
+    "order.key_not_supported": "🔑 Хостер не ставит ключ: вход по паролю",
+    "order.limit_ok": "Лимит заказов: {spent} из {limit} за месяц",
+    "order.limit_over": "⚠️ Выше лимита: {spent} из {limit} за месяц — спрошу ещё раз",
+    "order.untested": "⚠️ Заказ здесь не проверен вживую: после заказа проверьте кабинет.",
+    "order.ask": "❓ Заказать за {price}?",
+    "order.second_title": "<b>⚠️ Заказ выше месячного лимита</b>",
     "order.what": "Что: {what}",
     "order.second_ask": "Точно заказать? Это второе подтверждение.",
     "order.second_yes": "✅ Да, заказать",
@@ -554,20 +482,20 @@ MESSAGES: dict[str, str] = {
         "Сообщение удалится через {minutes} мин. Бот пароль не хранит."
     ),
     "order.password_asking": "Запрашиваю пароль у хостера…",
-    "order.button.password": "🔑 Показать пароль",
+    "order.button.password": "🔑 Пароль",
     "order.journal.order": "заказ сервера",
     "order.journal.root_password": "показ пароля",
-    "order.settings.button": "Заказ: лимит и SSH-ключ",
-    "order.settings.title": "<b>Заказ серверов</b>",
-    "order.settings.limit": "Лимит заказов в месяц: {amount}",
+    "order.settings.button": "🛒 Заказ",
+    "order.settings.title": "<b>🛒 Заказ серверов</b>",
+    "order.settings.limit": "💰 Лимит в месяц: {amount}",
     "order.settings.limit_note": (
-        "Заказ выше лимита бот подтверждает дважды. При лимите 0 — каждый заказ."
+        "Выше лимита — двойное подтверждение. При лимите 0 — каждый заказ."
     ),
-    "order.settings.key": "SSH-ключ для новых серверов: {name}",
+    "order.settings.key": "🔑 SSH-ключ: {name}",
     "order.settings.no_key": "не задан",
-    "order.settings.button.limit": "Изменить лимит",
-    "order.settings.button.key": "Задать SSH-ключ",
-    "order.settings.button.no_key": "Удалить SSH-ключ",
+    "order.settings.button.limit": "💰 Лимит",
+    "order.settings.button.key": "🔑 Задать ключ",
+    "order.settings.button.no_key": "🗑 Удалить ключ",
     "order.settings.ask_limit": (
         "Напишите лимит заказов в месяц в {currency}, например 1000."
         " 0 — подтверждать дважды каждый заказ."
@@ -586,10 +514,71 @@ MESSAGES: dict[str, str] = {
     "menu.button": "☰ Меню",
     "menu.closed": "Меню закрыто: актуальное ниже.",
     "menu.stale": "Это меню закрыто, актуальное внизу",
-    "bot.login.expired": "Ссылка для входа в {hoster} истекла: её не открыли за 10 минут.",
-    "topup.expired": "Срок счёта истёк. Если не успели оплатить, выставите новый.",
-    "topup.again": "Новый счёт",
-    "alert.button.topup": "💰 Пополнить {title}",
-    "alert.button.server": "🖥 {server}",
-    "alert.button.account": "🔌 {title}",
+    "bot.login.expired": ("<b>🔴 Ссылка входа в {hoster} истекла</b>\nЕё не открыли за 10 минут."),
+    "topup.expired": "<b>🔴 Срок счёта истёк</b>\nЕсли не успели оплатить, выставите новый.",
+    "topup.again": "💰 Новый счёт",
+    "menu.problems": "⚠️ Проблемы ({count})",
+    "menu.connect": "＋ Подключить хостера",
+    "time.today": "сегодня {time}",
+    "time.tomorrow": "завтра {time}",
+    "time.today_word": "сегодня",
+    "time.tomorrow_word": "завтра",
+    "time.in_days": "через {n} дн.",
+    "time.days": "{n} дн.",
+    "plural.server": "сервер|сервера|серверов",
+    "plural.hoster": "хостер|хостера|хостеров",
+    "plural.problem": "проблема|проблемы|проблем",
+    "home.ok": "Всё в порядке",
+    "home.empty": "Хостеры не подключены",
+    "home.empty_hint": "Подключите первого — кнопка ниже.",
+    "home.more": "…и ещё {count}",
+    "home.balances": "💰 На балансах: {amount}",
+    "home.month": "💳 В месяц: {amount}",
+    "problems.none": "Проблем нет",
+    "problem.relogin": "нужен вход",
+    "problem.no_data": "нет данных: {reason}",
+    "problem.money_until": "деньги до {date}",
+    "problem.shortfall": "{date} не хватит {amount} на {server}",
+    "problem.ends": "закончится {date}, не продлевается",
+    "problem.button.account": "🔌 {title}",
+    "problem.button.topup": "💰 Пополнить {title}",
+    "problem.button.server": "🖥 {server}",
+    "summary.open": "🏠 Открыть меню",
+    "summary.problems": "⚠️ Проблемы",
+    "servers.none": "Серверов нет.",
+    "servers.all_ok": "всё в порядке",
+    "servers.pick": "Выберите хостера.",
+    "servers.count.vps": "VPS: {n}",
+    "servers.count.dedicated": "выделенных: {n}",
+    "card.no_ip": "IP —",
+    "money.title": "Деньги",
+    "money.ok": "всё в порядке",
+    "money.attention": "нужно внимание",
+    "money.no_spending": "не тратится",
+    "money.beyond_horizon": "больше года",
+    "money.until": "до {date}",
+    "money.no_data": "нет данных",
+    "money.data_at": "данные от {date}",
+    "money.shortfall": "{title}: {date} не хватит {amount} на {server}",
+    "money.rate_note": "≈ по курсу ЦБ РФ на {date}",
+    "money.button.info": "ℹ️ Как считаю",
+    "money.info_title": "Как считаю прогноз",
+    "money.read_at": "{amount} на {date}",
+    "money.info_rates": "Итоги «≈» — в валюте из настроек по курсу ЦБ РФ.",
+    "topup.step": "Шаг {n} из {total} · {what}",
+    "topup.step.method": "способ",
+    "topup.step.amount": "сумма",
+    "topup.step.pay": "оплата",
+    "topup.no_methods": "Из бота пополнить нельзя — только на сайте хостера.",
+    "topup.sbp_plain": "⚡ СБП",
+    "topup.invoice_short": "{amount} · №{id}",
+    "integrations.none": "Хостеры не подключены",
+    "integrations.all_ok": "все на связи",
+    "integrations.can_add": "＋ Можно подключить: {names}",
+    "journal.page": "стр. {page}",
+    "settings.general": "🌐 {language} · {tz} · {currency}",
+    "settings.alerts": "🔔 Деньги за {days} дн. · CPU/RAM {load}% · диск {disk}%",
+    "settings.times": "🌙 Тихие часы {quiet} · 📰 сводка в {summary}",
+    "invoices.other": "не продление",
+    "topup.lasts": "💰 Хватит: {lasts}",
 }

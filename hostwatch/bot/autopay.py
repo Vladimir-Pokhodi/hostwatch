@@ -7,6 +7,7 @@ limit is zero until the owner sets them here.
 
 from __future__ import annotations
 
+import contextlib
 import logging
 from collections.abc import Awaitable, Callable
 from decimal import Decimal, InvalidOperation
@@ -28,11 +29,11 @@ from hostwatch.scheduler.autopay import Event, Outcome
 from hostwatch.storage.autopay import APPROVED, DECLINED
 from hostwatch.storage.repositories import NotFound
 
-from .callbacks import ActionCb, InvoicesCb, Nav, SetCb, TopupCb, note
+from .callbacks import ActionCb, InvoicesCb, Nav, ServerCb, SetCb, TopupCb, note
 from .control import _call, _invoices, execute, failed_screen, result_screen
 from .handlers import answer, menu, on, server_screen, show, show_below, view, with_error
 from .hub import AccountData, Hub
-from .views import Screen, View
+from .views import Screen, View, home_note, pairs
 from .views import _button as button
 from .views import _nav as nav
 
@@ -73,17 +74,17 @@ def currency_of(data: AccountData) -> str:
 def settings_screen(hub: Hub) -> Screen:
     v = view(hub)
     store = hub.autopay
-    lines = [v.t("autopay.settings.title"), "", v.t("autopay.settings.about")]
+    lines = [v.t("autopay.settings.title"), v.t("autopay.settings.about")]
     kb = InlineKeyboardBuilder()
     if store is None:
-        lines += ["", v.t("autopay.settings.off")]
+        lines.append(v.t("autopay.settings.off"))
         kb.row(*nav(v, Nav(to="settings")))
         return Screen("\n".join(lines), kb.as_markup())
     days = store.days()
-    lines += ["", v.t("autopay.settings.days", days=days)]
+    lines.append(v.t("autopay.settings.days", days=days))
     accounts = payable_accounts(hub)
     if not accounts:
-        lines += ["", v.t("autopay.settings.no_accounts")]
+        lines.append(v.t("autopay.settings.no_accounts"))
     since = month_start(hub.now(), hub.prefs.tz)
     for data in accounts:
         acc = data.account.id
@@ -102,10 +103,13 @@ def settings_screen(hub: Hub) -> Screen:
         )
         if limit.amount == 0:
             lines.append(v.t("autopay.settings.zero_limit"))
-    kb.row(button(v.t("autopay.settings.button.days", days=days), SetCb(key="ap", value="days")))
+    buttons = [
+        button(v.t("autopay.settings.button.days", days=days), SetCb(key="ap", value="days"))
+    ]
     for data in accounts:
         label = v.t("autopay.settings.button.limit", title=data.title)
-        kb.row(button(label, SetCb(key="ap", value=f"lim{data.account.id}")))
+        buttons.append(button(label, SetCb(key="ap", value=f"lim{data.account.id}")))
+    pairs(kb, buttons)
     kb.row(*nav(v, Nav(to="settings")))
     return Screen("\n".join(lines), kb.as_markup())
 
@@ -149,7 +153,7 @@ def _note(text: str, data: CallbackData) -> InlineKeyboardButton:
     return InlineKeyboardButton(text=text, callback_data=note(data))
 
 
-def report_markup(v: View, event: Event) -> InlineKeyboardMarkup | None:
+def report_markup(v: View, event: Event) -> InlineKeyboardMarkup:
     acc = event.account_id
     verdict = event.decision.verdict
     kb = InlineKeyboardBuilder()
@@ -167,7 +171,13 @@ def report_markup(v: View, event: Event) -> InlineKeyboardMarkup | None:
     if event.outcome is not Outcome.PAID:
         kb.row(_note(v.t("autopay.button.invoices"), InvoicesCb(acc=acc)))
         return kb.as_markup()
-    return None
+    server = event.decision.server
+    if server is not None:
+        target = ServerCb(acc=acc, sid=server.external_id)
+        with contextlib.suppress(ValueError):
+            kb.row(_note(v.t("problem.button.server", server=server.name), target))
+            return kb.as_markup()
+    return home_note(v)
 
 
 class Reporter:

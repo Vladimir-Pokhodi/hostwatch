@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import re
 import sqlite3
 from collections.abc import AsyncGenerator, AsyncIterator, Callable
 from datetime import UTC, date, datetime, timedelta
@@ -43,7 +44,7 @@ from hostwatch.bot.hub import AccountData, Hub
 from hostwatch.bot.menu import Menu
 from hostwatch.bot.order import OrderCb
 from hostwatch.bot.prefs import Prefs
-from hostwatch.bot.views import View, monthly_cost, server_actions, summary_text
+from hostwatch.bot.views import View, monthly_cost, server_actions, server_page, summary_text
 from hostwatch.core.accounts import AccountRunner
 from hostwatch.core.models import (
     Account,
@@ -270,7 +271,7 @@ async def test_owner_gets_an_answer(harness: Harness) -> None:
 
     # The «☰ Menu» keyboard comes with a message that goes at once; then the menu.
     assert harness.session.texts() == ["☰ Меню", harness.session.last_text()]
-    assert "hostwatch" in harness.session.last_text()
+    assert "Хостеры не подключены" in harness.session.last_text()
 
 
 # First run
@@ -344,10 +345,10 @@ def _server(**changes: Any) -> Server:
 def test_fake_running_server_buttons() -> None:
     server = _server()
     assert server_actions(_data(FakePlugin, [server]), server) == [
-        "stop",
         "restart",
-        "autorenew_off",
+        "stop",
         "renew",
+        "autorenew_off",
         "order_same",
     ]
 
@@ -356,8 +357,8 @@ def test_fake_stopped_server_buttons() -> None:
     server = _server(status=ServerStatus.STOPPED, autorenew=Autorenew.OFF)
     assert server_actions(_data(FakePlugin, [server]), server) == [
         "start",
-        "autorenew_on",
         "renew",
+        "autorenew_on",
         "order_same",
     ]
 
@@ -386,8 +387,8 @@ def test_plugin_without_capabilities_shows_no_action_buttons() -> None:
     assert server_actions(_data(ReadOnly, [server]), server) == []
     # Timeweb bills by the hour: power and orders only.
     assert server_actions(_data(TimewebPlugin, [server]), server) == [
-        "stop",
         "restart",
+        "stop",
         "order_same",
     ]
 
@@ -400,14 +401,16 @@ async def test_server_card_of_fake_has_its_buttons(harness: Harness) -> None:
     await harness.press(Nav(to="servers"))
     assert HostCb(acc=account).pack() in harness.session.buttons()
     await harness.press(HostCb(acc=account))
-    assert "beaver" in harness.session.last_text()
-    assert "Выделенные серверы" in harness.session.last_text()
+    assert "VPS: 2 · выделенных: 1" in harness.session.last_text()
+    label = harness.session.keyboard()[ServerCb(acc=account, sid="1").pack()]
+    assert re.fullmatch(r"🟢 beaver · \d+ дн\.", label)
 
     await harness.press(ServerCb(acc=account, sid="1"))
     card = harness.session.last_text()
-    assert "<b>beaver</b>" in card
-    assert "Нагрузка: CPU 12%, RAM 40%, диск 55%" in card
-    assert "Цена: €4.50 в месяц" in card
+    assert card.startswith("<b>🟢 beaver · Fake hoster (main)</b>\n")
+    assert "\nCPU 12%  RAM 40%  Диск 55%\n" in card
+    assert "💳 €4.50/мес · списание " in card
+    assert "🔁 Автопродление: вкл" in card
     buttons = harness.session.buttons()
     for act in ("stop", "restart", "autorenew_off", "renew", "order_same"):
         assert ActionCb(acc=account, sid="1", act=act).pack() in buttons
@@ -424,11 +427,11 @@ async def test_order_shows_in_menu_only_when_a_plugin_can_order(harness: Harness
     harness.onboard()
     acc = harness.hub.accounts.add("fake", "main", {})
     harness.hub.accounts.set_status(acc, AccountStatus.DISABLED)
-    await harness.send("/menu")
+    await harness.press(Nav(to="servers"))
     assert Nav(to="order").pack() not in harness.session.buttons()
 
     harness.hub.accounts.set_status(acc, AccountStatus.OK)
-    await harness.send("/menu")
+    await harness.press(Nav(to="servers"))
     assert Nav(to="order").pack() in harness.session.buttons()
 
 
@@ -481,44 +484,71 @@ async def live_like(harness: Harness) -> Harness:
 
 
 async def test_summary_shows_aeza_and_timeweb(live_like: Harness) -> None:
+    """Home: the state first and bold alone, then the totals. The daily summary: a money
+    line per hoster."""
     live_like.onboard("ru")
     hub = live_like.hub
-    data = {d.account.plugin_id: d for d in hub.load_all()}
+    accounts = hub.load_all()
+    v = View("ru", hub.prefs.tz, NOW)
+    servers = sum(len(d.servers) for d in accounts)
 
-    await live_like.press(Nav(to="summary"))
+    await live_like.press(Nav(to="menu"))
 
     text = live_like.session.last_text()
-    for plugin_id in ("aeza", "timeweb"):
-        d = data[plugin_id]
+    first = text.split("\n")[0]
+    assert first.startswith("<b>") and first.endswith("</b>")
+    assert text.count("<b>") == 1
+    assert f"2 хостера · {v.count(servers, 'server')}" in first
+    assert (
+        "\n💰 На балансах: ≈ " in text
+        and text.split("💰 На балансах: ")[1].split("\n")[0][-1] == "₽"
+    )
+    assert "\n💳 В месяц: ≈ " in text
+    keyboard = live_like.session.keyboard()
+    assert keyboard[Nav(to="servers").pack()] == "🖥 Серверы"
+    assert keyboard[Nav(to="balance").pack()] == "💰 Деньги"
+    assert keyboard[Nav(to="integrations").pack()] == "🔌 Хостеры"
+    assert keyboard[Nav(to="settings").pack()] == "⚙️ Настройки"
+
+    summary = summary_text(v, accounts, RATES, "RUB", NOW)
+    assert summary.startswith("<b>📰 Сводка · 07.11 15:00</b>\n")
+    for d in accounts:
         assert d.balance is not None
-        assert f"<b>{d.plugin.meta.name}</b> · {d.balance.money}" in text
-        assert f"Серверы: {len(d.servers)}" in text
-    assert "Всего на балансах ≈" in text
-    assert "Всего в месяц ≈" in text
-    assert "по курсу ЦБ РФ на 07.11.2026" in text
-    assert RefreshCb(acc=0, view="summary").pack() in live_like.session.buttons()
+        assert f"{d.title} · {d.balance.money}" in summary
 
 
 async def test_summary_in_english(live_like: Harness) -> None:
     live_like.onboard("en")
 
+    # «Summary» buttons of the messages sent before 1.1 lead to the home screen.
     await live_like.press(Nav(to="summary"))
 
     text = live_like.session.last_text()
-    assert "<b>Summary</b>" in text
-    assert "Total on balances ≈" in text
-    assert "Сводка" not in text
+    assert "· 2 hosters ·" in text.split("\n")[0]
+    assert "💰 On balances: ≈" in text
+    assert "хостер" not in text and "Сводка" not in text
 
 
 async def test_balance_explains_the_forecast_method(live_like: Harness) -> None:
+    """Money: a line per hoster; the forecast in full is behind «ℹ️»."""
     live_like.onboard("ru")
+    hub = live_like.hub
 
     await live_like.press(Nav(to="balance"))
 
     text = live_like.session.last_text()
-    assert "<b>Aeza</b>:" in text
-    assert "<b>Timeweb Cloud</b>:" in text
-    assert text.count("Метод:") == 2
+    assert text.startswith("<b>💰 Деньги · ")
+    for d in hub.load_all():
+        assert d.balance is not None
+        assert f"{d.title} · {d.balance.money} · " in text
+    assert "Метод:" not in text
+    assert "≈ по курсу ЦБ РФ на 07.11" in text
+    keyboard = live_like.session.keyboard()
+    assert keyboard[Nav(to="money_info").pack()] == "ℹ️ Как считаю"
+
+    await live_like.press(Nav(to="money_info"))
+    assert live_like.session.last_text().count("Метод:") == 2
+    _assert_nav(live_like, Nav(to="balance"))
 
 
 async def test_servers_and_cards_of_aeza_and_timeweb(live_like: Harness) -> None:
@@ -526,18 +556,22 @@ async def test_servers_and_cards_of_aeza_and_timeweb(live_like: Harness) -> None
     hub = live_like.hub
 
     await live_like.press(Nav(to="servers"))
-    hosters = live_like.session.last_text()
+    hosters = live_like.session.keyboard()
 
     for d in hub.load_all():
-        assert f"<b>{d.plugin.meta.name}</b>: {len(d.servers)} servers" in hosters
+        assert hosters[HostCb(acc=d.account.id).pack()].endswith(f" {d.title} · {len(d.servers)}")
         await live_like.press(HostCb(acc=d.account.id))
         listing = live_like.session.last_text()
+        assert f"{d.title} · " in listing.split("\n")[0]
+        labels = live_like.session.keyboard()
         for server in d.servers:
-            assert server.name in listing
+            if server_page(d, server) == 0:
+                label = labels[ServerCb(acc=d.account.id, sid=server.external_id).pack()]
+                assert server.name in label
             await live_like.press(ServerCb(acc=d.account.id, sid=server.external_id))
             card = live_like.session.last_text()
-            assert f"<b>{server.name}</b> · {d.plugin.meta.name}" in card
-            assert "Data from" in card
+            assert f" {server.name} · {d.plugin.meta.name}" in card.split("\n")[0]
+            assert "🕓 Data from" in card
             shown = [
                 b
                 for b in live_like.session.buttons()
@@ -551,12 +585,18 @@ async def test_failed_account_shows_reason_and_data_age(live_like: Harness) -> N
     aeza = live_like.hub.accounts.find("Aeza")[0].id
     live_like.hub.accounts.set_status(aeza, AccountStatus.ERROR, "hoster_error: maintenance")
 
-    await live_like.press(Nav(to="summary"))
-
+    await live_like.press(Nav(to="problems"))
     text = live_like.session.last_text()
+    assert "\n🔴 Aeza — нет данных: хостер отказал: maintenance" in text
+    assert live_like.session.keyboard()[AccountCb(acc=aeza, op="card").pack()] == "🔌 Aeza"
+
+    await live_like.press(Nav(to="balance"))
+    assert "данные от 07.11 15:00" in live_like.session.last_text()
+
+    await live_like.press(Nav(to="servers"))
     assert (
-        "<b>Aeza</b>: не удалось получить данные (хостер отказал: maintenance),"
-        " данные от 07.11 15:00" in text
+        "🔴 Aeza — нет связи (хостер отказал: maintenance), данные от 07.11 15:00"
+        in live_like.session.last_text()
     )
 
 
@@ -576,8 +616,8 @@ async def test_add_account_deletes_the_key_message(harness: Harness) -> None:
     assert harness.hub.accounts.load_secrets(added[0].id) == {"token": "secret-token-value"}
     assert "secret-token-value" not in "".join(harness.session.texts())
     card = harness.session.last_text()
-    assert "Статус: подключено" in card
-    assert "Серверов: 3" in card
+    assert card.startswith("<b>🟢 Fake hoster · подключён</b>")
+    assert "🖥 3 сервера" in card
 
 
 async def test_typed_label_and_taken_label(harness: Harness) -> None:
@@ -597,7 +637,7 @@ async def test_change_key_disable_enable_delete(harness: Harness) -> None:
     harness.hub.accounts.set_status(account, AccountStatus.RELOGIN, "auth_expired")
 
     await harness.press(AccountCb(acc=account, op="card"))
-    assert "Error: the key or login no longer works" in harness.session.last_text()
+    assert "⚠️ the key or login no longer works" in harness.session.last_text()
 
     await harness.press(AccountCb(acc=account, op="key"))
     await harness.send("new-token-123")
@@ -625,8 +665,8 @@ async def test_refresh_once_a_minute_per_account(harness: Harness) -> None:
     await asyncio.wait_for(first, 5)
 
     await harness.press(RefreshCb(acc=account, view="account"))
-    assert harness.alerts()[-1] == "Refreshing…"
-    assert "Last successful poll" in harness.session.last_text()
+    assert harness.alerts()[-1] == "🔃 Refreshing…"
+    assert "🕓 Last poll" in harness.session.last_text()
 
     await harness.press(RefreshCb(acc=account, view="account"))
     assert "once a minute" in harness.alerts()[-1]
@@ -639,7 +679,7 @@ async def test_settings_save_language_and_thresholds(harness: Harness) -> None:
     harness.onboard("ru")
 
     await harness.press(SetCb(key="lang", value="en"))
-    assert "<b>Settings</b>" in harness.session.last_text()
+    assert "<b>⚙️ Settings</b>" in harness.session.last_text()
 
     await harness.press(SetCb(key="th", value="quiet_hours"))
     await harness.send("25:00-08:00")
@@ -649,7 +689,7 @@ async def test_settings_save_language_and_thresholds(harness: Harness) -> None:
 
     await harness.press(SetCb(key="cur", value="USD"))
     assert harness.hub.prefs.currency == "USD"
-    assert "Currency of totals: USD" in harness.session.last_text()
+    assert "🌐 English · Europe/Moscow · USD" in harness.session.last_text()
 
 
 async def test_journal_is_empty(harness: Harness) -> None:
@@ -685,8 +725,10 @@ def test_summary_without_rates_says_so() -> None:
         None,
         None,
     )
-    text = summary_text(View("en", UTC), [d], None, "RUB", NOW)
-    assert "No totals in RUB" in text
+    # Without rates nothing is converted: a sum per currency.
+    text = summary_text(View("en", UTC, NOW), [d], None, "RUB", NOW)
+    assert "💳 A month: ≈ €5" in text
+    assert "₽" not in text
 
 
 async def test_send_backup_button_sends_the_database(harness: Harness, tmp_path: Path) -> None:
@@ -714,7 +756,8 @@ async def test_own_server_is_marked(harness: Harness) -> None:
     harness.hub.own_ip = server.ip
 
     await harness.press(HostCb(acc=account))
-    assert "· hostwatch" in harness.session.last_text()
+    label = harness.session.keyboard()[ServerCb(acc=account, sid=server.external_id).pack()]
+    assert label.endswith("· hostwatch")
     await harness.press(ServerCb(acc=account, sid=server.external_id))
     assert "Это сервер hostwatch" in harness.session.last_text()
 
@@ -735,7 +778,7 @@ async def test_alert_views_carry_usage_and_settings(harness: Harness) -> None:
 
 # Navigation: «Back» one level up and «Menu» on every screen, by editing the same message
 
-BACK, HOME = "⬅️ Назад", "🏠 Меню"
+BACK, HOME = "‹ Назад", "🏠 Главная"
 MENU = Nav(to="menu").pack()
 
 
@@ -748,7 +791,7 @@ def _assert_nav(harness: Harness, back: Any = None) -> None:
         assert keyboard.get(back.pack()) == BACK
 
 
-@pytest.mark.parametrize("to", ["summary", "servers", "balance", "integrations", "journal"])
+@pytest.mark.parametrize("to", ["problems", "servers", "balance", "integrations", "settings"])
 async def test_sections_of_the_menu_lead_back_to_it(harness: Harness, to: str) -> None:
     harness.onboard("ru")
     harness.hub.accounts.add("fake", "main", {})
@@ -758,7 +801,7 @@ async def test_sections_of_the_menu_lead_back_to_it(harness: Harness, to: str) -
 
     await harness.press(Nav(to="menu"))
     assert isinstance(harness.session.calls[-1], EditMessageText)
-    assert "Выберите раздел" in harness.session.last_text()
+    assert "<b>🟢 Всё в порядке · 1 хостер · 0 серверов</b>" in harness.session.last_text()
 
 
 async def test_back_and_menu_on_every_screen(harness: Harness) -> None:
@@ -785,7 +828,9 @@ async def test_back_and_menu_on_every_screen(harness: Harness) -> None:
         (SetCb(key="tz", value="other"), SetCb(key="tz")),
         (SetCb(key="cur"), Nav(to="settings")),
         (SetCb(key="th", value="balance_days"), Nav(to="settings")),
-        (JournalCb(page=0), None),
+        (Nav(to="journal"), Nav(to="settings")),
+        (JournalCb(page=0), Nav(to="settings")),
+        (Nav(to="money_info"), Nav(to="balance")),
     ]
     for pressed, back in screens:
         await harness.press(pressed)
@@ -798,8 +843,9 @@ async def test_order_in_the_menu_lists_the_accounts_that_can_order(harness: Harn
 
     await harness.press(Nav(to="order"))
 
-    assert "У какого хостера заказать?" in harness.session.last_text()
+    assert "Выберите хостера." in harness.session.last_text()
     assert OrderCb(acc=acc).pack() in harness.session.buttons()
+    _assert_nav(harness, Nav(to="servers"))
 
 
 async def test_menu_command_works_in_the_middle_of_a_question(harness: Harness) -> None:
@@ -808,7 +854,7 @@ async def test_menu_command_works_in_the_middle_of_a_question(harness: Harness) 
 
     await harness.send("/menu")
 
-    assert "Pick a section" in harness.session.last_text()
+    assert "No hosters connected" in harness.session.last_text()
     await harness.send("22:00-07:00")  # no longer an answer to the question
     assert harness.hub.prefs.threshold("quiet_hours") != "22:00-07:00"
 
@@ -820,16 +866,20 @@ async def test_integrations_show_connected_accounts_only(harness: Harness) -> No
     harness.onboard("ru")
 
     await harness.press(Nav(to="integrations"))
-    assert "Пока ничего не подключено" in harness.session.last_text()
-    assert harness.session.keyboard()[Nav(to="connect").pack()] == "+ Подключить"
+    text = harness.session.last_text()
+    assert text.startswith("<b>🔌 Хостеры не подключены</b>")
+    assert "＋ Можно подключить: Aeza, Fake hoster, Timeweb Cloud" in text
+    assert harness.session.keyboard()[Nav(to="connect").pack()] == "＋ Подключить"
     assert not any(b.startswith("add:") for b in harness.session.buttons())
 
     account = harness.hub.accounts.add("fake", "main", {})
     await harness.press(Nav(to="integrations"))
     text = harness.session.last_text()
-    assert "Fake hoster (main): подключено" in text
-    assert "Aeza" not in text and "Timeweb" not in text
-    assert AccountCb(acc=account, op="card").pack() in harness.session.buttons()
+    assert text.startswith("<b>🔌 1 хостер · 🟢 все на связи</b>")
+    assert "\n🟢 Fake hoster (main) · 0 серверов" in text
+    assert "＋ Можно подключить: Aeza, Timeweb Cloud" in text
+    keyboard = harness.session.keyboard()
+    assert keyboard[AccountCb(acc=account, op="card").pack()] == "🟢 Fake hoster (main)"
     assert not any(b.startswith("add:") for b in harness.session.buttons())
 
 
@@ -842,10 +892,8 @@ async def test_connect_screen_has_a_button_per_hoster(harness: Harness) -> None:
     keyboard = harness.session.keyboard()
     assert keyboard[AddCb(plugin="aeza").pack()] == "Aeza"
     assert keyboard[AddCb(plugin="timeweb").pack()] == "Timeweb Cloud"
-    assert keyboard[AddCb(plugin="fake").pack()] == "+ ещё аккаунт Fake hoster"
-    text = harness.session.last_text()
-    assert "• Aeza — " in text
-    assert "• Fake hoster" not in text
+    assert keyboard[AddCb(plugin="fake").pack()] == "＋ ещё Fake hoster"
+    assert harness.session.last_text().startswith("<b>＋ Подключить хостера</b>\nВыберите хостера.")
 
     await harness.press(AddCb(plugin="aeza"))
     assert "Aeza" in harness.session.last_text()
@@ -876,12 +924,17 @@ async def test_servers_list_hosters_with_counts_and_problems(harness: Harness) -
     await harness.press(Nav(to="servers"))
 
     text = harness.session.last_text()
-    assert "<b>Fake hoster (calm)</b>: серверов 2" in text
-    assert "<b>Fake hoster (busy)</b>: серверов 3 · ⚠ есть проблемы" in text
+    assert text.startswith("<b>🖥 5 серверов · 🔴 1 проблема</b>\nВыберите хостера.")
     assert "srv-01" not in text  # servers are one level down
     keyboard = harness.session.keyboard()
-    assert keyboard[HostCb(acc=calm).pack()] == "Fake hoster (calm) · 2"
-    assert keyboard[HostCb(acc=troubled).pack()] == "Fake hoster (busy) · 3 ⚠"
+    assert keyboard[HostCb(acc=calm).pack()] == "🟢 Fake hoster (calm) · 2"
+    assert keyboard[HostCb(acc=troubled).pack()] == "🔴 Fake hoster (busy) · 3"
+
+    await harness.press(HostCb(acc=troubled))
+    listing = harness.session.last_text()
+    assert listing.startswith("<b>🔴 Fake hoster (busy) · 3 сервера</b>")
+    assert "\n🔴 down — остановлен" in listing
+    assert harness.session.keyboard()[ServerCb(acc=troubled, sid="9").pack()] == "🔴 down · 8 дн."
 
 
 async def test_servers_of_a_hoster_split_by_kind_and_turn_pages(harness: Harness) -> None:
@@ -893,16 +946,17 @@ async def test_servers_of_a_hoster_split_by_kind_and_turn_pages(harness: Harness
     first = harness.session.last_text()
     servers = [b for b in harness.session.buttons() if b.startswith("s:")]
     assert len(servers) == 8
-    assert "Страница 1 из 2" in first
-    assert "Выделенные серверы" not in first  # eight VPS fill the first page
+    assert "Стр. 1 из 2" in first
+    assert "VPS: 9 · выделенных: 2" in first
     assert HostCb(acc=account, page=1).pack() in harness.session.buttons()
     assert HostCb(acc=account, page=-1).pack() not in harness.session.buttons()
 
     await harness.press(HostCb(acc=account, page=1))
     second = harness.session.last_text()
-    assert len([b for b in harness.session.buttons() if b.startswith("s:")]) == 3
-    assert "Страница 2 из 2" in second
-    assert second.index("<b>VPS</b>") < second.index("<b>Выделенные серверы</b>")
+    servers = [b for b in harness.session.buttons() if b.startswith("s:")]
+    # VPS first, dedicated servers after them.
+    assert servers == [ServerCb(acc=account, sid=sid).pack() for sid in ("11", "4", "8")]
+    assert "Стр. 2 из 2" in second
     assert HostCb(acc=account, page=0).pack() in harness.session.buttons()
     _assert_nav(harness, Nav(to="servers"))
 

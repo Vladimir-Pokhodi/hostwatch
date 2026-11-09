@@ -357,7 +357,7 @@ async def test_finish_merges_cookies_into_the_account(login_harness: tuple[Harne
         "device_token": "device-1",
     }
     assert h.hub.accounts.get(account).status is AccountStatus.OK
-    assert sent.texts[-1] == "✅ Timeweb Cloud (main) подключён."
+    assert sent.texts[-1] == "🟢 Timeweb Cloud (main) подключён."
     assert h.hub.journal.recent()[0].action == "login"
 
 
@@ -428,7 +428,7 @@ async def _issue(h: Harness, target: LoginTarget) -> str:
     return url.rsplit("/", 1)[1]
 
 
-CONNECTED = "✅ Timeweb Cloud (main) подключён."
+CONNECTED = "🟢 Timeweb Cloud (main) подключён."
 COOKIES = [
     {"name": "refresh_token", "value": "new-refresh-1", "domain": "timeweb.cloud"},
     {"name": "device_token", "value": "device-1", "domain": ".timeweb.cloud"},
@@ -512,7 +512,7 @@ async def test_unopened_link_expires_in_the_menu(login_harness: tuple[Harness, S
 
     await asyncio.sleep(0.2)
 
-    assert "Ссылка для входа в Regxa истекла" in h.session.last_text()
+    assert "Ссылка входа в Regxa истекла" in h.session.last_text()
     assert _urls(h) == []
     assert sent.visible() == []
 

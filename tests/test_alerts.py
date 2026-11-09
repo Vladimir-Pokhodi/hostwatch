@@ -157,7 +157,7 @@ def test_less_than_a_day_is_critical_and_reminded_daily() -> None:
     next_day = NOON + timedelta(days=1)
     messages = book.tick(next_day, view(days_left=0.9, now=next_day))
     assert reasons(messages) == [Reason.REMINDER]
-    assert messages[0][1].startswith("Напоминание.")
+    assert messages[0][1].startswith("⏰ Напоминание\n")
 
 
 def test_resolved_comes_when_the_event_is_gone() -> None:
@@ -245,7 +245,7 @@ def test_ends_soon_only_without_renewal() -> None:
     book = Book()
     messages = book.tick(NOON, AccountView(account(), "Fake", [lapsing], None))
     assert reasons(messages) == [Reason.NEW]
-    assert "не продлевается" in messages[0][1]
+    assert "Автопродление выключено" in messages[0][1]
 
 
 def test_load_needs_three_readings_in_a_row_and_disk_one() -> None:
@@ -333,8 +333,8 @@ async def test_service_batches_critical_and_ordinary(store: AlertRepository) -> 
     service = AlertService(lambda: accounts, settings, store, send, lambda: NOON)
     await service.tick()
     assert len(delivered) == 2
-    assert delivered[0].count("‼") == 2
-    assert "на балансе" in delivered[1]
+    assert delivered[0].count("🔴") == 2
+    assert "На балансе" in delivered[1]
 
 
 async def test_summary_once_a_day_at_the_owner_time(conn: sqlite3.Connection) -> None:

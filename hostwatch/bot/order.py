@@ -110,20 +110,20 @@ class OrderSettings(StatesGroup):
 
 def accounts_screen(v: View, accounts: list[AccountData]) -> Screen:
     kb = InlineKeyboardBuilder()
-    lines = [v.t("order.title_any"), ""]
+    lines = [v.t("order.title_any")]
     if not accounts:
         lines.append(v.t("order.no_accounts"))
     else:
         lines.append(v.t("order.choose_account"))
     for data in accounts:
         kb.row(button(data.title, OrderCb(acc=data.account.id)))
-    kb.row(*nav(v))
+    kb.row(*nav(v, Nav(to="servers")))
     return Screen("\n".join(lines), kb.as_markup())
 
 
 def locations_screen(v: View, data: AccountData, catalog: Catalog, single: bool) -> Screen:
     acc = data.account.id
-    lines = [_title(v, data), "", v.t("order.choose_location")]
+    lines = [_title(v, data), v.t("order.choose_location")]
     kb = InlineKeyboardBuilder()
     for location in catalog.used_locations():
         cheapest = catalog.plans_in(location.id)[0].cheapest_month
@@ -132,7 +132,7 @@ def locations_screen(v: View, data: AccountData, catalog: Catalog, single: bool)
     kb.adjust(2)
     if not catalog.plans:
         lines.append(v.t("order.empty"))
-    kb.row(*nav(v, None if single else Nav(to="order")))
+    kb.row(*nav(v, Nav(to="servers") if single else Nav(to="order")))
     return Screen("\n".join(lines), kb.as_markup())
 
 
@@ -140,7 +140,7 @@ def plans_screen(v: View, data: AccountData, catalog: Catalog, loc: str) -> Scre
     acc = data.account.id
     location = catalog.location(loc)
     name = location.name if location else loc
-    lines = [_title(v, data), v.t("order.location", name=escape(name)), ""]
+    lines = [_title(v, data), v.t("order.location", name=escape(name))]
     lines.append(v.t("order.choose_plan"))
     kb = InlineKeyboardBuilder()
     plans = catalog.plans_in(loc)
@@ -164,7 +164,7 @@ def plans_screen(v: View, data: AccountData, catalog: Catalog, loc: str) -> Scre
 
 def systems_screen(v: View, data: AccountData, catalog: Catalog, plan: Plan) -> Screen:
     acc, loc = data.account.id, plan.location_id
-    lines = [*_head(v, data, catalog, plan), "", v.t("order.choose_os")]
+    lines = [*_head(v, data, catalog, plan), v.t("order.choose_os")]
     kb = InlineKeyboardBuilder()
     buttons = 0
     for system in catalog.systems_for(plan):
@@ -181,7 +181,7 @@ def systems_screen(v: View, data: AccountData, catalog: Catalog, plan: Plan) -> 
 
 def periods_screen(v: View, data: AccountData, catalog: Catalog, plan: Plan, os_id: str) -> Screen:
     acc, loc = data.account.id, plan.location_id
-    lines = [*_head(v, data, catalog, plan, os_id), "", v.t("order.choose_period")]
+    lines = [*_head(v, data, catalog, plan, os_id), v.t("order.choose_period")]
     kb = InlineKeyboardBuilder()
     for price in sorted(plan.prices, key=lambda p: p.period_months or 10**6):
         months = price.period_months
@@ -218,7 +218,7 @@ def summary_screen(
     lines.append(_limit_line(v, check))
     if not catalog.tested:
         lines.append(v.t("order.untested"))
-    lines += ["", v.t("order.ask", price=_price(v, request.price, request.period_months))]
+    lines += [v.t("order.ask", price=_price(v, request.price, request.period_months))]
     kb = InlineKeyboardBuilder()
     kb.row(
         button(v.t("control.yes"), OrderConfirmCb(n=nonce, yes=True)),
@@ -234,7 +234,6 @@ def second_screen(v: View, draft: Draft, check: LimitCheck, nonce: str) -> Scree
         v.t("order.what", what=escape(draft.what)),
         v.t("order.price", price=_price(v, request.price, request.period_months)),
         _limit_line(v, check),
-        "",
         v.t("order.second_ask"),
     ]
     kb = InlineKeyboardBuilder()
@@ -257,7 +256,6 @@ def shortfall_screen(
     acc = data.account.id
     lines = [
         _title(v, data),
-        "",
         v.t("order.shortfall", need=need, balance=balance, missing=missing),
     ]
     kb = InlineKeyboardBuilder()
@@ -279,10 +277,8 @@ def shortfall_screen(
 def settings_screen(v: View, limit: Money, key: str | None) -> Screen:
     lines = [
         v.t("order.settings.title"),
-        "",
         v.t("order.settings.limit", amount=limit),
         v.t("order.settings.limit_note"),
-        "",
         v.t(
             "order.settings.key",
             name=escape(key_label(key)) if key else v.t("order.settings.no_key"),

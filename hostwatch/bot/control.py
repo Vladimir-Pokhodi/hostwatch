@@ -35,13 +35,15 @@ log = logging.getLogger(__name__)
 LATER: dict[str, int] = {}
 # How long the bot waits for the hoster before it says the result is unknown.
 ACTION_TIMEOUT = 90.0
+# Invoices on one screen; the rest are counted.
+INVOICES_SHOWN = 8
 
 
 # Screens
 
 
 def confirm_screen(v: View, data: AccountData, request: Request, nonce: str, what: str) -> Screen:
-    lines = [v.t("control.confirm_title"), v.t("control.what", what=what)]
+    lines = [v.t("control.confirm_title", what=what[:1].upper() + what[1:])]
     lines.append(v.t("control.where", where=escape(_where(data, request))))
     lines.append(v.t("control.how_much", amount=_how_much(v, data, request)))
     kb = InlineKeyboardBuilder()
@@ -75,26 +77,32 @@ def failed_screen(
 def invoices_screen(v: View, data: AccountData, invoices: list[Invoice]) -> Screen:
     acc = data.account.id
     unpaid = [i for i in invoices if i.status is InvoiceStatus.UNPAID]
-    lines = [v.t("invoices.title", title=escape(data.title))]
+    lines = [v.t("invoices.title", title=escape(data.title), count=len(unpaid))]
     if data.balance is not None:
         lines.append(v.t("topup.balance", amount=data.balance.money))
     kb = InlineKeyboardBuilder()
     if not unpaid:
-        lines += ["", v.t("invoices.none")]
+        lines.append(v.t("invoices.none"))
     names = {s.external_id: s.name for s in data.servers}
-    for invoice in unpaid:
+    other = 0
+    for invoice in unpaid[:INVOICES_SHOWN]:
         server = names.get(invoice.server_id or "")
-        due = v.day(invoice.due_at) if invoice.due_at is not None else "—"
-        lines.append("")
-        lines.append(v.t("invoices.line", id=escape(invoice.id), amount=invoice.amount, due=due))
-        if server is not None:
-            lines.append(v.t("invoices.for_server", server=escape(server)))
-            label = v.t("invoices.pay", id=invoice.id, amount=invoice.amount)
-            kb.row(button(label, PayCb(acc=acc, inv=invoice.id)))
-        else:
+        line = v.t("invoices.line", id=escape(invoice.id), amount=invoice.amount)
+        if invoice.due_at is not None:
+            line += " · " + v.t("invoices.due", due=v.day(invoice.due_at))
+        if server is None:
             # Top-up invoices and upgrades: the balance cannot pay a top-up, and the rest
             # is better looked at in the cabinet.
-            lines.append(v.t("invoices.not_service"))
+            other += 1
+            lines.append(f"{line} · {v.t('invoices.other')}")
+            continue
+        lines.append(f"{line} · 🖥 {escape(server)}")
+        label = v.t("invoices.pay", id=invoice.id, amount=invoice.amount)
+        kb.row(button(label, PayCb(acc=acc, inv=invoice.id)))
+    if len(unpaid) > INVOICES_SHOWN:
+        lines.append(v.t("home.more", count=len(unpaid) - INVOICES_SHOWN))
+    if other:
+        lines.append(v.t("invoices.not_service"))
     kb.row(*nav(v, Nav(to="balance")))
     return Screen("\n".join(lines), kb.as_markup())
 
@@ -103,7 +111,7 @@ def _where(data: AccountData, request: Request) -> str:
     server = _server(data, request.server_id)
     if server is None:
         return data.title
-    ip = f", {server.ip}" if server.ip else ""
+    ip = f" · {server.ip}" if server.ip else ""
     return f"{server.name} · {data.title}{ip}"
 
 

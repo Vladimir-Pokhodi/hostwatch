@@ -579,14 +579,14 @@ def test_autopay_button_only_without_native_autorenewal() -> None:
 async def test_card_marks_and_unmarks_a_server(harness: Harness) -> None:
     acc = await _pay_account(harness)
     await harness.press(ServerCb(acc=acc, sid="10"))
-    assert "Автооплата бота: выкл." in harness.session.last_text()
-    assert "Включить автооплату" in harness.session.keyboard().values()
+    assert "Автооплата бота: выкл" in harness.session.last_text()
+    assert "💳 Вкл. автооплату" in harness.session.keyboard().values()
 
     await harness.press(ActionCb(acc=acc, sid="10", act="autopay"))
     store = harness.hub.autopay
     assert store is not None and store.marked(acc) == {"10"}
     assert "лимит 0" in harness.alerts()[-1]
-    assert "Автооплата бота: вкл." in harness.session.last_text()
+    assert "Автооплата бота: вкл" in harness.session.last_text()
     # The forecast now counts the server as renewing.
     data = harness.hub.load(acc)
     assert data.autopay == {"10"} and data.forecast is not None
@@ -601,7 +601,7 @@ async def test_settings_set_days_and_limit(harness: Harness) -> None:
     acc = await _pay_account(harness)
     await harness.press(SetCb(key="ap"))
     text = harness.session.last_text()
-    assert "Срок: за 3 дн." in text and "Лимит 0" in text
+    assert "Платить за 3 дн. до срока" in text and "Лимит 0" in text
 
     await harness.press(SetCb(key="ap", value=f"lim{acc}"))
     await harness.send("abc")
@@ -613,7 +613,7 @@ async def test_settings_set_days_and_limit(harness: Harness) -> None:
     store = harness.hub.autopay
     assert store is not None
     assert store.rule(acc, "USD") == Rule(days=5, limit=usd("12.50"))
-    assert "лимит $12.50 в месяц" in harness.session.last_text()
+    assert "лимит $12.50/мес" in harness.session.last_text()
 
 
 def test_parse_limit() -> None:
@@ -691,9 +691,9 @@ async def test_reports_reach_the_owner_with_buttons(harness: Harness) -> None:
     await job.tick()
 
     paid, grown = sent
-    assert "Действие с деньгами" in paid[0] and "оплачен счёт #500" in paid[0]
-    assert "потрачено $5.00 из $20.00" in paid[0]
-    assert "вырос: $9.00 вместо $5.00" in grown[0]
+    assert "Действие с деньгами" in paid[0] and "Автооплата: счёт #500" in paid[0]
+    assert "Лимит месяца: $5.00 из $20.00" in paid[0]
+    assert "$9.00 вместо $5.00" in grown[0]
     assert grown[1] is not None
     buttons = [b.callback_data for row in grown[1].inline_keyboard for b in row]
     # A notification's buttons work outside the menu: they carry the note mark.
@@ -722,4 +722,4 @@ def test_an_autopay_server_is_not_reported_as_lapsing() -> None:
     )
     assert Book().tick(NOON, with_rule) == []
     without = AccountView(account(), "Fake", [lapsing], forecast(rich, [lapsing], NOON))
-    assert any("не продлевается" in text for _, text in Book().tick(NOON, without))
+    assert any("Автопродление выключено" in text for _, text in Book().tick(NOON, without))

@@ -21,39 +21,33 @@ MESSAGES: dict[str, str] = {
         " The forecast may be off."
     ),
     # Bot
-    "button.cancel": "Cancel",
-    "button.refresh": "Refresh",
-    "button.yes_delete": "Yes, delete",
-    "bot.button.back": "⬅️ Back",
-    "bot.button.home": "🏠 Menu",
-    "bot.servers.hoster": "<b>{title}</b>: {count} servers",
-    "bot.servers.problems": "needs attention",
+    "button.cancel": "✖️ Cancel",
+    "button.refresh": "🔃 Refresh",
+    "button.yes_delete": "🗑 Yes, delete",
+    "bot.button.back": "‹ Back",
+    "bot.button.home": "🏠 Home",
     "bot.servers.page": "Page {page} of {pages}",
-    "bot.servers.line": "{name} — {status}, {ip}",
-    "bot.integrations.empty": "Nothing is connected yet. Press «+ Connect».",
-    "bot.integrations.connect": "+ Connect",
-    "bot.connect.title": "<b>Connect a hoster</b>",
-    "bot.connect.choose": "Pick one to connect:",
-    "bot.connect.line": "• {hoster} — {site}",
+    "bot.integrations.empty": "Press «＋ Connect» and pick a hoster.",
+    "bot.integrations.connect": "＋ Connect",
+    "bot.connect.title": "<b>＋ Connect a hoster</b>",
+    "bot.connect.choose": "Pick a hoster.",
     "bot.connect.all_connected": "Every hoster is connected already.",
-    "bot.connect.more": "You can add another account of a hoster that is already connected.",
-    "bot.connect.another": "+ another {hoster} account",
+    "bot.connect.more": "Another account of the same hoster: the «＋ another» buttons.",
+    "bot.connect.another": "＋ another {hoster}",
     "bot.login.link_gone": "This link no longer works.",
     "stub": "Coming at stage {stage}.",
-    "menu.title": "<b>hostwatch</b>\nPick a section.",
-    "menu.summary": "Summary",
-    "menu.servers": "Servers",
-    "menu.balance": "Balance",
-    "menu.integrations": "Integrations",
-    "menu.order": "Order",
-    "menu.journal": "Journal",
-    "menu.settings": "Settings",
+    "menu.servers": "🖥 Servers",
+    "menu.balance": "💰 Money",
+    "menu.integrations": "🔌 Hosters",
+    "menu.order": "🛒 Order",
+    "menu.journal": "📜 Journal",
+    "menu.settings": "⚙️ Settings",
     "onboarding.language": "Choose a language.",
     "onboarding.timezone": (
         "Time zone for dates and quiet hours. I suggest {suggested}; you can pick another."
     ),
     "onboarding.currency": "Which currency should totals across hosters use?",
-    "onboarding.done": "Done. Connect your first hoster.",
+    "onboarding.done": "✅ Done. Connect your first hoster.",
     "error.auth_expired": "the key or login no longer works",
     "error.rate_limited": "the hoster asks to slow down",
     "error.blocked": "the hoster blocked the request",
@@ -63,27 +57,22 @@ MESSAGES: dict[str, str] = {
     "error.plugin_error": "plugin error",
     "error.timeout": "the hoster did not answer in time",
     "error.unexpected": "unexpected error",
-    "account.failed": "<b>{title}</b>: could not get data ({reason}), data from {date}",
-    "account.failed_never": "<b>{title}</b>: could not get data ({reason})",
-    "account.no_data": "<b>{title}</b>: no data yet",
-    "account.disabled_line": "<b>{title}</b>: disabled",
+    "account.failed": "no connection ({reason}), data from {date}",
+    "account.failed_never": "no connection ({reason})",
     "account.status.ok": "connected",
-    "account.status.relogin": "log in again",
+    "account.status.relogin": "login needed",
     "account.status.error": "error",
     "account.status.disabled": "disabled",
-    "account.card.status": "Status: {status}",
-    "account.card.last_ok": "Last successful poll: {date}",
-    "account.card.error": "Error: {reason}",
-    "account.card.servers": "Servers: {count}",
-    "account.never": "not yet",
-    "account.relogin": "Log in again",
-    "account.change_key": "Change key",
-    "account.disable": "Disable",
-    "account.enable": "Enable",
-    "account.delete": "Delete",
+    "account.card.last_ok": "🕓 Last poll: {date}",
+    "account.never": "🕓 No polls yet",
+    "account.relogin": "🔑 Log in again",
+    "account.change_key": "🗝 Change key",
+    "account.disable": "⏸ Disable",
+    "account.enable": "▶️ Enable",
+    "account.delete": "🗑 Delete",
     "account.delete_confirm": (
-        "Remove the account <b>{title}</b> from the bot? Its saved servers and balance history"
-        " go too. Nothing changes at the hoster."
+        "<b>🗑 Delete {title}?</b>\nIts servers and history in the bot go too.\nNothing "
+        "changes at the hoster."
     ),
     "account.gone": "This account no longer exists.",
     "status.running": "running",
@@ -94,177 +83,137 @@ MESSAGES: dict[str, str] = {
     "autorenew.on": "on",
     "autorenew.off": "off",
     "autorenew.na": "the hoster has none",
-    "summary.title": "<b>Summary</b> as of {date}",
-    "summary.empty": "No hosters connected. Open «Integrations».",
-    "summary.lasts_until": "lasts until {date}",
-    "summary.no_spending": "not spending",
-    "summary.servers": "Servers: {count} ({statuses})",
-    "summary.problem_status": "{server}: {status}",
-    "summary.problem_not_renewing": "{server} does not renew",
-    "summary.problem_ends": "{server} does not renew and ends on {date}",
-    "summary.problem_relogin": "log in again",
-    "summary.total_balance": "Total on balances ≈ {amount}",
-    "summary.total_month": "Total per month ≈ {amount}",
-    "summary.rate_note": "≈ at the Bank of Russia rate of {date}",
-    "summary.no_rates": "No totals in {currency}: no Bank of Russia rate.",
-    "servers.title": "<b>Servers</b>",
-    "servers.empty": "No servers yet.",
+    "summary.title": "<b>📰 Summary · {date}</b>",
+    "servers.empty": "No hosters connected",
     "servers.gone": "The hoster no longer lists this server.",
     "servers.kind.vps": "VPS",
-    "servers.kind.dedicated": "Dedicated servers",
-    "price.hourly": "{amount} per hour",
-    "price.month": "{amount} per month",
-    "price.months": "{amount} per {months} months",
-    "card.kind": "Type: {kind}",
-    "card.ip": "IP: <code>{ip}</code>",
-    "card.plan": "Plan: {plan}",
-    "card.status": "Status: {status} ({raw})",
-    "card.price": "Price: {price}",
-    "card.next_charge": "Next charge: {date}",
-    "card.ends": "Paid until: {date}",
-    "card.autorenew": "Autorenewal: {value}",
-    "card.usage": "Load: {value}",
-    "card.usage_unsupported": "the hoster does not report load",
-    "card.usage_none": "no data",
-    "card.disk": "disk",
+    "servers.kind.dedicated": "dedicated",
+    "price.hourly": "{amount}/h · {month}/mo",
+    "price.month": "{amount}/mo",
+    "price.months": "{amount} per {months} mo",
+    "card.ip": "IP <code>{ip}</code>",
+    "card.price": "💳 {price}",
+    "card.next_charge": "charge {date} ({left})",
+    "card.ends": "paid until {date} ({left})",
+    "card.autorenew": "🔁 Autorenewal: {value}",
+    "card.usage_unsupported": "The hoster does not report load",
+    "card.usage_none": "No load data yet",
+    "card.disk": "Disk",
     "card.traffic": "traffic {gb} GB",
-    "card.data_at": "Data from {date}",
-    "action.start": "Start",
-    "action.stop": "Stop",
-    "action.restart": "Restart",
-    "action.autorenew_on": "Turn autorenewal on",
-    "action.autorenew_off": "Turn autorenewal off",
-    "action.renew": "Renew",
-    "action.autopay": "Autopay",
-    "action.order_same": "Order the same",
-    "refresh.started": "Refreshing…",
+    "card.data_at": "🕓 Data from {date}",
+    "action.start": "▶️ Start",
+    "action.stop": "⏻ Stop",
+    "action.restart": "🔄 Restart",
+    "action.autorenew_on": "🔁 Autorenewal on",
+    "action.autorenew_off": "🔁 Autorenewal off",
+    "action.renew": "📅 Renew",
+    "action.autopay": "💳 Autopay",
+    "action.order_same": "🛒 Order same",
+    "refresh.started": "🔃 Refreshing…",
     "refresh.too_often": "Refresh works once a minute per account. Try again a bit later.",
     "balance.title": "<b>Balance</b>",
     "balance.line": "<b>{title}</b>: {amount} (as of {date})",
     "balance.hours_left": "The hoster says it lasts {hours} h.",
-    "balance.topup": "Top up {title}",
-    "topup.title": "<b>Top up: {title}</b>",
+    "balance.topup": "💰 Top up {title}",
+    "topup.title": "<b>💰 Top-up · {title}</b>",
     "topup.balance": "Balance: {amount}",
-    "topup.choose_method": "How do you pay?",
     "topup.choose_coin": "Which coin?",
     "topup.choose_coin_network": "Which network for {coin}?",
-    "topup.invoice_amount": "Amount: {amount}",
-    "topup.choose_after": (
-        "Choose the coin and the network: I will get the address from the payment page."
-        " You can also choose on the page itself."
-    ),
-    "topup.getting_address": "Getting the address from the payment page, it takes up to a minute…",
+    "topup.choose_after": "Pick a coin: I will take the address from the payment page.",
+    "topup.getting_address": "⏳ Taking the address from the payment page, up to a minute…",
     "topup.address_failed": (
-        "No address: {reason}. Choose another coin or pay on the payment page."
+        "🔴 No address: {reason}.\nPick another coin or pay on the payment page."
     ),
     "topup.options_failed": (
-        "Could not read the coins of the payment page: {reason}. Choose on the page."
+        "🔴 Could not read the coins: {reason}.\nPick one on the payment page."
     ),
-    "topup.sbp": "SBP ({name})",
-    "topup.crypto": "Crypto",
-    "topup.crypto_one": "Crypto ({name})",
+    "topup.sbp": "⚡ SBP · {name}",
+    "topup.crypto": "🪙 Crypto",
+    "topup.crypto_one": "🪙 {name}",
     "topup.method": "Method: {name}",
-    "topup.minimum": "Minimum: {amount}",
+    "topup.minimum": "minimum {amount}",
     "topup.choose_amount": "How much?",
-    "topup.amount_minimum": "Minimum: {amount}",
-    "topup.amount_until": "To the end of next month: {amount}",
-    "topup.amount_custom": "Other amount",
-    "topup.ask_amount": "Type the amount in {currency}, e.g. 500 or 12.50.",
-    "topup.below_minimum": "That is below the minimum ({amount}). Type a larger amount.",
-    "topup.creating": "Creating the invoice at the hoster…",
-    "topup.invoice_title": "<b>Top-up invoice: {title}</b>",
-    "topup.invoice_line": "Amount: {amount}, method: {method}",
-    "topup.invoice_id": "Invoice number at the hoster: {id}",
+    "topup.amount_minimum": "{amount} · minimum",
+    "topup.amount_until": "{amount} · to end of next month",
+    "topup.amount_custom": "✏️ Other sum",
+    "topup.ask_amount": "✏️ Type the sum in {currency}, e.g. 500.",
+    "topup.below_minimum": "⚠️ That is below the minimum ({amount}).",
+    "topup.creating": "⏳ Creating the invoice at the hoster…",
+    "topup.invoice_title": "<b>💰 Invoice · {title}</b>",
+    "topup.invoice_line": "{amount} · {method} · #{id}",
     "topup.pay_sbp": (
-        '<a href="{url}">Pay by SBP</a>: on a phone it opens the choice of bank.'
-        " From another device, scan the QR. The link lives about 10 minutes."
+        "⏳ The link lives about 10 minutes. The QR is for paying from another device."
     ),
-    "topup.pay_page": '<a href="{url}">Payment page</a>. You can choose the method there.',
-    "topup.send_exactly": "Send exactly {amount} to this address:",
-    "topup.expires": "The address is valid until {date}.",
-    "topup.press_paid": "When you have paid, press «Paid»: I will check the balance.",
-    "topup.open": "Open the payment",
+    "topup.pay_page": "The method can be chosen on the payment page.",
+    "topup.send_exactly": "Send exactly {amount} to:",
+    "topup.expires": "⏳ The address is valid until {date}.",
+    "topup.press_paid": "Pay, then press «✅ Paid».",
+    "topup.open": "💳 Pay",
     "topup.paid": "✅ Paid",
-    "topup.page": "Hoster's top-up page",
+    "topup.page": "🌐 On the hoster's site",
     "topup.need_login": (
-        "To make an invoice at {title} the bot needs a cabinet login. Log in again"
-        " or top up on the hoster's page."
+        "🔴 An invoice at {title} needs a cabinet login.\nLog in again or top up on the "
+        "hoster's site."
     ),
-    "topup.failed": "The invoice was not created: {reason}. You can top up on the hoster's page.",
-    "topup.will_check": "I will check the balance in 2, 5 and 10 minutes.",
+    "topup.failed": "🔴 No invoice: {reason}.\nYou can top up on the hoster's site.",
+    "topup.will_check": "🔃 I will check the balance in 2, 5 and 10 minutes.",
     "topup.already_checking": "Already checking the balance for this invoice.",
-    "topup.arrived": "<b>The top-up arrived: {title}</b>\nBalance: {amount}",
+    "topup.arrived": "<b>🟢 Top-up arrived · {title}</b>\nBalance: {amount}",
     "topup.not_seen": (
-        "{title}: no top-up seen in {minutes} minutes. If the money left your account,"
-        " it will arrive later; the balance is still read on schedule."
+        "<b>🟡 {title}: no top-up seen yet</b>\n{minutes} min passed. If the money left "
+        "your account, it will arrive later: I read the balance on schedule."
     ),
-    "integrations.title": "<b>Integrations</b>",
-    "integrations.account": "{title}: {status}",
     "integrations.ask_label": (
-        "A label for the {hoster} account, e.g. «personal». It tells accounts apart"
-        " when a hoster has several. Type it or press the button."
+        "<b>🏷 Label for {hoster}</b>\nFor example «personal»: needed with several "
+        "accounts.\nType it or press the button."
     ),
     "integrations.label_default": "No label ({name})",
-    "integrations.label_taken": "The label «{label}» is taken. Type another one.",
+    "integrations.label_taken": "⚠️ The label «{label}» is taken. Type another one.",
     "integrations.ask_key": (
-        "Send the {hoster} {field} in one message. I delete it from the chat right away"
-        " and keep it encrypted in the database."
+        "<b>🗝 {hoster} {field}</b>\nSend it in one message.\nI delete it from the chat at "
+        "once and keep it encrypted."
     ),
-    "integrations.checking": "Key saved, checking access…",
-    "journal.title": "<b>Journal</b>",
-    "journal.empty": "Nothing yet. Actions with servers and money will show up here.",
-    "journal.line": "{date} · {actor} · {hoster}: {action} — {result}",
-    "journal.actor.owner": "you",
-    "journal.actor.autopay": "autopay",
-    "journal.ok": "done",
-    "journal.failed": "failed",
-    "settings.title": "<b>Settings</b>",
-    "settings.language": "Language: {value}",
-    "settings.timezone": "Time zone: {value}",
-    "settings.currency": "Currency of totals: {value}",
-    "settings.thresholds": "<b>Alert thresholds</b>",
-    "settings.thresholds_note": (
-        "During quiet hours ordinary alerts wait for the end of the quiet hours;"
-        " critical ones come at once."
-    ),
-    "settings.button.language": "Language",
-    "settings.button.timezone": "Time zone",
-    "settings.button.currency": "Currency",
+    "integrations.checking": "🔃 Key saved, checking access…",
+    "journal.title": "📜 Journal",
+    "journal.empty": "Empty so far: server and money actions will show up here.",
+    "journal.line": "{mark} {date} · {who}{hoster} · {action}",
+    "settings.title": "Settings",
+    "settings.button.language": "🌐 Language",
+    "settings.button.timezone": "🕓 Time zone",
+    "settings.button.currency": "💱 Currency",
     "settings.timezone_other": "Other…",
     "settings.timezone_ask": "Type the time zone name, e.g. Asia/Omsk.",
-    "settings.timezone_bad": "I do not know this time zone. Example: Europe/Moscow.",
-    "threshold.balance_days": "Balance runs out in less than {value} days",
-    "threshold.load_percent": "CPU or RAM above {value}%",
-    "threshold.disk_percent": "Disk above {value}%",
-    "threshold.quiet_hours": "Quiet hours: {value}",
-    "threshold.summary_time": "Summary at {value}",
-    "threshold.button.balance_days": "Balance threshold",
-    "threshold.button.load_percent": "CPU and RAM threshold",
-    "threshold.button.disk_percent": "Disk threshold",
-    "threshold.button.quiet_hours": "Quiet hours",
-    "threshold.button.summary_time": "Summary time",
+    "settings.timezone_bad": "⚠️ Unknown time zone. Example: Europe/Berlin.",
+    "threshold.button.balance_days": "🔔 Money alert",
+    "threshold.button.load_percent": "📈 CPU and RAM",
+    "threshold.button.disk_percent": "💾 Disk",
+    "threshold.button.quiet_hours": "🌙 Quiet hours",
+    "threshold.button.summary_time": "📰 Summary time",
     "threshold.ask.balance_days": "Now {value}. How many days ahead to warn? A number, 1 to 60.",
     "threshold.ask.load_percent": "Now {value}%. CPU and RAM threshold in percent, 1 to 100.",
     "threshold.ask.disk_percent": "Now {value}%. Disk threshold in percent, 1 to 100.",
-    "threshold.ask.quiet_hours": "Now {value}. Type quiet hours like this: 23:00-08:00.",
+    "threshold.ask.quiet_hours": (
+        "Now {value}. Type quiet hours like 23:00-08:00.\nNormal alerts wait for their "
+        "end; critical ones come at once."
+    ),
     "threshold.ask.summary_time": "Now {value}. When to send the summary? E.g. 09:00.",
-    "threshold.bad": "I did not understand the value. Try again.",
+    "threshold.bad": "⚠️ I did not understand the value. Try again.",
     # Alerts, backups, releases
-    "alert.balance_low": "⚠ <b>{title}</b>: the balance is {amount}, the money lasts until {date}.",
-    "alert.balance_low_own": "hostwatch itself runs here, so I warn {days} days earlier.",
-    "alert.server_status": "‼ <b>{title}</b>: server {server} is {status}.",
-    "alert.ends_soon": "⚠ <b>{title}</b>: {server} does not renew and ends on {date}.",
+    "alert.balance_low": "💰 <b>{title}: money until {date}</b>\nBalance: {amount}.",
+    "alert.balance_low_own": "hostwatch runs here, so I warn {days} days earlier.",
+    "alert.server_status": "🔴 <b>{title} · {server}: {status}</b>",
+    "alert.ends_soon": "⚠️ <b>{title} · {server}: ends {date}</b>\nAutorenewal is off.",
     "alert.ends_soon_short": (
-        "⚠ <b>{title}</b>: {server} ends on {date}, and there is not enough money to renew it."
+        "⚠️ <b>{title} · {server}: ends {date}</b>\nNot enough money to renew."
     ),
     "alert.load": (
-        "⚠ <b>{title}</b>: {metric} on {server} is above {percent}% for {polls} polls in a row."
+        "⚠️ <b>{title} · {server}: {metric} above {percent}%</b>\n{polls} polls in a row."
     ),
-    "alert.disk": "⚠ <b>{title}</b>: the disk on {server} is {percent}% full.",
-    "alert.relogin": "⚠ <b>{title}</b>: you need to log in again. Open «Integrations».",
-    "alert.plugin_broken": "⚠ <b>{title}</b>: cannot get data ({reason}).",
-    "alert.reminder": "Reminder. {text}",
-    "alert.resolved": "✅ Resolved: {subject}.",
+    "alert.disk": "⚠️ <b>{title} · {server}: disk {percent}%</b>",
+    "alert.relogin": "🔴 <b>{title}: login needed</b>",
+    "alert.plugin_broken": "🔴 <b>{title}: no data</b>\n{reason}.",
+    "alert.reminder": "⏰ Reminder\n{text}",
+    "alert.resolved": "🟢 Resolved: {subject}.",
     "alert.subject.balance_low": "{title} balance",
     "alert.subject.server": "{title}, server {server}",
     "alert.subject.ends_soon": "{title}, {server} ending",
@@ -273,14 +222,12 @@ MESSAGES: dict[str, str] = {
     "alert.subject.relogin": "{title}, login",
     "alert.subject.plugin_broken": "{title}, getting data",
     "release.new": "hostwatch {version} is out. What is new: {url}",
-    "settings.button.backup": "Send backup",
+    "settings.button.backup": "📦 Backup",
     "backup.caption": (
         "Database backup of {date}. Secrets in it are encrypted; HOSTWATCH_KEY is not in it."
     ),
     "backup.failed": "Could not make a backup. See the logs.",
-    "card.own": (
-        "This is the hostwatch server: I warn about this account's balance {days} days earlier."
-    ),
+    "card.own": "ℹ️ This is hostwatch's server: I warn about money {days} days earlier",
     "servers.own": "hostwatch",
     # Login page and browser login
     "web.title": "Log in: {hoster}",
@@ -308,21 +255,20 @@ MESSAGES: dict[str, str] = {
     "web.end_replaced": "This login is closed: a new link was requested in the bot.",
     "web.end_failed": "The login stopped on an error. Ask the bot for a new link.",
     "login.link": (
-        "Log in to <b>{hoster}</b>: open the link on your phone or computer.\n{url}\n\nThe "
-        "link works once, for 10 minutes. Log in on the site as usual, then press «Done»."
+        "<b>🔑 Log in to {hoster}</b>\nOpen the link on a phone or computer:\n{url}\nLog in "
+        "to the site as usual and press «Done».\n⏳ One-time link, lives 10 minutes."
     ),
-    "login.open": "Open login",
+    "login.open": "🔑 Open the login",
     "login.no_address": (
         "I do not know this server's address. Set HOSTWATCH_IP or HOSTWATCH_DOMAIN in .env and "
         "restart the bot."
     ),
     "login.opened": "🔑 The {hoster} login link was opened: {ip}, {browser}.",
-    "login.not_me": "Not me",
+    "login.not_me": "🚫 Not me",
     "login.killed": "Login closed.",
-    "login.connected": "✅ {hoster} is connected.",
+    "login.connected": "🟢 {hoster} connected.",
     "login.connected_unchecked": (
-        "✅ {hoster}: the session is saved, but it could not be checked without a browser "
-        "({reason})."
+        "🟡 {hoster}: session saved, but it could not be checked without a browser ({reason})."
     ),
     "login.ended.cancelled": "{hoster} login cancelled.",
     "login.ended.idle": "{hoster} login closed after 15 minutes without input.",
@@ -342,15 +288,14 @@ MESSAGES: dict[str, str] = {
     ),
     "cookie.missing": "Cookies missing: {names}. Send them again, or /cookie to cancel.",
     "cookie.bad": "Could not read the cookies. Send <code>name=value; …</code> or JSON.",
-    "control.confirm_title": "<b>Confirm the action</b>",
-    "control.what": "What: {what}",
-    "control.where": "Where: {where}",
-    "control.how_much": "How much: {amount}",
+    "control.confirm_title": "<b>❓ {what}?</b>",
+    "control.where": "🖥 {where}",
+    "control.how_much": "💰 {amount}",
     "control.yes": "✅ Yes",
-    "control.charge": "{amount} from the balance at the hoster",
-    "control.charge_with_balance": "{amount} from the balance at the hoster (now {balance})",
-    "control.later_charges": "nothing now, then {price} at every renewal",
-    "control.no_charge": "no charge",
+    "control.charge": "{amount} will be charged from the balance",
+    "control.charge_with_balance": "{amount} will be charged · balance {balance}",
+    "control.later_charges": "Nothing now, then {price} at each renewal",
+    "control.no_charge": "No charge",
     "control.what.start": "start the server",
     "control.what.stop": "stop the server",
     "control.what.restart": "restart the server",
@@ -358,54 +303,50 @@ MESSAGES: dict[str, str] = {
     "control.what.autorenew_off": "turn autorenewal off",
     "control.what.renew": "renew for one period",
     "control.what.pay_invoice": "pay invoice #{id} from the balance",
-    "control.need_login": "The {title} session has ended. Log in again and repeat.",
-    "control.cannot": "It did not work: {reason}.",
+    "control.need_login": "🔴 The {title} session ended. Log in again and retry.",
+    "control.cannot": "🔴 Failed: {reason}.",
     "control.unavailable": "This action is not available now. Here is a fresh card.",
     "control.asking_price": "Asking the hoster for the price…",
     "control.expired": "This button is out of date or was pressed already. Nothing done.",
     "control.cancelled": "Cancelled. Nothing done.",
     "control.running": "Working…",
-    "control.running_what": "Working: {what}…",
+    "control.running_what": "⏳ Running: {what}…",
     "control.timeout": (
-        "The hoster did not answer in time: {what}, {where}. The result is unknown;"
-        " check the cabinet and press «Refresh» on the card."
+        "<b>🟡 Result unknown</b>\n{what} · {where}\nThe hoster did not answer in time. "
+        "Check the cabinet and press «🔃 Refresh»."
     ),
-    "control.failed": "It did not work: {what}, {where}. Reason: {reason}.",
-    "control.done": "Done: {what}, {where}.\nThe hoster said: {detail}",
+    "control.failed": "<b>🔴 Failed</b>\n{what} · {where}\nReason: {reason}.",
+    "control.done": "<b>✅ Done</b>\n{what} · {where}\nHoster's answer: {detail}",
     "control.unclear": (
-        "The hoster took the request but did not confirm the result: {what}, {where}.\n"
-        "Answer: {detail}\nCheck the cabinet."
+        "<b>🟡 The hoster did not confirm</b>\n{what} · {where}\nAnswer: {detail}\nCheck "
+        "the cabinet."
     ),
-    "control.money_notice": "💸 <b>Money action</b>\n{text}",
-    "autopay.button.on": "Turn autopay on",
-    "autopay.button.off": "Turn autopay off",
+    "control.money_notice": "💸 Money action\n{text}",
+    "autopay.button.on": "💳 Autopay on",
+    "autopay.button.off": "💳 Autopay off",
     "autopay.button.pay": "✅ Pay",
-    "autopay.button.skip": "Don't pay",
-    "autopay.button.topup": "Top up",
-    "autopay.button.invoices": "Hoster invoices",
-    "autopay.card.on": "Bot autopay: on",
-    "autopay.card.off": "Bot autopay: off",
+    "autopay.button.skip": "✖️ Do not pay",
+    "autopay.button.topup": "💰 Top up",
+    "autopay.button.invoices": "🧾 Invoices",
+    "autopay.card.on": "💳 Bot autopay: on",
+    "autopay.card.off": "💳 Bot autopay: off",
     "autopay.card.native_hint": (
-        "The hoster has its own autorenewal: turn it on with the button below, and the bot"
-        " will watch that the balance is enough."
+        "💡 The hoster has autorenewal: turn it on with the button below."
     ),
     "autopay.settings.button": "💳 Autopay",
-    "autopay.settings.title": "<b>Autopay</b>",
+    "autopay.settings.title": "<b>💳 Autopay</b>",
     "autopay.settings.about": (
-        "The bot pays a renewal invoice the hoster has issued, from the balance, when the"
-        " due date is this many days away or closer. Only for servers marked «autopay»"
-        " (a button on the card) and only at hosters without their own autorenewal. If the"
-        " sum grew by more than 10 %, the bot asks."
+        "The bot pays a renewal invoice from the balance shortly before the due "
+        "date.\nOnly for marked servers, and only at hosters without their own "
+        "autorenewal.\nIf the sum grew by more than 10 %, the bot asks."
     ),
     "autopay.settings.off": "Autopay is not available in this run.",
-    "autopay.settings.days": "When: {days} days before the due date",
+    "autopay.settings.days": "⏰ Pay {days} days before the due date",
     "autopay.settings.no_accounts": "No connected hoster whose invoices the bot can pay.",
-    "autopay.settings.account": (
-        "{title}: limit {limit} a month, spent {spent}, servers with autopay: {count}"
-    ),
-    "autopay.settings.zero_limit": "  Limit 0: the bot pays nothing until you set it.",
-    "autopay.settings.button.days": "When: {days} days",
-    "autopay.settings.button.limit": "Limit: {title}",
+    "autopay.settings.account": "{title}: limit {limit}/mo · spent {spent} · servers {count}",
+    "autopay.settings.zero_limit": "  ⚠️ Limit 0: I pay nothing until you set it.",
+    "autopay.settings.button.days": "⏰ Due: {days} d.",
+    "autopay.settings.button.limit": "💰 {title} limit",
     "autopay.ask_days": "How many days before the due date to pay? Now {days}. 1 to {max}.",
     "autopay.ask_limit": (
         "Monthly autopay limit for {title}. Now {limit}. Type a sum in the hoster's currency,"
@@ -423,48 +364,47 @@ MESSAGES: dict[str, str] = {
         " it in «Settings → Autopay»."
     ),
     "autopay.report.paid": (
-        "Autopay: paid invoice #{id} for {server} · {title}: {amount}.\nHoster's answer: {detail}"
+        "<b>✅ Autopay: invoice #{id}</b>\n{server} · {title} · {amount}\nHoster's answer: {detail}"
     ),
-    "autopay.report.limit": "Month limit: spent {spent} of {limit}.",
+    "autopay.report.limit": "This month: {spent} of {limit}.",
     "autopay.report.unclear": (
-        "Autopay: the hoster took the payment of invoice #{id} for {server} · {title}"
-        " ({amount}) but did not confirm it.\nAnswer: {detail}\nCheck the cabinet. The bot"
-        " will not touch this invoice again by itself."
+        "<b>🟡 Autopay: invoice #{id} not confirmed</b>\n{server} · {title} · "
+        "{amount}\nAnswer: {detail}\nCheck the cabinet. The bot will not touch this "
+        "invoice again."
     ),
     "autopay.report.failed": (
-        "Autopay did not pay invoice #{id} for {server} · {title} ({amount}). Reason: {reason}."
-        "\nThe bot will not touch this invoice again by itself: check the cabinet and pay"
-        " by hand."
+        "<b>🔴 Autopay: invoice #{id} not paid</b>\n{server} · {title} · {amount}\nReason: "
+        "{reason}.\nThe bot will not touch this invoice again: pay it by hand."
     ),
     "autopay.report.grown": (
-        "⚠️ Invoice #{id} for {server} · {title} grew: {amount} instead of {reference}."
-        " Autopay did not pay it. Pay?"
+        "<b>⚠️ Invoice #{id} grew</b>\n{server} · {title}: {amount} instead of "
+        "{reference}\nAutopay did not pay it. Pay?"
     ),
     "autopay.report.new": (
-        "⚠️ Invoice #{id} for {server} · {title} is {amount}: nothing to compare the sum with."
-        " Autopay did not pay it. Pay?"
+        "<b>⚠️ Invoice #{id}: nothing to compare with</b>\n{server} · {title}: "
+        "{amount}\nAutopay did not pay it. Pay?"
     ),
     "autopay.report.over_limit": (
-        "Invoice #{id} for {server} · {title} ({amount}) was not paid by autopay: the monthly"
-        " limit is not enough (spent {spent} of {limit})."
+        "<b>🟡 Invoice #{id} waits: limit</b>\n{server} · {title}: {amount}\nSpent {spent} "
+        "of {limit} this month."
     ),
     "autopay.report.low_balance": (
-        "Invoice #{id} for {server} · {title} ({amount}) was not paid by autopay: the balance"
-        " is {balance}, {missing} short."
+        "<b>🟡 Invoice #{id} waits: low balance</b>\n{server} · {title}: {amount}\nBalance "
+        "{balance}, {missing} short."
     ),
     "autopay.declined": "OK, the bot will not pay invoice #{id}.",
     "autopay.changed": "The invoice sum changed again, now {amount}. Nothing was paid.",
-    "invoices.title": "<b>Invoices to pay: {title}</b>",
-    "invoices.none": "No unpaid invoices.",
-    "invoices.line": "Invoice #{id}: {amount}, due {due}",
-    "invoices.for_server": "For server {server}",
-    "invoices.pay": "Pay #{id} · {amount}",
-    "invoices.not_service": "Not a server renewal: pay it in the cabinet if needed.",
+    "invoices.title": "<b>🧾 Invoices · {title} · {count}</b>",
+    "invoices.none": "🟢 No unpaid invoices.",
+    "invoices.line": "#{id} · {amount}",
+    "invoices.due": "due {due}",
+    "invoices.pay": "💳 #{id} · {amount}",
+    "invoices.not_service": "Pay «not a renewal» invoices in the cabinet.",
     "invoices.loading": "Reading invoices at the hoster…",
     "invoices.not_payable": (
-        "This invoice cannot be paid from the bot any more: it is paid, cancelled or changed."
+        "🟡 This invoice cannot be paid from the bot any more: paid, cancelled or changed."
     ),
-    "balance.invoices": "Invoices {title}",
+    "balance.invoices": "🧾 {title} invoices",
     "journal.action.topup": "top-up invoice",
     "journal.action.login": "login",
     "journal.action.start": "start",
@@ -475,52 +415,42 @@ MESSAGES: dict[str, str] = {
     "journal.action.renew": "renewal",
     "journal.action.pay_invoice": "invoice payment",
     # Ordering servers (stage 13)
-    "order.title_any": "<b>Order a server</b>",
-    "order.title": "<b>Order a server · {title}</b>",
+    "order.title_any": "<b>🛒 Order a server</b>",
+    "order.title": "<b>🛒 Order · {title}</b>",
     "order.no_accounts": "No connected hoster where the bot can order servers.",
-    "order.choose_account": "Where to order?",
-    "order.choose_location": "Pick a location:",
+    "order.choose_account": "Pick a hoster.",
+    "order.choose_location": "Pick a location.",
     "order.location_button": "{name} · from {amount}/mo",
     "order.empty": "The hoster sells nothing right now.",
-    "order.location": "Location: {name}",
-    "order.choose_plan": "Pick a plan:",
+    "order.location": "📍 {name}",
+    "order.choose_plan": "Pick a plan.",
     "order.plan_line": "• <b>{name}</b> — {specs}, from {amount}/mo",
     "order.plan_button": "{name} · {amount}/mo",
     "order.more_plans": "{count} more plans. The cheapest are shown.",
-    "order.plan": "Plan: {name} ({specs})",
-    "order.choose_os": "Pick an OS:",
+    "order.plan": "📦 {name} · {specs}",
+    "order.choose_os": "Pick an OS.",
     "order.no_os": "This plan has no OS the bot can order.",
-    "order.os": "OS: {name}",
-    "order.choose_period": "Pick a term:",
+    "order.os": "💿 {name}",
+    "order.choose_period": "Pick a period.",
     "order.period_hourly": "Hourly · ≈{amount}/mo",
     "order.period_months": "{months} mo · {amount}",
-    "order.period": "Term: {period}",
+    "order.period": "📅 {period}",
     "order.hourly": "hourly",
     "order.months": "{months} mo",
-    "order.price": "Price: {price}",
-    "order.price_hourly": "≈{amount} a month, charged by the hour ({hour} an hour)",
+    "order.price": "💳 {price}",
+    "order.price_hourly": "≈{amount}/mo, hourly ({hour}/h)",
     "order.price_changed": "⚠️ The price changed: the catalog said {old}, the hoster asks {new}.",
-    "order.balance": "Balance: {amount}",
-    "order.key_set": "SSH key: I will add the key from the settings ({name}).",
-    "order.key_missing": (
-        "SSH key: none in the settings. You can log in with the password"
-        " («Show password» on the server card)."
-    ),
-    "order.key_not_supported": (
-        "SSH key: this hoster does not add a key with the order. Log in with the password."
-    ),
-    "order.limit_ok": "Order limit: {spent} of {limit} spent this month.",
-    "order.limit_over": (
-        "Order limit: {spent} of {limit} spent this month."
-        " This order goes above it, I will ask once more."
-    ),
-    "order.untested": (
-        "⚠️ Ordering at this hoster is not tested live yet: check the cabinet after it."
-    ),
-    "order.ask": "Order for {price}?",
-    "order.second_title": "<b>The order goes above the monthly limit</b>",
+    "order.balance": "💰 Balance: {amount}",
+    "order.key_set": "🔑 SSH key from the settings ({name})",
+    "order.key_missing": "🔑 No key: log in by password (the «🔑 Password» button on the card)",
+    "order.key_not_supported": "🔑 The hoster does not set a key: log in by password",
+    "order.limit_ok": "Order limit: {spent} of {limit} this month",
+    "order.limit_over": "⚠️ Above the limit: {spent} of {limit} this month, I will ask again",
+    "order.untested": "⚠️ Ordering here is not tested live: check the cabinet afterwards.",
+    "order.ask": "❓ Order for {price}?",
+    "order.second_title": "<b>⚠️ Order above the monthly limit</b>",
     "order.what": "What: {what}",
-    "order.second_ask": "Order anyway? This is the second confirmation.",
+    "order.second_ask": "Order for sure? This is the second confirmation.",
     "order.second_yes": "✅ Yes, order",
     "order.shortfall": (
         "Not enough money on the balance: {need} needed, {balance} there, {missing} missing."
@@ -558,20 +488,18 @@ MESSAGES: dict[str, str] = {
         "This message goes away in {minutes} min. The bot does not keep the password."
     ),
     "order.password_asking": "Asking the hoster for the password…",
-    "order.button.password": "🔑 Show password",
+    "order.button.password": "🔑 Password",
     "order.journal.order": "server order",
     "order.journal.root_password": "password shown",
-    "order.settings.button": "Orders: limit and SSH key",
-    "order.settings.title": "<b>Ordering servers</b>",
-    "order.settings.limit": "Order limit a month: {amount}",
-    "order.settings.limit_note": (
-        "An order above the limit takes two confirmations. With a limit of 0, every order does."
-    ),
-    "order.settings.key": "SSH key for new servers: {name}",
+    "order.settings.button": "🛒 Orders",
+    "order.settings.title": "<b>🛒 Ordering servers</b>",
+    "order.settings.limit": "💰 Monthly limit: {amount}",
+    "order.settings.limit_note": ("Above the limit: two confirmations. Limit 0: for every order."),
+    "order.settings.key": "🔑 SSH key: {name}",
     "order.settings.no_key": "none",
-    "order.settings.button.limit": "Change the limit",
-    "order.settings.button.key": "Set the SSH key",
-    "order.settings.button.no_key": "Remove the SSH key",
+    "order.settings.button.limit": "💰 Limit",
+    "order.settings.button.key": "🔑 Set key",
+    "order.settings.button.no_key": "🗑 Remove key",
     "order.settings.ask_limit": (
         "Type the monthly order limit in {currency}, e.g. 1000. 0 asks twice for every order."
     ),
@@ -589,10 +517,75 @@ MESSAGES: dict[str, str] = {
     "menu.button": "☰ Menu",
     "menu.closed": "Menu closed: the current one is below.",
     "menu.stale": "This menu is closed, the current one is at the bottom",
-    "bot.login.expired": "The {hoster} login link expired: nobody opened it within 10 minutes.",
-    "topup.expired": "The invoice expired. If you did not pay in time, make a new one.",
-    "topup.again": "New invoice",
-    "alert.button.topup": "💰 Top up {title}",
-    "alert.button.server": "🖥 {server}",
-    "alert.button.account": "🔌 {title}",
+    "bot.login.expired": (
+        "<b>🔴 The {hoster} login link expired</b>\nNobody opened it in 10 minutes."
+    ),
+    "topup.expired": ("<b>🔴 The invoice expired</b>\nIf you did not pay in time, make a new one."),
+    "topup.again": "💰 New invoice",
+    "menu.problems": "⚠️ Problems ({count})",
+    "menu.connect": "＋ Connect a hoster",
+    "time.today": "today {time}",
+    "time.tomorrow": "tomorrow {time}",
+    "time.today_word": "today",
+    "time.tomorrow_word": "tomorrow",
+    "time.in_days": "in {n} d.",
+    "time.days": "{n} d.",
+    "plural.server": "server|servers",
+    "plural.hoster": "hoster|hosters",
+    "plural.problem": "problem|problems",
+    "home.ok": "All good",
+    "home.empty": "No hosters connected",
+    "home.empty_hint": "Connect the first one: the button below.",
+    "home.more": "…and {count} more",
+    "home.balances": "💰 On balances: {amount}",
+    "home.month": "💳 A month: {amount}",
+    "problems.none": "No problems",
+    "problem.relogin": "login needed",
+    "problem.no_data": "no data: {reason}",
+    "problem.money_until": "money until {date}",
+    "problem.shortfall": "{date} {amount} short for {server}",
+    "problem.ends": "ends {date}, does not renew",
+    "problem.button.account": "🔌 {title}",
+    "problem.button.topup": "💰 Top up {title}",
+    "problem.button.server": "🖥 {server}",
+    "summary.open": "🏠 Open the menu",
+    "summary.problems": "⚠️ Problems",
+    "servers.none": "No servers.",
+    "servers.all_ok": "all good",
+    "servers.pick": "Pick a hoster.",
+    "servers.count.vps": "VPS: {n}",
+    "servers.count.dedicated": "dedicated: {n}",
+    "card.no_ip": "IP —",
+    "money.title": "Money",
+    "money.ok": "all good",
+    "money.attention": "needs attention",
+    "money.no_spending": "not spending",
+    "money.beyond_horizon": "over a year",
+    "money.until": "until {date}",
+    "money.no_data": "no data",
+    "money.data_at": "data from {date}",
+    "money.shortfall": "{title}: {date} {amount} short for {server}",
+    "money.rate_note": "≈ at the Bank of Russia rate of {date}",
+    "money.button.info": "ℹ️ How I count",
+    "money.info_title": "How the forecast is counted",
+    "money.read_at": "{amount} at {date}",
+    "money.info_rates": (
+        "«≈» totals are in the currency from the settings, at the Bank of Russia rate."
+    ),
+    "topup.step": "Step {n} of {total} · {what}",
+    "topup.step.method": "method",
+    "topup.step.amount": "amount",
+    "topup.step.pay": "payment",
+    "topup.no_methods": "No top-up from the bot: only on the hoster's site.",
+    "topup.sbp_plain": "⚡ SBP",
+    "topup.invoice_short": "{amount} · #{id}",
+    "integrations.none": "No hosters connected",
+    "integrations.all_ok": "all connected",
+    "integrations.can_add": "＋ Can connect: {names}",
+    "journal.page": "page {page}",
+    "settings.general": "🌐 {language} · {tz} · {currency}",
+    "settings.alerts": "🔔 Money {days} d. ahead · CPU/RAM {load}% · disk {disk}%",
+    "settings.times": "🌙 Quiet hours {quiet} · 📰 summary at {summary}",
+    "invoices.other": "not a renewal",
+    "topup.lasts": "💰 Lasts: {lasts}",
 }

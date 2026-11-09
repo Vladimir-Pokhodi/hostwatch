@@ -53,10 +53,9 @@ async def test_action_asks_first_and_calls_nothing(harness: Harness) -> None:
     await harness.press(ActionCb(acc=acc, sid="1", act="stop"))
 
     text = harness.session.last_text()
-    assert "Подтвердите действие" in text
-    assert "Что: выключить сервер" in text
-    assert "Где: beaver · Fake hoster (main), 192.0.2.11" in text
-    assert "Сколько: без списания" in text
+    assert text.startswith("<b>❓ Выключить сервер?</b>")
+    assert "🖥 beaver · Fake hoster (main) · 192.0.2.11" in text
+    assert "💰 Без списания" in text
     assert FakePlugin.calls == []
     assert harness.hub.journal.recent() == []
 
@@ -70,7 +69,7 @@ async def test_yes_runs_once_and_a_second_press_is_ignored(harness: Harness) -> 
     await harness.press(yes)
 
     assert FakePlugin.calls == ["power 1 stop"]
-    assert "Готово: выключить сервер" in harness.session.texts()[-1]
+    assert "✅ Готово</b>\nвыключить сервер · beaver" in harness.session.texts()[-1]
     assert harness.alerts()[-1] == "Кнопка устарела или уже нажата. Ничего не сделал."
     entries = harness.hub.journal.recent()
     assert len(entries) == 1
@@ -89,7 +88,7 @@ async def test_cancel_does_nothing_and_kills_the_nonce(harness: Harness) -> None
     await harness.press(yes)
 
     assert FakePlugin.calls == []
-    assert "<b>beaver</b>" in harness.session.texts()[-1]
+    assert "<b>🟢 beaver · Fake hoster (main)</b>" in harness.session.texts()[-1]
     assert harness.hub.journal.recent() == []
 
 
@@ -137,8 +136,8 @@ async def test_renewal_shows_the_price_and_tells_about_money(harness: Harness) -
 
     await harness.press(ActionCb(acc=acc, sid="1", act="renew"))
     text = harness.session.last_text()
-    assert "Что: продлить на один период" in text
-    assert "Сколько: €4.50 с баланса у хостера (сейчас там €20.00)" in text
+    assert text.startswith("<b>❓ Продлить на один период?</b>")
+    assert "💰 Спишется €4.50 · на балансе €20.00" in text
     assert FakePlugin.calls == []
 
     await harness.press(_confirm(harness)[0])
@@ -149,7 +148,7 @@ async def test_renewal_shows_the_price_and_tells_about_money(harness: Harness) -
         for c in harness.session.calls
         if isinstance(c, SendMessage) and "Действие с деньгами" in (c.text or "")
     ]
-    assert len(notices) == 1 and "Готово: продлить" in notices[0]
+    assert len(notices) == 1 and "Готово</b>\nпродлить" in notices[0]
     entry = harness.hub.journal.recent()[0]
     assert (entry.action, entry.ok) == ("renew", True)
     assert entry.params["amount"] == "4.50"
@@ -174,7 +173,7 @@ async def test_failed_money_action_is_journalled_and_told(harness: Harness) -> N
 async def test_plain_action_sends_no_money_notice(harness: Harness) -> None:
     acc = await _account(harness)
     await harness.press(ActionCb(acc=acc, sid="1", act="autorenew_off"))
-    assert "Сколько: без списания" in harness.session.last_text()
+    assert "💰 Без списания" in harness.session.last_text()
     await harness.press(_confirm(harness)[0])
 
     assert FakePlugin.calls == ["autorenew 1 off"]
@@ -192,7 +191,9 @@ async def test_autorenew_on_names_the_coming_charges(harness: Harness) -> None:
         harness.hub.now(),
     )
     await harness.press(ActionCb(acc=acc, sid="1", act="autorenew_on"))
-    assert "сейчас ничего, дальше €4.50 в месяц" in harness.session.last_text()
+    assert (
+        "Сейчас без списания, дальше €4.50/мес за каждое продление" in harness.session.last_text()
+    )
 
 
 async def test_hoster_error_is_shown_and_journalled(harness: Harness) -> None:
@@ -217,13 +218,13 @@ async def test_pay_invoice_from_the_balance_screen(harness: Harness) -> None:
 
     await harness.press(InvoicesCb(acc=acc))
     text = harness.session.last_text()
-    assert "Счёт #100: €4.50" in text and "За сервер beaver" in text
+    assert "#100 · €4.50 · 🖥 beaver" in text
     assert PayCb(acc=acc, inv="100").pack() in harness.session.buttons()
 
     await harness.press(PayCb(acc=acc, inv="100"))
     text = harness.session.last_text()
-    assert "Что: оплатить счёт #100 с баланса" in text
-    assert "Сколько: €4.50" in text
+    assert text.startswith("<b>❓ Оплатить счёт #100 с баланса?</b>")
+    assert "💰 Спишется €4.50" in text
     assert FakePlugin.calls == []
 
     await harness.press(_confirm(harness)[0])
@@ -250,7 +251,7 @@ async def test_journal_names_the_actions(harness: Harness) -> None:
 
     await harness.press(Nav(to="journal"))
 
-    assert "вы · Fake hoster (main): продление 4.50 EUR — успешно" in harness.session.last_text()
+    assert "✅ 07.11 15:00 · Fake hoster (main) · продление €4.50" in harness.session.last_text()
 
 
 async def test_journal_keeps_no_secrets(harness: Harness) -> None:

@@ -101,7 +101,11 @@ class EditSetting(StatesGroup):
 
 
 def view(hub: Hub) -> View:
-    return View(hub.prefs.lang, hub.prefs.tz)
+    return View(hub.prefs.lang, hub.prefs.tz, hub.now())
+
+
+def thresholds(hub: Hub) -> Thresholds:
+    return hub.prefs.alert_settings(hub.own_ip).thresholds
 
 
 def menu(hub: Hub) -> Menu:
@@ -169,16 +173,20 @@ def _can_order(hub: Hub, accounts: list[AccountData]) -> bool:
 
 async def screen_for(hub: Hub, to: str) -> Screen:
     v = view(hub)
-    if to == "summary":
+    th = thresholds(hub)
+    if to == "problems":
+        return views.problems_screen(v, hub.load_all(), th)
+    if to == "servers":
+        accounts = hub.load_all()
+        return views.servers(v, accounts, th, _can_order(hub, accounts))
+    if to == "balance":
         accounts = hub.load_all()
         rates = await _rates(hub)
-        return views.summary(v, accounts, rates, hub.prefs.currency, hub.now())
-    if to == "servers":
-        return views.servers(v, hub.load_all())
-    if to == "balance":
-        return views.balance(v, hub.load_all())
+        return views.balance(v, accounts, rates, hub.prefs.currency, th)
+    if to == "money_info":
+        return views.money_info(v, hub.load_all())
     if to == "integrations":
-        return views.integrations(v, hub.load_all())
+        return views.integrations(v, hub.load_all(), hub.plugins())
     if to == "connect":
         return views.connect(v, hub.plugins(), hub.load_all())
     if to == "journal":
@@ -187,7 +195,9 @@ async def screen_for(hub: Hub, to: str) -> Screen:
         return settings_screen(hub)
     if to == "order":
         return await order.order_entry(hub)
-    return views.menu(v, _can_order(hub, hub.load_all()))
+    # «menu», and «summary» of the buttons sent before 1.1: the home screen.
+    accounts = hub.load_all()
+    return views.menu(v, accounts, await _rates(hub), hub.prefs.currency, th)
 
 
 def journal_screen(hub: Hub, page: int) -> Screen:
@@ -208,7 +218,7 @@ def host_screen(hub: Hub, account_id: int, page: int = 0) -> Screen | None:
         data = hub.load(account_id)
     except NotFound:
         return None
-    return views.host_servers(view(hub), data, page, hub.own_ip)
+    return views.host_servers(view(hub), data, page, hub.own_ip, thresholds(hub))
 
 
 def server_screen(hub: Hub, account_id: int, server_id: str) -> Screen | None:
@@ -221,7 +231,7 @@ def server_screen(hub: Hub, account_id: int, server_id: str) -> Screen | None:
         return None
     own_days = Thresholds().own_extra_days if hub.is_own(server) else None
     usage = hub.usage_of(account_id, server_id)
-    return views.server_card(view(hub), data, server, usage, own_days)
+    return views.server_card(view(hub), data, server, usage, own_days, thresholds(hub))
 
 
 def account_screen(hub: Hub, account_id: int) -> Screen | None:

@@ -35,11 +35,12 @@ from hostwatch.core.models import Money, Payment, PayOption, TopupKind, TopupMet
 from hostwatch.core.plugin import Plugin, SupportsPayOptions, SupportsTopup, browser_auth
 from hostwatch.storage.repositories import JournalEntry, NotFound, PaymentRecord
 
-from .callbacks import AccountCb, Nav, PaidCb, PayOptCb, TopupAmountCb, TopupCb
+from .callbacks import AccountCb, Nav, PaidCb, PayOptCb, TopupAmountCb, TopupCb, note
 from .handlers import answer, home_markup, menu, on, show, view, with_error
 from .hub import AccountData, Hub
-from .views import Screen, View
+from .views import Screen, View, pairs
 from .views import _button as button
+from .views import _lasts as money_lasts
 from .views import _nav as nav
 
 log = logging.getLogger(__name__)
@@ -118,17 +119,21 @@ def methods_screen(v: View, choice: Choice) -> Screen:
     """The ways to pay."""
     data = choice.data
     acc = data.account.id
-    lines = _head(v, data)
+    lines = _head(v, data, 1)
     kb = InlineKeyboardBuilder()
-    lines += ["", v.t("topup.choose_method")]
-    for method in choice.methods:
-        if method.kind is TopupKind.SBP:
-            kb.row(button(v.t("topup.sbp", name=method.name), TopupCb(acc=acc, m=method.id)))
+    buttons = [
+        button(_sbp_label(v, method), TopupCb(acc=acc, m=method.id))
+        for method in choice.methods
+        if method.kind is TopupKind.SBP
+    ]
     if len(choice.crypto) == 1:
         only = choice.crypto[0]
-        kb.row(button(v.t("topup.crypto_one", name=only.name), TopupCb(acc=acc, m=only.id)))
+        buttons.append(button(v.t("topup.crypto_one", name=only.name), TopupCb(acc=acc, m=only.id)))
     elif choice.crypto:
-        kb.row(button(v.t("topup.crypto"), TopupCb(acc=acc, m=CRYPTO)))
+        buttons.append(button(v.t("topup.crypto"), TopupCb(acc=acc, m=CRYPTO)))
+    if not buttons:
+        lines.append(v.t("topup.no_methods"))
+    pairs(kb, buttons)
     _page_button(v, kb, data.plugin)
     kb.row(*nav(v, Nav(to="balance")))
     return Screen("\n".join(lines), kb.as_markup())
@@ -137,7 +142,7 @@ def methods_screen(v: View, choice: Choice) -> Screen:
 def coins_screen(v: View, choice: Choice, page: int = 0) -> Screen:
     """Crypto before the invoice: a coin with one network leads straight to the amount."""
     acc = choice.data.account.id
-    lines = [*_head(v, choice.data), "", v.t("topup.choose_coin")]
+    lines = [*_head(v, choice.data, 1), v.t("topup.choose_coin")]
     buttons = []
     for coin, methods in choice.coins:
         if len(methods) == 1:
@@ -156,7 +161,7 @@ def networks_screen(v: View, choice: Choice, coin: str) -> Screen:
     methods = dict(choice.coins).get(coin)
     if not methods:
         return coins_screen(v, choice)
-    lines = [*_head(v, choice.data), "", v.t("topup.choose_coin_network", coin=escape(coin))]
+    lines = [*_head(v, choice.data, 1), v.t("topup.choose_coin_network", coin=escape(coin))]
     kb = InlineKeyboardBuilder()
     for method in methods:
         kb.row(button(method.network or method.name, TopupCb(acc=acc, m=method.id)))
@@ -175,11 +180,9 @@ def options_screen(
     """An invoice whose coin is chosen after it is made: coins, then the coin's networks."""
     lines = [
         v.t("topup.invoice_title", title=escape(title)),
-        v.t("topup.invoice_amount", amount=record.amount),
-        v.t("topup.invoice_id", id=escape(record.external_id)),
-        "",
+        _step(v, 3),
+        v.t("topup.invoice_short", amount=record.amount, id=escape(record.external_id)),
         v.t("topup.choose_after"),
-        "",
     ]
     groups = by_coin(options, lambda o: o.coin)
     networks = dict(groups).get(coin) if coin else None
@@ -199,20 +202,15 @@ def options_screen(
             for c, group in groups
         ]
         coin_buttons(kb, buttons, page, lambda p: PayOptCb(pay=record.id, p=p))
-    if record.url.startswith("https://"):
-        kb.row(InlineKeyboardButton(text=v.t("topup.open"), url=record.url))
-    kb.row(button(v.t("topup.paid"), PaidCb(pay=record.id)))
-    kb.row(*nav(v))
+    _pay_row(v, kb, record.url if record.url.startswith("https://") else None, record.id)
+    kb.row(*nav(v, Nav(to="balance")))
     return Screen("\n".join(lines), kb.as_markup())
 
 
 def amount_screen(v: View, choice: Choice, method: TopupMethod, until: Money | None) -> Screen:
     data = choice.data
     acc = data.account.id
-    lines = [*_head(v, data), v.t("topup.method", name=escape(method.name))]
-    if method.minimum is not None:
-        lines.append(v.t("topup.minimum", amount=method.minimum))
-    lines += ["", v.t("topup.choose_amount")]
+    lines = [*_head(v, data, 2), _method_line(v, method), v.t("topup.choose_amount")]
     kb = InlineKeyboardBuilder()
     if method.minimum is not None:
         amount = method.minimum
@@ -235,9 +233,8 @@ def amount_screen(v: View, choice: Choice, method: TopupMethod, until: Money | N
 
 
 def ask_amount(v: View, method: TopupMethod, back: CallbackData) -> Screen:
-    text = v.t("topup.ask_amount", currency=_currency(method))
-    if method.minimum is not None:
-        text += "\n" + v.t("topup.minimum", amount=method.minimum)
+    text = f"{_step(v, 2)}\n{_method_line(v, method)}\n"
+    text += v.t("topup.ask_amount", currency=_currency(method))
     kb = InlineKeyboardBuilder()
     kb.row(*nav(v, back))
     return Screen(text, kb.as_markup())
@@ -246,9 +243,13 @@ def ask_amount(v: View, method: TopupMethod, back: CallbackData) -> Screen:
 def payment_text(v: View, title: str, method: TopupMethod, payment: Payment) -> str:
     lines = [
         v.t("topup.invoice_title", title=escape(title)),
-        v.t("topup.invoice_line", amount=payment.amount, method=escape(method.name)),
-        v.t("topup.invoice_id", id=escape(payment.id)),
-        "",
+        _step(v, 3),
+        v.t(
+            "topup.invoice_line",
+            amount=payment.amount,
+            method=escape(method.name),
+            id=escape(payment.id),
+        ),
     ]
     if payment.address:
         sent = f"{payment.pay_amount or ''} {payment.pay_currency or ''}".strip()
@@ -257,20 +258,27 @@ def payment_text(v: View, title: str, method: TopupMethod, payment: Payment) -> 
         if payment.expires_at is not None:
             lines.append(v.t("topup.expires", date=v.moment(payment.expires_at)))
     elif payment.url and payment.url.startswith(NSPK):
-        lines.append(v.t("topup.pay_sbp", url=escape(payment.url)))
+        lines.append(v.t("topup.pay_sbp"))
     elif payment.url:
-        lines.append(v.t("topup.pay_page", url=escape(payment.url)))
-    lines += ["", v.t("topup.press_paid")]
+        lines.append(v.t("topup.pay_page"))
+    lines.append(v.t("topup.press_paid"))
     return "\n".join(lines)
 
 
 def payment_markup(v: View, payment: Payment, record_id: int) -> InlineKeyboardBuilder:
     kb = InlineKeyboardBuilder()
-    if payment.url:
-        kb.row(InlineKeyboardButton(text=v.t("topup.open"), url=payment.url))
-    kb.row(button(v.t("topup.paid"), PaidCb(pay=record_id)))
-    kb.row(*nav(v))
+    _pay_row(v, kb, payment.url, record_id)
+    kb.row(*nav(v, Nav(to="balance")))
     return kb
+
+
+def _pay_row(v: View, kb: InlineKeyboardBuilder, url: str | None, record_id: int) -> None:
+    """«💳 Pay» (the link) and «✅ Paid» side by side."""
+    row = []
+    if url:
+        row.append(InlineKeyboardButton(text=v.t("topup.open"), url=url))
+    row.append(button(v.t("topup.paid"), PaidCb(pay=record_id)))
+    kb.row(*row)
 
 
 def failed_screen(v: View, data: AccountData, error: BaseException, back: CallbackData) -> Screen:
@@ -286,11 +294,34 @@ def failed_screen(v: View, data: AccountData, error: BaseException, back: Callba
     return Screen(text, kb.as_markup())
 
 
-def _head(v: View, data: AccountData) -> list[str]:
-    lines = [v.t("topup.title", title=escape(data.title))]
+STEPS = ("method", "amount", "pay")
+
+
+def _step(v: View, number: int) -> str:
+    """«Step 2 of 3 · amount»: a top-up is the method, the amount, the payment."""
+    what = v.t(f"topup.step.{STEPS[number - 1]}")
+    return v.t("topup.step", n=number, total=len(STEPS), what=what)
+
+
+def _head(v: View, data: AccountData, number: int) -> list[str]:
+    lines = [v.t("topup.title", title=escape(data.title)), _step(v, number)]
     if data.balance is not None:
         lines.append(v.t("topup.balance", amount=data.balance.money))
     return lines
+
+
+def _sbp_label(v: View, method: TopupMethod) -> str:
+    if method.name.strip().upper() in ("СБП", "SBP"):
+        return v.t("topup.sbp_plain")
+    return v.t("topup.sbp", name=method.name)
+
+
+def _method_line(v: View, method: TopupMethod) -> str:
+    """«Method: SBP · minimum 100.00 ₽»."""
+    line = v.t("topup.method", name=escape(method.name))
+    if method.minimum is not None:
+        line += " · " + v.t("topup.minimum", amount=method.minimum)
+    return line
 
 
 def _page_button(v: View, kb: InlineKeyboardBuilder, plugin: type[Plugin]) -> None:
@@ -645,10 +676,8 @@ def _option_name(record: PaymentRecord, option_id: str, hub: Hub) -> str:
 def _choice_failed(v: View, record: PaymentRecord, text: str) -> Screen:
     kb = InlineKeyboardBuilder()
     kb.row(button(v.t("topup.choose_coin"), PayOptCb(pay=record.id)))
-    if record.url.startswith("https://"):
-        kb.row(InlineKeyboardButton(text=v.t("topup.open"), url=record.url))
-    kb.row(button(v.t("topup.paid"), PaidCb(pay=record.id)))
-    kb.row(*nav(v))
+    _pay_row(v, kb, record.url if record.url.startswith("https://") else None, record.id)
+    kb.row(*nav(v, Nav(to="balance")))
     return Screen(text, kb.as_markup())
 
 
@@ -698,7 +727,9 @@ async def _tell(hub: Hub, record_id: int, text: str) -> None:
     v = view(hub)
     if await menu(hub).update(pay_tag(record_id), Screen(text, home_markup(v, Nav(to="balance")))):
         return
-    await menu(hub).notify(text)
+    kb = InlineKeyboardBuilder()
+    kb.row(InlineKeyboardButton(text=v.t("menu.balance"), callback_data=note(Nav(to="balance"))))
+    await menu(hub).notify(text, kb.as_markup())
 
 
 async def watch_balance(hub: Hub, record_id: int) -> None:
@@ -724,9 +755,9 @@ async def watch_balance(hub: Hub, record_id: int) -> None:
             hub.payments.set_status(record_id, "arrived")
             v = view(hub)
             lines = [v.t("topup.arrived", title=escape(title), amount=now)]
-            forecast = hub.load(acc).forecast
-            if forecast is not None:
-                lines.append(escape(forecast.explain(v.lang, v.tz)))
+            lasts = money_lasts(v, hub.load(acc))
+            if lasts:
+                lines.append(v.t("topup.lasts", lasts=lasts))
             await _tell(hub, record_id, "\n".join(lines))
             return
     hub.payments.set_status(record_id, "not_seen")

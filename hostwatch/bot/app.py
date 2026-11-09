@@ -202,13 +202,12 @@ def autopay_job(hub: Hub, runner: AccountRunner, owner: Owner, registry: Registr
 
 
 def alert_markup(hub: Hub, keys: list[str]) -> InlineKeyboardMarkup | None:
-    """Buttons under an alert message: each opens a new menu on its screen."""
-    if not keys:
-        return None
+    """Buttons under an alert message: each opens a new menu on its screen; a message
+    without one (a «resolved») gets «🏠 Open the menu»."""
     accounts = hub.load_all()
     titles = {d.account.id: d.title for d in accounts}
     servers = {(d.account.id, s.external_id): s.name for d in accounts for s in d.servers}
-    v = View(hub.prefs.lang, hub.prefs.tz)
+    v = View(hub.prefs.lang, hub.prefs.tz, hub.now())
     return views.alert_buttons(v, keys, titles, servers)
 
 
@@ -318,16 +317,25 @@ def _jobs(
         await alerts.tick()
         touch_alive()
 
+    # The buttons of the summary being sent: «Open the menu», «Problems» if there are any.
+    summary_buttons: list[InlineKeyboardMarkup] = []
+
     async def summary_text() -> str:
-        v = View(prefs.lang, prefs.tz)
+        v = View(prefs.lang, prefs.tz, hub.now())
         try:
             rates = await hub.rates.get()
         except RatesUnavailable:
             rates = None
-        return views.summary_text(v, hub.load_all(), rates, prefs.currency, hub.now())
+        accounts = hub.load_all()
+        th = prefs.alert_settings(hub.own_ip).thresholds
+        summary_buttons[:] = [views.summary_markup(v, bool(views.problems(v, accounts, th)))]
+        return views.summary_text(v, accounts, rates, prefs.currency, hub.now(), th)
+
+    async def send_summary(text: str) -> bool:
+        return await owner.send(text, summary_buttons[0] if summary_buttons else None)
 
     summary = DailySummary(
-        summary_text, lambda: (prefs.summary_at, prefs.tz), settings_repo, owner.send
+        summary_text, lambda: (prefs.summary_at, prefs.tz), settings_repo, send_summary
     )
 
     async def announce(version: str, url: str) -> bool:

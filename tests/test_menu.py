@@ -78,7 +78,7 @@ async def test_start_sends_the_keyboard_and_a_menu(harness: Harness) -> None:
     assert isinstance(markup, ReplyKeyboardMarkup) and markup.is_persistent
     assert markup.keyboard[0][0].text == "☰ Меню"
     assert isinstance(carrier, DeleteMessage)
-    assert isinstance(menu, SendMessage) and "Выберите раздел" in str(menu.text)
+    assert isinstance(menu, SendMessage) and "Хостеры не подключены" in str(menu.text)
     assert harness.hub.prefs.menu_id is not None
 
 
@@ -97,7 +97,7 @@ async def test_menu_button_replaces_the_old_menu(harness: Harness) -> None:
     assert len(deleted) == 2  # and the owner's «☰ Menu»
     sent = [c for c in calls if isinstance(c, SendMessage)]
     assert len(sent) == 1  # the keyboard is there already: only the menu
-    assert "Pick a section" in str(sent[0].text)
+    assert "No hosters connected" in str(sent[0].text)
 
 
 async def test_old_menu_loses_its_buttons_when_it_cannot_be_deleted(harness: Harness) -> None:
@@ -194,7 +194,7 @@ async def test_a_menu_deleted_by_the_owner_comes_back_below(harness: Harness) ->
     harness.session.refuse = refuse
     await harness.press(Nav(to="settings"))
 
-    assert "<b>Настройки</b>" in str(_of(harness, SendMessage)[-1].text)
+    assert "<b>⚙️ Настройки</b>" in str(_of(harness, SendMessage)[-1].text)
     assert harness.hub.prefs.menu_id != menu_id
 
 
@@ -271,7 +271,7 @@ async def test_a_new_menu_cancels_the_question(harness: Harness) -> None:
     await harness.send("22:00-07:00")
 
     assert harness.hub.prefs.threshold("quiet_hours") != "22:00-07:00"
-    assert "Выберите раздел" in harness.session.last_text()
+    assert "Хостеры не подключены" in harness.session.last_text()
 
 
 # Notifications: their buttons open a new menu below
@@ -380,7 +380,11 @@ def test_alert_buttons_lead_to_their_screens() -> None:
         ("🖥 bear", note(ServerCb(acc=1, sid="7"))),  # one button for both alerts
         ("🔌 Regxa", note(AccountCb(acc=2, op="card"))),
     ]
-    assert alert_buttons(v, [], {}, {}) is None
+    # A message with nothing to open (a «resolved») still leads to the menu.
+    empty = alert_buttons(v, [], {}, {})
+    assert [(b.text, b.callback_data) for row in empty.inline_keyboard for b in row] == [
+        ("🏠 Открыть меню", note(Nav(to="menu")))
+    ]
 
 
 async def test_alert_markup_reads_names_from_the_database(harness: Harness) -> None:

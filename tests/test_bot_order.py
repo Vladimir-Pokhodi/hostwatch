@@ -79,8 +79,8 @@ async def test_default_limit_asks_twice_and_orders_once(harness: Harness) -> Non
 
     await harness.press(_small(acc))
     summary = harness.session.last_text()
-    assert "Заказать за €4.50 в месяц?" in summary
-    assert "Лимит заказов: потрачено 0.00 ₽ из 0.00 ₽" in summary
+    assert "❓ Заказать за €4.50/мес?" in summary
+    assert "⚠️ Выше лимита: 0.00 ₽ из 0.00 ₽ за месяц" in summary
     assert "не проверен вживую" not in summary
     assert FakePlugin.calls == []
 
@@ -132,7 +132,7 @@ async def test_orders_of_the_month_count_against_the_limit(harness: Harness) -> 
     )
 
     await harness.press(_small(acc))
-    assert "потрачено 450.00 ₽ из 800.00 ₽" in harness.session.last_text()
+    assert "450.00 ₽ из 800.00 ₽ за месяц" in harness.session.last_text()
     await harness.press(_yes(harness))
 
     assert "Заказ выше месячного лимита" in harness.session.last_text()
@@ -147,7 +147,7 @@ async def test_price_from_the_hoster_wins_over_the_catalog(harness: Harness) -> 
 
     summary = harness.session.last_text()
     assert "Цена изменилась: в каталоге было €4.50, хостер просит €5.00" in summary
-    assert "Заказать за €5.00 в месяц?" in summary
+    assert "❓ Заказать за €5.00/мес?" in summary
     await harness.press(_yes(harness))
     assert FakePlugin.calls == ["order small debian-12 1"]
     assert _orders(harness)[0].params["amount"] == "5.00"
@@ -215,7 +215,7 @@ async def test_ssh_key_from_the_settings_goes_with_the_order(harness: Harness) -
     assert harness.hub.prefs.ssh_key == KEY
 
     await harness.press(_small(acc))
-    assert "поставлю ключ из настроек" in harness.session.last_text()
+    assert "🔑 SSH-ключ из настроек" in harness.session.last_text()
     await harness.press(_yes(harness))
     assert FakePlugin.calls == ["order small debian-12 1 with key"]
 
@@ -227,7 +227,7 @@ async def test_limit_is_set_in_the_settings(harness: Harness) -> None:
     assert harness.hub.prefs.order_limit == 0
     await harness.send("1 500,50")
     assert harness.hub.prefs.order_limit == Decimal("1500.50")
-    assert "Лимит заказов в месяц: 1 500.50 ₽" in harness.session.last_text()
+    assert "💰 Лимит в месяц: 1 500.50 ₽" in harness.session.last_text()
 
 
 async def test_password_is_shown_then_deleted_and_never_kept(
@@ -244,7 +244,7 @@ async def test_password_is_shown_then_deleted_and_never_kept(
     sent = [c for c in harness.session.calls if isinstance(c, SendMessage)]
     # The password is a message of its own; the menu goes below it with the server card.
     assert PASSWORD in str(sent[-2].text)
-    assert "<b>beaver</b>" in str(sent[-1].text)
+    assert "<b>🟢 beaver · Fake hoster (main)</b>" in str(sent[-1].text)
     assert any(isinstance(c, DeleteMessage) for c in harness.session.calls)
     assert FakePlugin.calls == ["root_password 1"]
     [entry] = [e for e in harness.hub.journal.recent() if e.action == "root_password"]

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Protocol
@@ -56,6 +56,10 @@ class AccountData:
     forecast: Forecast | None
     # Servers the owner marked for the bot's autopay (stage 11).
     autopay: frozenset[str] = frozenset()
+    # The last load of each server, by server id; servers without one are missing.
+    usage: Mapping[str, Usage] = field(default_factory=dict)
+    # Servers the owner stopped through the bot: their «stopped» is not a problem.
+    owner_stopped: frozenset[str] = frozenset()
 
     @property
     def caps(self) -> set[Capability]:
@@ -131,6 +135,11 @@ class Hub:
         if balance is not None and balance_at is not None:
             history = self.balances.since(account_id, balance_at - RECONCILE_WINDOW)
             result_forecast = forecast(balance, servers, balance_at, history, autopay)
+        usage = {
+            s.external_id: found
+            for s in servers
+            if (found := self.usage.get(account_id, s.external_id)) is not None
+        }
         return AccountData(
             account=account,
             plugin=plugin,
@@ -140,6 +149,8 @@ class Hub:
             balance_at=balance_at,
             forecast=result_forecast,
             autopay=autopay,
+            usage=usage,
+            owner_stopped=frozenset(self.owner_stops.for_account(account_id)),
         )
 
     def usage_of(self, account_id: int, server_id: str) -> Usage | None:
@@ -153,11 +164,6 @@ class Hub:
         views = []
         for data in self.load_all():
             acc = data.account.id
-            usage = {
-                s.external_id: found
-                for s in data.servers
-                if (found := self.usage_of(acc, s.external_id)) is not None
-            }
             schedule = self.poller.schedules.get(acc)
             views.append(
                 AccountView(
@@ -165,7 +171,7 @@ class Hub:
                     title=data.title,
                     servers=data.servers,
                     forecast=data.forecast,
-                    usage=usage,
+                    usage=data.usage,
                     failures=0 if schedule is None else schedule.failures,
                     owner_stopped=self._owner_stopped(acc, data.servers),
                     autopay=data.autopay,
