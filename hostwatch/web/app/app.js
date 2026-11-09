@@ -1,14 +1,17 @@
 // hostwatch Mini App: read-only views of the bot's data. No build step, no framework.
-import { count, lang, setLang, t } from "./i18n.js";
+import { destroyCharts } from "./charts.js";
+import { count, setLang, t } from "./i18n.js";
+import { journalView, resetJournal } from "./journal.js";
+import { moneyView, resetMoney } from "./money.js";
+import { resetServers, serverView, serversView } from "./servers.js";
+import { clock, h, header, icon, message, money, monthName, native, setZone, sum, sumValue, tg } from "./ui.js";
 
-const tg = window.Telegram?.WebApp;
 const view = document.getElementById("view");
 const tabsEl = document.getElementById("tabs");
 
 const ICONS = {
   overview: "M4 13h6V4H4v9zm0 7h6v-5H4v5zm10 0h6v-9h-6v9zm0-16v5h6V4h-6z",
-  servers:
-    "M4 5h16v5H4V5zm0 9h16v5H4v-5zm3-6.5h.01M7 16.5h.01",
+  servers: "M4 5h16v5H4V5zm0 9h16v5H4v-5zm3-6.5h.01M7 16.5h.01",
   money:
     "M12 3v18M16.5 7.5c0-1.7-2-3-4.5-3s-4.5 1.3-4.5 3 2 2.7 4.5 3 4.5 1.3 4.5 3-2 3-4.5 3-4.5-1.3-4.5-3",
   journal: "M6 4h12v16H6V4zm3 4h6m-6 4h6m-6 4h4",
@@ -17,120 +20,26 @@ const ICONS = {
 const TABS = ["overview", "servers", "money", "journal", "tips"];
 
 let tab = "overview";
+// The open server page: [account id, server id], or null.
+let server = null;
 let data = null;
 let state = "loading";
+let pending = [];
 
-// Elements
+// What the tabs get: re-render, open and leave a server page, report a failed request,
+// and run code once the new nodes are in the page (charts need their width).
+const ctx = {
+  render: () => render(),
+  open: (s) => openServer(s.account_id, s.server_id),
+  back: () => closeServer(),
+  fail: (error) => {
+    state = error?.status === 401 || error?.status === 429 ? "denied" : "error";
+    render();
+  },
+  after: (fn) => pending.push(fn),
+};
 
-function h(tag, attrs = {}, ...children) {
-  const el = document.createElement(tag);
-  for (const [key, value] of Object.entries(attrs)) {
-    if (value == null || value === false) continue;
-    if (key === "class") el.className = value;
-    else if (key.startsWith("on")) el.addEventListener(key.slice(2), value);
-    else el.setAttribute(key, value === true ? "" : value);
-  }
-  for (const child of children.flat()) {
-    if (child == null || child === false) continue;
-    el.append(child instanceof Node ? child : document.createTextNode(String(child)));
-  }
-  return el;
-}
-
-function icon(name) {
-  const ns = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(ns, "svg");
-  svg.setAttribute("viewBox", "0 0 24 24");
-  svg.setAttribute("aria-hidden", "true");
-  const path = document.createElementNS(ns, "path");
-  path.setAttribute("d", ICONS[name]);
-  svg.append(path);
-  return svg;
-}
-
-// Numbers and dates
-
-function money(amount, { exact = false } = {}) {
-  if (!amount) return "—";
-  const value = Number(amount.amount);
-  const digits = exact ? 2 : Math.abs(value) >= 100 ? 0 : 2;
-  try {
-    return new Intl.NumberFormat(lang(), {
-      style: "currency",
-      currencyDisplay: "narrowSymbol",
-      currency: amount.currency,
-      minimumFractionDigits: digits,
-      maximumFractionDigits: digits,
-    }).format(value);
-  } catch {
-    return `${value.toFixed(digits)} ${amount.currency}`;
-  }
-}
-
-// A sum of several currencies: one number when the rates allow it.
-function sum(s, options) {
-  if (!s) return "—";
-  if (s.total) return money(s.total, options);
-  if (!s.parts.length) return "—";
-  return s.parts.map((p) => money(p, options)).join(" + ");
-}
-
-// A hoster's own sums: in its own currency when it has one, like its balance.
-function native(s) {
-  if (!s || !s.parts.length) return "—";
-  return s.parts.length === 1 ? money(s.parts[0]) : sum(s);
-}
-
-function sumValue(s) {
-  if (!s) return null;
-  if (s.total) return Number(s.total.amount);
-  if (s.parts.length === 0) return 0;
-  return s.parts.length === 1 ? Number(s.parts[0].amount) : null;
-}
-
-function monthName(month) {
-  const [year, number] = month.split("-").map(Number);
-  const name = new Intl.DateTimeFormat(lang(), { month: "long" }).format(
-    new Date(Date.UTC(year, number - 1, 15)),
-  );
-  return name.charAt(0).toUpperCase() + name.slice(1);
-}
-
-function clock(iso) {
-  return new Intl.DateTimeFormat(lang(), { hour: "2-digit", minute: "2-digit" }).format(
-    new Date(iso),
-  );
-}
-
-// Theme: Telegram's colours, light or dark
-
-function applyTheme() {
-  const scheme = tg?.colorScheme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  document.documentElement.dataset.scheme = scheme;
-  try {
-    tg?.setHeaderColor?.("secondary_bg_color");
-    tg?.setBackgroundColor?.("secondary_bg_color");
-    tg?.setBottomBarColor?.("secondary_bg_color");
-  } catch {
-    // Older clients have no such methods.
-  }
-}
-
-// Screens
-
-function message(title, text, action) {
-  return h(
-    "section",
-    { class: "message" },
-    h("h1", {}, title),
-    h("p", {}, text),
-    action && h("button", { class: "button", type: "button", onclick: action.run }, action.label),
-  );
-}
-
-function header(title, extra) {
-  return h("header", { class: "head" }, h("h1", {}, title), extra);
-}
+// Overview
 
 function statePill(d) {
   if (!d.problems.length) return h("span", { class: "pill ok" }, h("i", { class: "dot ok" }), t("state.ok"));
@@ -224,7 +133,7 @@ function hosterCard(x) {
 
 function overview(d) {
   const sub = `${count(d.hosters_count, "hoster")} · ${count(d.servers_count, "server")}`;
-  const refresh = h("button", { class: "icon-button", type: "button", "aria-label": t("refresh"), onclick: load }, "↻");
+  const refresh = h("button", { class: "icon-button", type: "button", "aria-label": t("refresh"), onclick: reload }, "↻");
   if (!d.hosters.length) {
     return [header(t("tab.overview"), refresh), message(t("empty.title"), t("empty.text"))];
   }
@@ -249,17 +158,30 @@ function soon() {
   return [header(t(`tab.${tab}`)), message(t("soon.title"), t("soon.text"))];
 }
 
+// Pages
+
+function content() {
+  if (state === "outside") return message(t("outside.title"), t("outside.text"));
+  if (state === "denied") return message(t("denied.title"), t("denied.text"));
+  if (state === "error") return message(t("error.title"), t("error.text"), { label: t("retry"), run: reload });
+  if (state === "loading" || !data) return h("p", { class: "loading" }, t("loading"));
+  if (tab === "overview") return overview(data);
+  if (tab === "servers") return server ? serverView(ctx, ...server) : serversView(ctx);
+  if (tab === "money") return moneyView(ctx);
+  if (tab === "journal") return journalView(ctx);
+  return soon();
+}
+
 function render() {
-  view.replaceChildren();
-  let content;
-  if (state === "outside") content = message(t("outside.title"), t("outside.text"));
-  else if (state === "denied") content = message(t("denied.title"), t("denied.text"));
-  else if (state === "error") content = message(t("error.title"), t("error.text"), { label: t("retry"), run: load });
-  else if (tab !== "overview") content = soon();
-  else if (state === "loading" || !data) content = h("p", { class: "loading" }, t("loading"));
-  else content = overview(data);
-  view.append(...[content].flat(Infinity).filter(Boolean));
+  destroyCharts();
+  pending = [];
+  const nodes = [content()].flat(Infinity).filter(Boolean);
+  view.replaceChildren(...nodes);
   renderTabs();
+  syncBackButton();
+  const run = pending;
+  pending = [];
+  for (const fn of run) fn();
 }
 
 function renderTabs() {
@@ -274,21 +196,59 @@ function renderTabs() {
           class: name === tab ? "tab active" : "tab",
           "aria-selected": String(name === tab),
           onclick: () => {
-            if (tab === name) return;
+            if (tab === name && !server) return;
             tab = name;
+            server = null;
             tg?.HapticFeedback?.selectionChanged?.();
             window.scrollTo(0, 0);
             render();
           },
         },
-        icon(name),
+        icon(ICONS[name]),
         h("span", {}, t(`tab.${name}`)),
       ),
     ),
   );
 }
 
+// Telegram's own «Back» in the header leaves a server page.
+let backBound = false;
+function syncBackButton() {
+  const button = tg?.BackButton;
+  if (!button) return;
+  if (!backBound) {
+    button.onClick(() => closeServer());
+    backBound = true;
+  }
+  if (server && state === "ready") button.show();
+  else button.hide();
+}
+
+let listScroll = 0;
+function openServer(acc, sid) {
+  listScroll = window.scrollY;
+  tab = "servers";
+  server = [acc, sid];
+  tg?.HapticFeedback?.impactOccurred?.("light");
+  window.scrollTo(0, 0);
+  render();
+}
+
+function closeServer() {
+  if (!server) return;
+  server = null;
+  render();
+  window.scrollTo(0, listScroll);
+}
+
 // Data
+
+function reload() {
+  resetServers();
+  resetMoney();
+  resetJournal();
+  load();
+}
 
 async function load() {
   if (!tg?.initData) {
@@ -312,12 +272,34 @@ async function load() {
     } else {
       data = await response.json();
       setLang(data.lang);
+      setZone(data.tz || "UTC");
       state = "ready";
     }
   } catch {
     state = "error";
   }
   render();
+}
+
+function applyTheme() {
+  const scheme = tg?.colorScheme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  document.documentElement.dataset.scheme = scheme;
+  try {
+    tg?.setHeaderColor?.("secondary_bg_color");
+    tg?.setBackgroundColor?.("secondary_bg_color");
+    tg?.setBottomBarColor?.("secondary_bg_color");
+  } catch {
+    // Older clients have no such methods.
+  }
+  if (state === "ready") render();
+}
+
+// «📊 Charts» on a server card in the chat opens the app on that server: ?server=1:abc
+const wanted = new URLSearchParams(location.search).get("server");
+if (wanted && /^\d+:.+/.test(wanted)) {
+  const at = wanted.indexOf(":");
+  tab = "servers";
+  server = [Number(wanted.slice(0, at)), wanted.slice(at + 1)];
 }
 
 setLang(tg?.initDataUnsafe?.user?.language_code === "ru" ? "ru" : (navigator.language || "en").slice(0, 2));

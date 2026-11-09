@@ -19,7 +19,7 @@ from hostwatch.bot.callbacks import (
 from hostwatch.core.models import Autorenew, ServerStatus
 from hostwatch.plugins.aeza import BASE_URL, AezaPlugin
 from hostwatch.plugins.fake import FakePlugin
-from hostwatch.storage.repositories import AccountRepository
+from hostwatch.storage.repositories import HISTORY_ACTIONS, AccountRepository
 from tests.test_bot import Harness, _store_from_fixtures
 
 
@@ -57,7 +57,7 @@ async def test_action_asks_first_and_calls_nothing(harness: Harness) -> None:
     assert "🖥 beaver · Fake hoster (main) · 192.0.2.11" in text
     assert "💰 Без списания" in text
     assert FakePlugin.calls == []
-    assert harness.hub.journal.recent() == []
+    assert harness.hub.journal.page(exclude=HISTORY_ACTIONS) == []
 
 
 async def test_yes_runs_once_and_a_second_press_is_ignored(harness: Harness) -> None:
@@ -71,7 +71,7 @@ async def test_yes_runs_once_and_a_second_press_is_ignored(harness: Harness) -> 
     assert FakePlugin.calls == ["power 1 stop"]
     assert "✅ Готово</b>\nвыключить сервер · beaver" in harness.session.texts()[-1]
     assert harness.alerts()[-1] == "Кнопка устарела или уже нажата. Ничего не сделал."
-    entries = harness.hub.journal.recent()
+    entries = harness.hub.journal.page(exclude=HISTORY_ACTIONS)
     assert len(entries) == 1
     entry = entries[0]
     assert (entry.action, entry.ok, entry.actor) == ("stop", True, "owner")
@@ -89,7 +89,7 @@ async def test_cancel_does_nothing_and_kills_the_nonce(harness: Harness) -> None
 
     assert FakePlugin.calls == []
     assert "<b>🟢 beaver · Fake hoster (main)</b>" in harness.session.texts()[-1]
-    assert harness.hub.journal.recent() == []
+    assert harness.hub.journal.page(exclude=HISTORY_ACTIONS) == []
 
 
 async def test_expired_confirmation_does_nothing(harness: Harness) -> None:
@@ -149,7 +149,7 @@ async def test_renewal_shows_the_price_and_tells_about_money(harness: Harness) -
         if isinstance(c, SendMessage) and "Действие с деньгами" in (c.text or "")
     ]
     assert len(notices) == 1 and "Готово</b>\nпродлить" in notices[0]
-    entry = harness.hub.journal.recent()[0]
+    entry = harness.hub.journal.page(exclude=HISTORY_ACTIONS)[0]
     assert (entry.action, entry.ok) == ("renew", True)
     assert entry.params["amount"] == "4.50"
 
@@ -163,7 +163,7 @@ async def test_failed_money_action_is_journalled_and_told(harness: Harness) -> N
 
     await harness.press(yes)
 
-    entry = harness.hub.journal.recent()[0]
+    entry = harness.hub.journal.page(exclude=HISTORY_ACTIONS)[0]
     assert (entry.action, entry.ok) == ("renew", False)
     assert "price has changed" in entry.response
     texts = [c.text or "" for c in harness.session.calls if isinstance(c, SendMessage)]
@@ -205,7 +205,7 @@ async def test_hoster_error_is_shown_and_journalled(harness: Harness) -> None:
     await harness.press(yes)
 
     assert "Причина: хостер отказал: fake hoster says no" in harness.session.texts()[-1]
-    entry = harness.hub.journal.recent()[0]
+    entry = harness.hub.journal.page(exclude=HISTORY_ACTIONS)[0]
     assert not entry.ok and entry.response.endswith("fake hoster says no")
     assert harness.hub.owner_stops.for_account(acc) == {}
 
@@ -230,7 +230,7 @@ async def test_pay_invoice_from_the_balance_screen(harness: Harness) -> None:
     await harness.press(_confirm(harness)[0])
 
     assert FakePlugin.calls == ["pay_invoice 100 4.50"]
-    entry = harness.hub.journal.recent()[0]
+    entry = harness.hub.journal.page(exclude=HISTORY_ACTIONS)[0]
     assert entry.params == {
         "action": "pay_invoice",
         "server": "1",
@@ -251,7 +251,10 @@ async def test_journal_names_the_actions(harness: Harness) -> None:
 
     await harness.press(Nav(to="journal"))
 
-    assert "✅ 07.11 15:00 · Fake hoster (main) · продление €4.50" in harness.session.last_text()
+    assert (
+        "✅ 07.11 15:00 · Fake hoster (main) · продление · beaver €4.50"
+        in harness.session.last_text()
+    )
 
 
 async def test_journal_keeps_no_secrets(harness: Harness) -> None:
@@ -271,7 +274,7 @@ async def test_journal_keeps_no_secrets(harness: Harness) -> None:
         )
         await harness.press(yes)
 
-    entry = harness.hub.journal.recent()[0]
+    entry = harness.hub.journal.page(exclude=HISTORY_ACTIONS)[0]
     assert entry.ok
     assert key not in entry.response and "***" in entry.response
     assert all(key not in t for t in harness.session.texts())

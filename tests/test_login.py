@@ -20,7 +20,7 @@ from hostwatch.core.models import AccountStatus
 from hostwatch.core.plugin import BrowserAuth, PluginContext, cookie_header
 from hostwatch.plugins.regxa import RegxaPlugin
 from hostwatch.plugins.timeweb import TimewebPlugin
-from hostwatch.storage.repositories import AccountRepository
+from hostwatch.storage.repositories import HISTORY_ACTIONS, AccountRepository
 from hostwatch.web.browser import Policy, clamp_size, local_launcher
 from hostwatch.web.login import EndReason, LoginEvents, LoginService, LoginTarget
 from hostwatch.web.server import COOKIE, make_app
@@ -358,7 +358,7 @@ async def test_finish_merges_cookies_into_the_account(login_harness: tuple[Harne
     }
     assert h.hub.accounts.get(account).status is AccountStatus.OK
     assert sent.texts[-1] == "🟢 Timeweb Cloud (main) подключён."
-    assert h.hub.journal.recent()[0].action == "login"
+    assert h.hub.journal.page(exclude=HISTORY_ACTIONS)[0].action == "login"
 
 
 async def test_cookie_command_saves_pasted_cookies(login_harness: tuple[Harness, Sent]) -> None:

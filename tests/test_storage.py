@@ -167,7 +167,7 @@ def test_journal(conn: sqlite3.Connection, accounts: AccountRepository) -> None:
             )
         )
 
-    recent = repo.recent(limit=2)
+    recent = repo.page(2, actions=["power"])
     assert [e.at for e in recent] == [NOW + timedelta(minutes=2), NOW + timedelta(minutes=1)]
     assert recent[0].params == {"server": "1", "action": "restart"}
     assert repo.prune(NOW + timedelta(minutes=1)) == 1

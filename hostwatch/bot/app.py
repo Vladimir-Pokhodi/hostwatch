@@ -60,6 +60,7 @@ from .menu import DeleteOwnerMessages, Menu, MenuGuard
 from .middleware import OwnerOnly
 from .prefs import Prefs
 from .views import View
+from .webdata import WebData
 
 log = logging.getLogger(__name__)
 
@@ -281,7 +282,7 @@ async def run(settings: Settings) -> None:
             miniapp = MiniApp(
                 settings.bot_token.get_secret_value(),
                 settings.owner_id,
-                lambda: webapp.overview(hub),
+                WebData.of(hub),
             )
             await webapp.set_menu_button(bot, settings.owner_id, hub.app_url, prefs.lang)
         web = await serve(hub.login.service, miniapp=miniapp)

@@ -14,7 +14,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from hostwatch.bot.callbacks import PaidCb, PayOptCb, TopupAmountCb, TopupCb
 from hostwatch.bot.topup import CRYPTO, coin_buttons, parse_amount
-from hostwatch.storage.repositories import AccountRepository
+from hostwatch.storage.repositories import HISTORY_ACTIONS, AccountRepository
 from tests.test_bot import Harness
 
 
@@ -91,7 +91,7 @@ async def test_sbp_invoice_comes_with_qr_and_paid_button(harness: Harness) -> No
     assert "https://qr.nspk.ru/FAKE0000000000000000000000000000" in urls
     record = harness.hub.payments.get(1)
     assert (record.external_id, record.status) == ("200", "created")
-    entry = harness.hub.journal.recent()[0]
+    entry = harness.hub.journal.page(exclude=HISTORY_ACTIONS)[0]
     assert (entry.action, entry.ok, entry.params["invoice"]) == ("topup", True, "200")
 
 
@@ -126,7 +126,7 @@ async def test_failed_invoice_offers_the_hoster_page(harness: Harness) -> None:
     await harness.press(TopupCb(acc=acc))
 
     assert "Счёт не создался" in harness.session.last_text()
-    entries = harness.hub.journal.recent()
+    entries = harness.hub.journal.page(exclude=HISTORY_ACTIONS)
     assert not entries  # nothing was created, so nothing to log
     # The account status belongs to polling: a top-up failure does not change it.
     assert harness.hub.accounts.get(acc).last_error is None
@@ -196,7 +196,7 @@ async def test_coin_is_chosen_under_the_invoice(harness: Harness) -> None:
     assert photo.caption is not None
     assert "<code>FakeUSDTAddress00000000000000000</code>" in photo.caption
     assert "5.01 USDT (TON)" in photo.caption
-    entry = harness.hub.journal.recent()[0]
+    entry = harness.hub.journal.page(exclude=HISTORY_ACTIONS)[0]
     assert entry.params == {"invoice": "202", "option": "USDT.ton"}
     assert (entry.action, entry.ok) == ("topup", True)
 
@@ -221,7 +221,7 @@ async def test_failed_address_offers_other_coins_and_the_page(harness: Harness) 
 
     assert "Адрес не получен" in harness.session.last_text()
     assert PayOptCb(pay=1).pack() in harness.session.keyboard()
-    assert harness.hub.journal.recent()[0].ok is False
+    assert harness.hub.journal.page(exclude=HISTORY_ACTIONS)[0].ok is False
 
     harness.hub.topup_options.clear()
     await harness.press(PayOptCb(pay=1))

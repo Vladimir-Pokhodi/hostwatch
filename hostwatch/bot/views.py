@@ -9,12 +9,13 @@ two a row (coins and pages aside), «‹ Back · 🏠 Home» at the bottom.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta, tzinfo
 from decimal import ROUND_HALF_UP, Decimal
 from enum import IntEnum
 from html import escape
+from urllib.parse import quote
 
 from aiogram.filters.callback_data import CallbackData
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
@@ -781,8 +782,10 @@ def server_card(
     usage: Usage | None,
     own_days: int | None = None,
     th: Thresholds | None = None,
+    app_url: str | None = None,
 ) -> Screen:
-    """`own_days`: this is hostwatch's own server, warned about that many days earlier."""
+    """`own_days`: this is hostwatch's own server, warned about that many days earlier.
+    With `app_url`, «📊 Charts» opens the Mini App on this server."""
     acc, sid = data.account.id, server.external_id
     found = problems(v, [data], th)
     title = f"{_server_icon(server, found, acc)} {escape(server.name)} · {escape(data.title)}"
@@ -829,6 +832,9 @@ def server_card(
             _button(v.t("order.button.password"), ActionCb(acc=acc, sid=sid, act="password"))
         )
     buttons.append(_button(v.t("button.refresh"), RefreshCb(acc=acc, view="server", sid=sid)))
+    if app_url:
+        url = f"{app_url}?server={acc}:{quote(sid, safe='')}"
+        buttons.append(InlineKeyboardButton(text=v.t("card.charts"), web_app=WebAppInfo(url=url)))
     pairs(kb, buttons)
     kb.row(*_nav(v, HostCb(acc=acc, page=server_page(data, server))))
     return Screen("\n".join(lines), kb.as_markup())
@@ -1064,25 +1070,109 @@ JOURNAL_ACTIONS = frozenset(
         "autorenew_off",
         "renew",
         "pay_invoice",
+        "connect",
+        "disconnect",
+    }
+)
+# Actions whose record names a sum worth showing.
+JOURNAL_MONEY = frozenset(
+    {"renew", "pay_invoice", "topup", "order", "topup_paid", "topup_result", "autopay_hold"}
+)
+
+
+def journal_action(
+    v: View, entry: JournalEntry, servers: Mapping[tuple[int, str], str] | None = None
+) -> str:
+    """What was done, in the owner's language; the server, invoice and sum when there are.
+    `servers` names servers by (account, server id)."""
+    p = entry.params
+    name = _journal_name(v, entry)
+    parts = [name]
+    sid = p.get("server")
+    if sid and entry.action != "order" and entry.account_id is not None:
+        parts.append(f"· {(servers or {}).get((entry.account_id, sid), sid)}")
+    invoice = p.get("invoice")
+    if invoice and entry.action in ("pay_invoice", "autopay_hold", "autopay_answer"):
+        parts.append(f"#{invoice}")
+    if entry.action == "disconnect" and p.get("plugin"):
+        label = p.get("label")
+        parts.append(f"· {p['plugin']}" + (f" ({label})" if label else ""))
+    amount = p.get("amount")
+    if amount and entry.action in JOURNAL_MONEY:
+        parts.append(_journal_money(amount, p.get("currency", "")))
+    return " ".join(parts)
+
+
+def _journal_name(v: View, entry: JournalEntry) -> str:
+    action, p = entry.action, entry.params
+    if action in JOURNAL_ACTIONS:
+        return v.t(f"journal.action.{action}")
+    if action in ("order", "root_password"):
+        return v.t(f"order.journal.{action}")
+    if action == "account_status":
+        new = p.get("new", "")
+        if new == AccountStatus.OK.value:
+            return v.t("journal.action.account_back")
+        known = {status.value for status in AccountStatus}
+        status = v.t(f"account.status.{new}") if new in known else new
+        return v.t("journal.action.account_status", status=status)
+    if action == "settings":
+        return _journal_setting(v, p.get("key", ""), p.get("old", ""), p.get("new", ""))
+    if action == "topup_paid":
+        return v.t("journal.action.topup_paid")
+    if action == "topup_result":
+        arrived = entry.response == "arrived"
+        return v.t("journal.action.topup_arrived" if arrived else "journal.action.topup_not_seen")
+    if action == "autopay_mark":
+        return v.t(
+            "journal.action.autopay_on" if p.get("on") == "yes" else "journal.action.autopay_off"
+        )
+    if action == "autopay_hold":
+        reason = p.get("reason", "")
+        key = f"journal.hold.{reason}"
+        text = v.t(key) if key in JOURNAL_HOLDS else reason
+        return v.t("journal.action.autopay_hold", reason=text)
+    if action == "autopay_answer":
+        approved = p.get("answer") == "approved"
+        return v.t(
+            "journal.action.autopay_approved" if approved else "journal.action.autopay_declined"
+        )
+    return action
+
+
+JOURNAL_HOLDS = frozenset(
+    f"journal.hold.{r}" for r in ("ask_grown", "ask_new", "over_limit", "low_balance")
+)
+JOURNAL_SETTINGS = frozenset(
+    {
+        "lang",
+        "timezone",
+        "currency",
+        "threshold.balance_days",
+        "threshold.load_percent",
+        "threshold.disk_percent",
+        "threshold.quiet_hours",
+        "threshold.summary_time",
+        "order.limit",
+        "order.ssh_key",
+        "autopay.days",
     }
 )
 
 
-def journal_action(v: View, entry: JournalEntry) -> str:
-    """What was done, in the owner's language; the server or invoice when there is one."""
-    name = (
-        v.t(f"journal.action.{entry.action}") if entry.action in JOURNAL_ACTIONS else entry.action
-    )
-    if entry.action in ("order", "root_password"):
-        name = v.t(f"order.journal.{entry.action}")
-    detail = entry.params.get("invoice") if entry.action == "pay_invoice" else None
-    amount = entry.params.get("amount")
-    parts = [name]
-    if detail:
-        parts.append(f"#{detail}")
-    if amount and entry.action in ("renew", "pay_invoice", "topup", "order"):
-        parts.append(_journal_money(amount, entry.params.get("currency", "")))
-    return " ".join(parts)
+def _journal_setting(v: View, key: str, old: str, new: str) -> str:
+    if key in JOURNAL_SETTINGS:
+        name = v.t(f"journal.setting.{key}")
+    elif key.startswith("autopay.limit."):
+        name = v.t("journal.setting.autopay.limit")
+    else:
+        name = key
+    if key == "order.ssh_key":
+        old = v.t("journal.setting.set") if old else ""
+        new = v.t("journal.setting.set" if new == "set" else "journal.setting.cleared")
+    if key == "lang":
+        old, new = LANGUAGE_NAMES.get(old, old), LANGUAGE_NAMES.get(new, new)
+    return v.t("journal.action.settings", name=name, old=old or "—", new=new or "—")
 
 
 def _journal_money(amount: str, currency: str) -> str:
@@ -1094,7 +1184,12 @@ def _journal_money(amount: str, currency: str) -> str:
 
 
 def journal(
-    v: View, entries: list[JournalEntry], page: int, titles: dict[int, str], has_more: bool
+    v: View,
+    entries: list[JournalEntry],
+    page: int,
+    titles: dict[int, str],
+    has_more: bool,
+    servers: Mapping[tuple[int, str], str] | None = None,
 ) -> Screen:
     title = v.t("journal.title")
     if page > 0 or has_more:
@@ -1104,7 +1199,8 @@ def journal(
         lines.append(v.t("journal.empty"))
     for entry in entries:
         hoster = titles.get(entry.account_id, "—") if entry.account_id is not None else "—"
-        mark = "✅" if entry.ok else "❌"
+        # A held autopay waits for the owner; it did not fail.
+        mark = "⏳" if entry.action == "autopay_hold" else "✅" if entry.ok else "❌"
         who = "🤖 " if entry.actor != "owner" else ""
         lines.append(
             v.t(
@@ -1113,7 +1209,7 @@ def journal(
                 mark=mark,
                 who=who,
                 hoster=escape(hoster),
-                action=escape(journal_action(v, entry)),
+                action=escape(journal_action(v, entry, servers)),
             )
         )
     kb = InlineKeyboardBuilder()

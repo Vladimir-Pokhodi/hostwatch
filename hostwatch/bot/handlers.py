@@ -203,9 +203,10 @@ async def screen_for(hub: Hub, to: str) -> Screen:
 def journal_screen(hub: Hub, page: int) -> Screen:
     entries = hub.journal.recent(views.JOURNAL_PAGE + 1, page * views.JOURNAL_PAGE)
     has_more = len(entries) > views.JOURNAL_PAGE
-    return views.journal(
-        view(hub), entries[: views.JOURNAL_PAGE], page, hub.account_titles(), has_more
-    )
+    accounts = hub.load_all()
+    titles = {d.account.id: d.title for d in accounts}
+    names = {(d.account.id, s.external_id): s.name for d in accounts for s in d.servers}
+    return views.journal(view(hub), entries[: views.JOURNAL_PAGE], page, titles, has_more, names)
 
 
 def settings_screen(hub: Hub) -> Screen:
@@ -231,7 +232,7 @@ def server_screen(hub: Hub, account_id: int, server_id: str) -> Screen | None:
         return None
     own_days = Thresholds().own_extra_days if hub.is_own(server) else None
     usage = hub.usage_of(account_id, server_id)
-    return views.server_card(view(hub), data, server, usage, own_days, thresholds(hub))
+    return views.server_card(view(hub), data, server, usage, own_days, thresholds(hub), hub.app_url)
 
 
 def account_screen(hub: Hub, account_id: int) -> Screen | None:

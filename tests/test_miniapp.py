@@ -8,6 +8,7 @@ import sqlite3
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from typing import Any, cast
 from urllib.parse import urlencode
 
 import pytest
@@ -30,6 +31,7 @@ from hostwatch.web.miniapp import (
     INIT_DATA_HEADER,
     MiniApp,
     Overview,
+    Source,
     SpendOut,
     Sum,
     TotalsOut,
@@ -149,13 +151,21 @@ def empty_overview() -> Overview:
     )
 
 
-@pytest.fixture
-async def client() -> AsyncIterator[TestClient[object, object]]:
-    async def overview() -> Overview:
+class OverviewOnly:
+    """A source that has only the overview; the other tabs are in test_miniapp_tabs."""
+
+    async def overview(self) -> Overview:
         return empty_overview()
 
+    def __getattr__(self, name: str) -> Any:
+        raise AssertionError(f"{name} is not expected here")
+
+
+@pytest.fixture
+async def client() -> AsyncIterator[TestClient[object, object]]:
     service = LoginService(local_launcher, LoginEvents())
-    app = make_app(service, secure=False, miniapp=MiniApp(TOKEN, OWNER, overview))
+    source = cast(Source, OverviewOnly())
+    app = make_app(service, secure=False, miniapp=MiniApp(TOKEN, OWNER, source))
     test_client: TestClient[object, object] = TestClient(TestServer(app))
     await test_client.start_server()
     yield test_client
@@ -189,8 +199,8 @@ async def test_api_for_the_owner(client: TestClient[object, object]) -> None:
 
 
 async def test_unknown_api_path_needs_init_data_too(client: TestClient[object, object]) -> None:
-    assert (await client.get("/api/servers")).status == 401
-    response = await client.get("/api/servers", headers={INIT_DATA_HEADER: fresh()})
+    assert (await client.get("/api/nothing")).status == 401
+    response = await client.get("/api/nothing", headers={INIT_DATA_HEADER: fresh()})
     assert response.status == 404
 
 

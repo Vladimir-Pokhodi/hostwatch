@@ -41,6 +41,8 @@ METRICS = {
     "net_out_mbits": "net_out_mbits",
 }
 BACKFILL_ATTEMPTS = 3
+# The `settings` key migration 8 sets to the time it ran.
+STARTED_KEY = "history.started"
 
 
 def _ts(value: datetime) -> str:
@@ -322,19 +324,24 @@ class HistoryRepository:
         server_id: str | None = None,
         *,
         source: MoneySource | None = None,
+        kind: MoneyKind | None = None,
         since: datetime | None = None,
         until: datetime | None = None,
         limit: int = 500,
+        offset: int = 0,
     ) -> list[MoneyEvent]:
         """Newest first."""
         where, args = _filters(account_id, server_id, since, until)
         if source is not None:
             where.append("source = ?")
             args.append(source.value)
+        if kind is not None:
+            where.append("kind = ?")
+            args.append(kind.value)
         rows = self._conn.execute(
             f"SELECT * FROM money_events WHERE {' AND '.join(where)}"
-            " ORDER BY at DESC, id DESC LIMIT ?",
-            (*args, limit),
+            " ORDER BY at DESC, id DESC LIMIT ? OFFSET ?",
+            (*args, limit, offset),
         )
         return [
             MoneyEvent(
@@ -384,6 +391,38 @@ class HistoryRepository:
                 totals.items(), key=lambda item: (item[0][0], item[0][1], item[0][2] or "")
             )
         ]
+
+    # Where the history begins
+
+    def started(self) -> datetime | None:
+        """When the bot began keeping history: the mark migration 8 left, or the oldest
+        record if one is older (a database that had history before the mark)."""
+        row = self._conn.execute(
+            "SELECT MIN(at) FROM (SELECT value AS at FROM settings WHERE key = ?"
+            " UNION ALL SELECT MIN(at) FROM money_events"
+            " UNION ALL SELECT MIN(at) FROM server_events"
+            " UNION ALL SELECT MIN(at) FROM usage_backfills)",
+            (STARTED_KEY,),
+        ).fetchone()
+        return None if row[0] is None else datetime.fromisoformat(row[0])
+
+    def first_seen(self, account_id: int, server_id: str) -> datetime | None:
+        """The oldest record of a server: an event or a load point."""
+        row = self._conn.execute(
+            "SELECT MIN(at) FROM (SELECT MIN(at) AS at FROM server_events"
+            " WHERE account_id = ? AND server_id = ?"
+            " UNION ALL SELECT MIN(at) FROM usage_samples WHERE account_id = ? AND server_id = ?"
+            " UNION ALL SELECT MIN(hour) FROM usage_hourly WHERE account_id = ? AND server_id = ?)",
+            (account_id, server_id) * 3,
+        ).fetchone()
+        return None if row[0] is None else datetime.fromisoformat(row[0])
+
+    def first_balance(self, account_id: int) -> datetime | None:
+        """When the account's balance was first read."""
+        row = self._conn.execute(
+            "SELECT MIN(at) FROM balance_history WHERE account_id = ?", (account_id,)
+        ).fetchone()
+        return None if row[0] is None else datetime.fromisoformat(row[0])
 
 
 def _filters(

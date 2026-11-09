@@ -14,7 +14,7 @@ from aiogram.types import MenuButtonWebApp, WebAppInfo
 from hostwatch.core.alerts import Thresholds
 from hostwatch.core.history import MoneySource
 from hostwatch.core.models import Money
-from hostwatch.core.rates import Rates, RatesUnavailable
+from hostwatch.core.rates import Rates
 from hostwatch.locales import t
 from hostwatch.storage.history import HistoryRepository, MonthTotal
 from hostwatch.web.miniapp import (
@@ -28,7 +28,7 @@ from hostwatch.web.miniapp import (
 )
 
 from . import views
-from .hub import AccountData, Hub
+from .hub import AccountData
 from .views import Level, View
 
 log = logging.getLogger(__name__)
@@ -151,6 +151,7 @@ def build_overview(
     return Overview(
         lang=v.lang,
         currency=currency,
+        tz=getattr(v.tz, "key", None) or str(v.tz),
         generated_at=v.now,
         rates_date=None if rates is None else rates.date.isoformat(),
         hosters_count=len(live),
@@ -170,14 +171,3 @@ def build_overview(
             for d in live
         ],
     )
-
-
-async def overview(hub: Hub) -> Overview:
-    try:
-        rates: Rates | None = await hub.rates.get()
-    except RatesUnavailable:
-        rates = None
-    prefs = hub.prefs
-    v = View(prefs.lang, prefs.tz, hub.now())
-    th = prefs.alert_settings(hub.own_ip).thresholds
-    return build_overview(v, hub.load_all(), rates, prefs.currency, hub.history, th)

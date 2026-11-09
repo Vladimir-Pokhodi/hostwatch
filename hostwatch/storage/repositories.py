@@ -463,9 +463,8 @@ class JournalRepository:
             return write_journal(self._conn, actor, action, account_id, params, response, ok)
 
     def recent(self, limit: int = 20, offset: int = 0) -> list[JournalEntry]:
-        """What the chat journal lists: actions with servers and money. The history
-        records (`HISTORY_ACTIONS`) are read with `page`."""
-        return self.page(limit, offset, exclude=HISTORY_ACTIONS)
+        """What the chat journal lists: every record, newest first."""
+        return self.page(limit, offset)
 
     def page(
         self,

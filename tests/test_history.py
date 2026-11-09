@@ -120,7 +120,7 @@ def test_migration_from_schema_5_keeps_data(tmp_path: Path) -> None:
 
     conn = connect(path)
 
-    assert schema_version(conn) == len(MIGRATIONS) == 7
+    assert schema_version(conn) == len(MIGRATIONS) == 8
     rows = conn.execute("SELECT id, actor, action, response FROM journal ORDER BY id").fetchall()
     assert [tuple(r) for r in rows] == [
         (7, "owner", "restart", "done"),
@@ -504,8 +504,8 @@ def test_journal_records_owner_and_bot_actions(
     assert ssh.params == {"key": "order.ssh_key", "old": "", "new": "set"}
     assert all("AAAA" not in json.dumps(e.params) for e in journal.page(100))
     assert journal.page(10, actor="system", since=NOW - timedelta(days=1000))
-    # The chat journal keeps to server and money actions.
-    assert journal.recent() == []
+    # The chat journal lists them too: each has a label now.
+    assert len(journal.recent(100)) == len(actions)
 
     accounts.delete(acc)
     [gone] = journal.page(1, actions=["disconnect"])

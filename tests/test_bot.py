@@ -693,11 +693,17 @@ async def test_settings_save_language_and_thresholds(harness: Harness) -> None:
 
 
 async def test_journal_is_empty(harness: Harness) -> None:
+    await harness.press(Nav(to="journal"))
+
+    assert "Пока пусто" in harness.session.last_text()
+
+
+async def test_journal_names_settings(harness: Harness) -> None:
     harness.onboard("ru")
 
     await harness.press(Nav(to="journal"))
 
-    assert "Пока пусто" in harness.session.last_text()
+    assert "настройка «язык»: — → Русский" in harness.session.last_text()
 
 
 # Pure views

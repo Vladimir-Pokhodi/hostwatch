@@ -232,6 +232,11 @@ MIGRATIONS: list[str] = [
     CREATE INDEX journal_account_at ON journal (account_id, at);
     CREATE INDEX journal_action ON journal (action);
     """,
+    # 8. When the history began, for the Mini App: «no data yet, kept since 09.11».
+    """
+    INSERT OR IGNORE INTO settings (key, value)
+        VALUES ('history.started', strftime('%Y-%m-%dT%H:%M:%S+00:00', 'now'));
+    """,
 ]
 
 

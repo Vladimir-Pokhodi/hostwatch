@@ -49,6 +49,7 @@ from hostwatch.scheduler.autopay import AutopayJob, Event, Outcome
 from hostwatch.storage.autopay import DECLINED, AutopayStore
 from hostwatch.storage.db import schema_version
 from hostwatch.storage.repositories import (
+    HISTORY_ACTIONS,
     AccountRepository,
     Actor,
     JournalEntry,
@@ -385,7 +386,7 @@ class Setup:
         self.events.append(event)
 
     def journal(self) -> list[JournalEntry]:
-        return JournalRepository(self.conn).recent()
+        return JournalRepository(self.conn).page(exclude=HISTORY_ACTIONS)
 
 
 @pytest.fixture
@@ -636,7 +637,7 @@ async def test_owner_pays_a_grown_invoice_once(harness: Harness) -> None:
 
     assert PayPlugin.calls == ["pay 500 7.00"]
     assert harness.alerts()[-1] == "Кнопка устарела или уже нажата. Ничего не сделал."
-    entry = harness.hub.journal.recent()[0]
+    entry = harness.hub.journal.page(exclude=HISTORY_ACTIONS)[0]
     assert (entry.actor, entry.ok, entry.params["invoice"]) == ("owner", True, "500")
     # The money notice stays in the chat; the menu with the result goes below it.
     notice, result = harness.session.texts()[-2:]
