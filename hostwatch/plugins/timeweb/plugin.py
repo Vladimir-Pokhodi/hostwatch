@@ -21,6 +21,7 @@ import binascii
 import json
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from math import ceil
 from statistics import fmean
 from typing import Any
 
@@ -70,6 +71,8 @@ HOURS_PER_MONTH = Decimal(730)
 HOURLY_PRECISION = Decimal("0.0001")
 USAGE_WINDOW = timedelta(minutes=15)
 CPU_KEY = "system.cpu.util"
+# The longest past period asked for, in hours.
+HISTORY_HOURS = 720
 DEDICATED_PREFIX = "dedicated-"
 PANEL = "https://timeweb.cloud/"
 UPDATE_TOKEN = PANEL + "api/v1/auth/update-token"
@@ -178,6 +181,24 @@ class TimewebPlugin(Plugin):
             cpu_percent=fmean(recent),
             disk_percent=_disk_percent(server),
         )
+
+    async def usage_history(self, server_id: str, since: datetime) -> list[Usage]:
+        """Past CPU load. The path takes the end of the period and its length in hours;
+        checked live 2026-11-09: 720 hours come back at about an hour a point (24 hours at
+        five minutes). The network keys are left out: their unit is not documented."""
+        if server_id.startswith(DEDICATED_PREFIX):
+            return []
+        now = datetime.now(UTC)
+        hours = max(1, min(HISTORY_HOURS, ceil((now - since).total_seconds() / 3600)))
+        end = now.strftime("%Y-%m-%dT%H:%M:%S")
+        stats = await self._get(
+            f"servers/{server_id}/statistics/{end}/{hours}/{CPU_KEY}", StatisticsAnswer
+        )
+        return [
+            Usage(server_id=server_id, measured_at=point.time, cpu_percent=round(point.value, 2))
+            for point in sorted(stats.series(CPU_KEY), key=lambda p: p.time)
+            if point.time >= since
+        ]
 
     async def power(self, server_id: str, action: PowerAction) -> ActionResult:
         if server_id.startswith(DEDICATED_PREFIX) or not server_id.isdigit():

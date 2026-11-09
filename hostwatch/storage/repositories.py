@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
+from fnmatch import fnmatchcase
 from typing import Literal
 
 from hostwatch.core.models import (
@@ -41,6 +42,37 @@ def _dt(value: str | None) -> datetime | None:
     return None if value is None else datetime.fromisoformat(value)
 
 
+Actor = Literal["owner", "autopay", "system"]
+
+
+def write_journal(
+    conn: sqlite3.Connection,
+    actor: Actor,
+    action: str,
+    account_id: int | None = None,
+    params: Mapping[str, str] | None = None,
+    response: str = "",
+    ok: bool = True,
+    at: datetime | None = None,
+) -> int:
+    """One journal row, inside the caller's transaction. No secrets in `params`."""
+    cursor = conn.execute(
+        "INSERT INTO journal (at, actor, account_id, action, params, response, ok)"
+        " VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (
+            _ts(at or datetime.now(UTC)),
+            actor,
+            account_id,
+            action,
+            json.dumps(dict(params or {}), ensure_ascii=False),
+            response,
+            int(ok),
+        ),
+    )
+    assert cursor.lastrowid is not None
+    return cursor.lastrowid
+
+
 class AccountRepository:
     def __init__(self, conn: sqlite3.Connection, key: bytes) -> None:
         self._conn = conn
@@ -52,7 +84,9 @@ class AccountRepository:
                 "INSERT INTO accounts (plugin_id, label, secrets) VALUES (?, ?, ?)",
                 (plugin_id, label, self._encrypt(secrets)),
             )
-        assert cursor.lastrowid is not None
+            assert cursor.lastrowid is not None
+            params = {"plugin": plugin_id, "label": label}
+            write_journal(self._conn, "owner", "connect", cursor.lastrowid, params)
         return cursor.lastrowid
 
     def get(self, account_id: int) -> Account:
@@ -86,12 +120,28 @@ class AccountRepository:
                 (self._encrypt(secrets), account_id),
             )
 
-    def set_status(self, account_id: int, status: AccountStatus, error: str | None = None) -> None:
+    def set_status(
+        self,
+        account_id: int,
+        status: AccountStatus,
+        error: str | None = None,
+        actor: Actor = "system",
+    ) -> None:
+        """A change to or from «needs login» or «disabled» goes to the journal; the
+        ok/error flapping of polling does not."""
         with self._conn:
+            row = self._conn.execute(
+                "SELECT status FROM accounts WHERE id = ?", (account_id,)
+            ).fetchone()
             self._conn.execute(
                 "UPDATE accounts SET status = ?, last_error = ? WHERE id = ?",
                 (status.value, error, account_id),
             )
+            old = None if row is None else AccountStatus(row["status"])
+            watched = {AccountStatus.RELOGIN, AccountStatus.DISABLED}
+            if old is not None and old is not status and {old, status} & watched:
+                params = {"old": old.value, "new": status.value}
+                write_journal(self._conn, actor, "account_status", account_id, params)
 
     def mark_ok(self, account_id: int, at: datetime) -> None:
         with self._conn:
@@ -101,7 +151,14 @@ class AccountRepository:
             )
 
     def delete(self, account_id: int) -> None:
+        """The account and its history go; the journal keeps a row naming it."""
         with self._conn:
+            row = self._conn.execute(
+                "SELECT plugin_id, label FROM accounts WHERE id = ?", (account_id,)
+            ).fetchone()
+            if row is not None:
+                params = {"plugin": row["plugin_id"], "label": row["label"]}
+                write_journal(self._conn, "owner", "disconnect", account_id, params)
             self._conn.execute("DELETE FROM accounts WHERE id = ?", (account_id,))
 
     def _encrypt(self, secrets: Mapping[str, str]) -> bytes:
@@ -236,42 +293,72 @@ class UsageRepository:
 
 
 class BalanceHistoryRepository:
+    """The balance as a step line: a row only when it (or `hours_left`) changed, kept
+    forever. `checked_at` of the newest row is when that same balance was last read."""
+
     def __init__(self, conn: sqlite3.Connection) -> None:
         self._conn = conn
 
     def add(
         self, account_id: int, money: Money, at: datetime, hours_left: float | None = None
-    ) -> None:
+    ) -> bool:
+        """Keep a read balance. True if it made a new row, False if nothing changed."""
         with self._conn:
+            row = self._conn.execute(
+                "SELECT id, at, amount, currency, hours_left FROM balance_history"
+                " WHERE account_id = ? ORDER BY at DESC, id DESC LIMIT 1",
+                (account_id,),
+            ).fetchone()
+            if (
+                row is not None
+                and row["currency"] == money.currency
+                and Decimal(row["amount"]) == money.amount
+                and row["hours_left"] == hours_left
+            ):
+                if _ts(at) > row["at"]:
+                    self._conn.execute(
+                        "UPDATE balance_history SET checked_at = ? WHERE id = ?",
+                        (_ts(at), row["id"]),
+                    )
+                return False
             self._conn.execute(
                 "INSERT INTO balance_history (account_id, at, amount, currency, hours_left)"
                 " VALUES (?, ?, ?, ?, ?)",
                 (account_id, _ts(at), str(money.amount), money.currency, hours_left),
             )
+        return True
 
     def latest(self, account_id: int) -> tuple[datetime, Balance] | None:
+        """The balance last read, and when it was read."""
         row = self._conn.execute(
-            "SELECT at, amount, currency, hours_left FROM balance_history"
+            "SELECT at, checked_at, amount, currency, hours_left FROM balance_history"
             " WHERE account_id = ? ORDER BY at DESC, id DESC LIMIT 1",
             (account_id,),
         ).fetchone()
         if row is None:
             return None
         money = Money(amount=Decimal(row["amount"]), currency=row["currency"])
-        return datetime.fromisoformat(row["at"]), Balance(money=money, hours_left=row["hours_left"])
+        at = datetime.fromisoformat(row["checked_at"] or row["at"])
+        return at, Balance(money=money, hours_left=row["hours_left"])
 
     def since(self, account_id: int, since: datetime) -> list[tuple[datetime, Money]]:
+        """Changes since `since`, led by the last row before it: the balance at `since`."""
+        before = self._conn.execute(
+            "SELECT at, amount, currency FROM balance_history"
+            " WHERE account_id = ? AND at < ? ORDER BY at DESC, id DESC LIMIT 1",
+            (account_id, _ts(since)),
+        ).fetchall()
         rows = self._conn.execute(
             "SELECT at, amount, currency FROM balance_history"
-            " WHERE account_id = ? AND at >= ? ORDER BY at",
+            " WHERE account_id = ? AND at >= ? ORDER BY at, id",
             (account_id, _ts(since)),
-        )
+        ).fetchall()
         return [
             (
                 datetime.fromisoformat(r["at"]),
                 Money(amount=Decimal(r["amount"]), currency=r["currency"]),
             )
-            for r in rows
+            for r in [*before, *rows]
         ]
 
     def prune(self, before: datetime) -> int:
@@ -315,7 +402,21 @@ class AlertRepository:
         return [Alert(r["key"], r["value"], datetime.fromisoformat(r["sent_at"])) for r in rows]
 
 
-Actor = Literal["owner", "autopay"]
+# Journal records added for the history (1.1): connecting and disconnecting a hoster,
+# account status, settings, «Paid» and its result, autopay marks, holds and answers.
+HISTORY_ACTIONS = frozenset(
+    {
+        "connect",
+        "disconnect",
+        "account_status",
+        "settings",
+        "topup_paid",
+        "topup_result",
+        "autopay_mark",
+        "autopay_hold",
+        "autopay_answer",
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -337,25 +438,73 @@ class JournalRepository:
 
     def add(self, entry: JournalEntry) -> int:
         with self._conn:
-            cursor = self._conn.execute(
-                "INSERT INTO journal (at, actor, account_id, action, params, response, ok)"
-                " VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (
-                    _ts(entry.at),
-                    entry.actor,
-                    entry.account_id,
-                    entry.action,
-                    json.dumps(entry.params, ensure_ascii=False),
-                    entry.response,
-                    int(entry.ok),
-                ),
+            return write_journal(
+                self._conn,
+                entry.actor,
+                entry.action,
+                entry.account_id,
+                entry.params,
+                entry.response,
+                entry.ok,
+                entry.at,
             )
-        assert cursor.lastrowid is not None
-        return cursor.lastrowid
+
+    def note(
+        self,
+        actor: Actor,
+        action: str,
+        account_id: int | None = None,
+        params: Mapping[str, str] | None = None,
+        ok: bool = True,
+        response: str = "",
+    ) -> int:
+        """A one-line record for the flows: `hub.journal.note("owner", "login", acc)`."""
+        with self._conn:
+            return write_journal(self._conn, actor, action, account_id, params, response, ok)
 
     def recent(self, limit: int = 20, offset: int = 0) -> list[JournalEntry]:
+        """What the chat journal lists: actions with servers and money. The history
+        records (`HISTORY_ACTIONS`) are read with `page`."""
+        return self.page(limit, offset, exclude=HISTORY_ACTIONS)
+
+    def page(
+        self,
+        limit: int = 20,
+        offset: int = 0,
+        *,
+        account_id: int | None = None,
+        actor: Actor | None = None,
+        actions: Collection[str] = (),
+        exclude: Collection[str] = (),
+        since: datetime | None = None,
+        until: datetime | None = None,
+    ) -> list[JournalEntry]:
+        """Newest first, filtered by account, actor, action names and time (`since`
+        included, `until` not)."""
+        where: list[str] = ["1"]
+        args: list[object] = []
+        if account_id is not None:
+            where.append("account_id = ?")
+            args.append(account_id)
+        if actor is not None:
+            where.append("actor = ?")
+            args.append(actor)
+        if actions:
+            where.append(f"action IN ({', '.join('?' for _ in actions)})")
+            args.extend(sorted(actions))
+        if exclude:
+            where.append(f"action NOT IN ({', '.join('?' for _ in exclude)})")
+            args.extend(sorted(exclude))
+        if since is not None:
+            where.append("at >= ?")
+            args.append(_ts(since))
+        if until is not None:
+            where.append("at < ?")
+            args.append(_ts(until))
         rows = self._conn.execute(
-            "SELECT * FROM journal ORDER BY at DESC, id DESC LIMIT ? OFFSET ?", (limit, offset)
+            f"SELECT * FROM journal WHERE {' AND '.join(where)}"
+            " ORDER BY at DESC, id DESC LIMIT ? OFFSET ?",
+            (*args, limit, offset),
         )
         return [
             JournalEntry(
@@ -466,6 +615,8 @@ class PaymentRepository:
     def set_status(
         self, payment_id: int, status: PaymentStatus, balance_before: Money | None = None
     ) -> None:
+        """«Paid» pressed (`waiting`) and what the balance showed then (`arrived`,
+        `not_seen`) go to the journal too."""
         with self._conn:
             if balance_before is None:
                 self._conn.execute(
@@ -476,6 +627,43 @@ class PaymentRepository:
                     "UPDATE payments SET status = ?, balance_before = ? WHERE id = ?",
                     (status, str(balance_before.amount), payment_id),
                 )
+            row = self._conn.execute(
+                "SELECT * FROM payments WHERE id = ?", (payment_id,)
+            ).fetchone()
+            if row is None or status == "created":
+                return
+            params = {
+                "payment": str(payment_id),
+                "invoice": row["external_id"],
+                "amount": row["amount"],
+                "currency": row["currency"],
+                "method": row["method"],
+            }
+            acc = row["account_id"]
+            if status == "waiting":
+                write_journal(self._conn, "owner", "topup_paid", acc, params)
+            else:
+                ok = status == "arrived"
+                write_journal(
+                    self._conn, "system", "topup_result", acc, params, response=status, ok=ok
+                )
+
+
+# Settings the owner changes: each change goes to the journal. The other keys (menu
+# message, backup date) are the bot's own bookkeeping.
+OWNER_SETTINGS = (
+    "lang",
+    "timezone",
+    "currency",
+    "threshold.*",
+    "order.limit",
+    "order.ssh_key",
+    "autopay.days",
+    "autopay.limit.*",
+)
+# Journaled as set or cleared, not by value.
+HIDDEN_SETTINGS = frozenset({"order.ssh_key"})
+AUTOPAY_LIMIT_PREFIX = "autopay.limit."
 
 
 class SettingsRepository:
@@ -488,6 +676,19 @@ class SettingsRepository:
 
     def set(self, key: str, value: str) -> None:
         with self._conn:
+            old = self.get(key)
             self._conn.execute(
                 "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value)
             )
+            if old != value and any(fnmatchcase(key, p) for p in OWNER_SETTINGS):
+                self._journal(key, old or "", value)
+
+    def _journal(self, key: str, old: str, new: str) -> None:
+        if key in HIDDEN_SETTINGS:
+            old, new = ("set" if old else ""), ("set" if new else "cleared")
+        account_id = None
+        rest = key.removeprefix(AUTOPAY_LIMIT_PREFIX)
+        if rest != key and rest.isdigit():
+            account_id = int(rest)
+        params = {"key": key, "old": old, "new": new}
+        write_journal(self._conn, "owner", "settings", account_id, params)

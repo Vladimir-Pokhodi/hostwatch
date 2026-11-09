@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### History
+
+- The database keeps history forever: load samples on every poll (rolled into hourly
+  average and peak after 30 days, at the nightly backup), server changes (appeared,
+  removed, plan, price, period, IP, status, autorenewal), money in and out (balance
+  changes and Aeza's per-server charges), and a balance row only when the balance changes.
+- Past load is read once per server where the hoster keeps it: Aeza (30 days, hourly) and
+  Timeweb (CPU, up to 30 days, hourly).
+- The journal also records connecting and disconnecting hosters, account status, settings,
+  «Paid» and its result, autopay marks, holds and answers; the bot's own actions show as
+  «bot».
+
 ## 1.0.0 — 2026-11-09
 
 The first release.

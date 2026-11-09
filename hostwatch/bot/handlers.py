@@ -499,9 +499,9 @@ async def on_account(
         return
     if op == "disable":
         hub.poller.stop_account(acc)
-        hub.accounts.set_status(acc, AccountStatus.DISABLED)
+        hub.accounts.set_status(acc, AccountStatus.DISABLED, actor="owner")
     elif op == "enable":
-        hub.accounts.set_status(acc, AccountStatus.OK)
+        hub.accounts.set_status(acc, AccountStatus.OK, actor="owner")
         hub.poller.start_account(acc)
     elif op == "delete":
         await show(hub, query, views.confirm_delete(v, data))
@@ -624,7 +624,8 @@ async def on_new_key(message: Message, hub: Hub, state: FSMContext) -> None:
         await show(hub, message, Screen(v.t("account.gone"), home_markup(v)))
         return
     hub.accounts.save_secrets(acc, {**old, **values})
-    hub.accounts.set_status(acc, AccountStatus.OK)
+    hub.accounts.set_status(acc, AccountStatus.OK, actor="owner")
+    hub.journal.note("owner", "login", acc, {"via": "key"})
     await _connect(message, hub, acc)
 
 

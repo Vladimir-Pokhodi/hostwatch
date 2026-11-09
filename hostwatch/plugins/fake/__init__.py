@@ -123,6 +123,18 @@ class FakePlugin(Plugin):
             disk_percent=55.0,
         )
 
+    async def usage_history(self, server_id: str, since: datetime) -> list[Usage]:
+        """Three hourly points before now; none for the dedicated server."""
+        await self._behave()
+        if server_id == "3":
+            return []
+        hour = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+        return [
+            Usage(server_id=server_id, measured_at=at, cpu_percent=10.0 + n, ram_percent=30.0)
+            for n, at in enumerate(hour - timedelta(hours=h) for h in (3, 2, 1))
+            if at >= since
+        ]
+
     async def invoices(self) -> list[Invoice]:
         await self._behave()
         return [Invoice(id="100", amount=eur("4.50"), status=InvoiceStatus.UNPAID, server_id="1")]

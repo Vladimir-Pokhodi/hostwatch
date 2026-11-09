@@ -70,6 +70,7 @@ PAGE = 50
 TRANSACTIONS = 50
 USAGE_WINDOW = timedelta(minutes=15)
 USAGE_RESOLUTION = 60  # seconds per point
+HISTORY_RESOLUTION = 3600
 UNIX_EPOCH_YEAR = 1970
 SUBCENT = Decimal("0.00001")
 # Aeza limits requests per second; a short `Retry-After` is waited out this many times.
@@ -168,6 +169,32 @@ class AezaPlugin(Plugin):
             net_in_mbits=_average(net_in),
             net_out_mbits=_average(net_out),
         )
+
+    async def usage_history(self, server_id: str, since: datetime) -> list[Usage]:
+        """Past load at an hour a point. Checked live 2026-11-09: `resolution=3600` gives
+        hourly points back to about 40 days; `resolution=300` stops at 1000 points (3.5
+        days); a day resolution answers 500. The metrics are read one after another, not
+        all at once: Aeza limits requests per second."""
+        now = datetime.now(UTC)
+        params = {"resolution": HISTORY_RESOLUTION, "fromDate": _iso(since), "toDate": _iso(now)}
+        metrics = ("cpu_usage", "memory_usage", "net_read_mbits", "net_write_mbits")
+        points: dict[int, dict[str, float]] = {}
+        for metric in metrics:
+            stats = await self._get(api.Stats, f"services/{server_id}/stats/{metric}", **params)
+            for moment, value in stats.data:
+                if value is not None:
+                    points.setdefault(moment, {})[metric] = round(value, 2)
+        return [
+            Usage(
+                server_id=server_id,
+                measured_at=datetime.fromtimestamp(moment, UTC),
+                cpu_percent=values.get("cpu_usage"),
+                ram_percent=values.get("memory_usage"),
+                net_in_mbits=values.get("net_read_mbits"),
+                net_out_mbits=values.get("net_write_mbits"),
+            )
+            for moment, values in sorted(points.items())
+        ]
 
     async def invoices(self) -> list[Invoice]:
         """Charges from the balance, newest first. Aeza sorts transactions oldest first."""
