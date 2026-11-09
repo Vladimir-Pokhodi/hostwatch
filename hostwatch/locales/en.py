@@ -150,7 +150,20 @@ MESSAGES: dict[str, str] = {
     "topup.title": "<b>Top up: {title}</b>",
     "topup.balance": "Balance: {amount}",
     "topup.choose_method": "How do you pay?",
-    "topup.choose_network": "Which coin and network?",
+    "topup.choose_coin": "Which coin?",
+    "topup.choose_coin_network": "Which network for {coin}?",
+    "topup.invoice_amount": "Amount: {amount}",
+    "topup.choose_after": (
+        "Choose the coin and the network: I will get the address from the payment page."
+        " You can also choose on the page itself."
+    ),
+    "topup.getting_address": "Getting the address from the payment page, it takes up to a minute…",
+    "topup.address_failed": (
+        "No address: {reason}. Choose another coin or pay on the payment page."
+    ),
+    "topup.options_failed": (
+        "Could not read the coins of the payment page: {reason}. Choose on the page."
+    ),
     "topup.sbp": "SBP ({name})",
     "topup.crypto": "Crypto",
     "topup.crypto_one": "Crypto ({name})",

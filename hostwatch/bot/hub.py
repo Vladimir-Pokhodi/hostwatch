@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Protocol
 from hostwatch.core.alerts import AccountView
 from hostwatch.core.control import Confirmations, Request, finished_stops
 from hostwatch.core.forecast import RECONCILE_WINDOW, Forecast, forecast
-from hostwatch.core.models import Account, Balance, Server, Usage
+from hostwatch.core.models import Account, Balance, PayOption, Server, Usage
 from hostwatch.core.order import CatalogCache, Draft
 from hostwatch.core.plugin import ApiKeyAuth, Capability, Plugin, capabilities
 from hostwatch.core.rates import Rates
@@ -97,6 +97,9 @@ class Hub:
     # Orders (stage 13): catalogs read within the hour, and orders waiting for «Yes».
     catalogs: CatalogCache = field(default_factory=CatalogCache)
     order_confirmations: Confirmations[Draft] = field(default_factory=Confirmations)
+    # Coins of recent top-up invoices that are chosen after the invoice, by `payments` row.
+    # Lost on restart: the plugin reads them again.
+    topup_options: dict[int, tuple[PayOption, ...]] = field(default_factory=dict)
 
     def plugins(self) -> list[type[Plugin]]:
         ids = [pid for pid in self.registry.ids() if pid not in self.hidden_plugins]

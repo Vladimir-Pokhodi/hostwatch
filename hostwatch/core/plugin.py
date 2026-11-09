@@ -19,6 +19,7 @@ from hostwatch.core.models import (
     Invoice,
     Money,
     Payment,
+    PayOption,
     PowerAction,
     Server,
     ServerAction,
@@ -174,6 +175,22 @@ class SupportsTopup(Protocol):
 
 
 @runtime_checkable
+class SupportsPayOptions(Protocol):
+    """A top-up invoice whose coin and network are chosen after it is made: the hoster's
+    payment page lists them per invoice (Cryptomus at Regxa).
+
+    `topup` returns such an invoice with `Payment.options` filled; empty options mean the
+    list could not be read and the owner chooses on the page. `pay_options` reads the list
+    again for an invoice made earlier. `pay_with` chooses one option and returns the
+    invoice with the address and the sum in the coin.
+    """
+
+    async def pay_options(self, payment: Payment) -> list[PayOption]: ...
+
+    async def pay_with(self, payment: Payment, option_id: str) -> Payment: ...
+
+
+@runtime_checkable
 class SupportsInvoices(Protocol):
     async def invoices(self) -> list[Invoice]: ...
 
@@ -242,6 +259,7 @@ class SupportsRootPassword(Protocol):
 class Capability(StrEnum):
     USAGE = "usage"
     TOPUP = "topup"
+    PAY_OPTIONS = "pay_options"
     INVOICES = "invoices"
     PAY_INVOICE = "pay_invoice"
     AUTORENEW = "autorenew"
@@ -254,6 +272,7 @@ class Capability(StrEnum):
 PROTOCOLS: dict[Capability, type] = {
     Capability.USAGE: SupportsUsage,
     Capability.TOPUP: SupportsTopup,
+    Capability.PAY_OPTIONS: SupportsPayOptions,
     Capability.INVOICES: SupportsInvoices,
     Capability.PAY_INVOICE: SupportsPayInvoice,
     Capability.AUTORENEW: SupportsAutorenew,

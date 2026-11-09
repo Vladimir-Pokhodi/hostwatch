@@ -1,8 +1,11 @@
-"""Balance → Top up: method → network (crypto) → amount → invoice with a link, a QR and «Paid».
+"""Balance → Top up: method → coin → network (crypto) → amount → invoice with a link, a QR
+and «Paid».
 
 The invoice is made when the owner picks the amount, not earlier: an SBP payment of
-ЮKassa lives about ten minutes. After «Paid» the bot reads the balance 2, 5 and 10
-minutes later and says whether the money arrived.
+ЮKassa lives about ten minutes. Some payment pages list their coins per invoice
+(Cryptomus at Regxa, `SupportsPayOptions`): there the coin and the network are chosen
+under the invoice, and the bot then gets the address. After «Paid» the bot reads the
+balance 2, 5 and 10 minutes later and says whether the money arrived.
 """
 
 from __future__ import annotations
@@ -10,6 +13,7 @@ from __future__ import annotations
 import asyncio
 import io
 import logging
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from decimal import ROUND_CEILING, Decimal, InvalidOperation
 from html import escape
@@ -30,11 +34,11 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from hostwatch.core.errors import AuthExpired, describe, explain
 from hostwatch.core.forecast import end_of_next_month, needed_until
-from hostwatch.core.models import Money, Payment, TopupKind, TopupMethod
-from hostwatch.core.plugin import Plugin, SupportsTopup, browser_auth
-from hostwatch.storage.repositories import JournalEntry, NotFound
+from hostwatch.core.models import Money, Payment, PayOption, TopupKind, TopupMethod
+from hostwatch.core.plugin import Plugin, SupportsPayOptions, SupportsTopup, browser_auth
+from hostwatch.storage.repositories import JournalEntry, NotFound, PaymentRecord
 
-from .callbacks import AccountCb, Nav, PaidCb, TopupAmountCb, TopupCb
+from .callbacks import AccountCb, Nav, PaidCb, PayOptCb, TopupAmountCb, TopupCb
 from .handlers import answer, on, show, view
 from .hub import AccountData, Hub
 from .views import Screen, View
@@ -44,6 +48,10 @@ from .views import _nav as nav
 log = logging.getLogger(__name__)
 
 CRYPTO = "*crypto"
+COINS_PER_ROW = 4
+COINS_PER_PAGE = 24
+# Coin lists of this many recent invoices are kept in memory.
+KEPT_OPTIONS = 20
 QR_SCALE = 8
 NSPK = "https://qr.nspk.ru/"
 
@@ -64,22 +72,57 @@ class Choice:
     def crypto(self) -> list[TopupMethod]:
         return [m for m in self.methods if m.kind is TopupKind.CRYPTO]
 
+    @property
+    def coins(self) -> list[tuple[str, list[TopupMethod]]]:
+        return by_coin(self.crypto, lambda m: m.coin or m.name)
+
+    def coin_of(self, method: TopupMethod) -> list[TopupMethod]:
+        return dict(self.coins).get(method.coin or method.name, [])
+
+    def page_of(self, coin: str) -> int:
+        names = [name for name, _ in self.coins]
+        return names.index(coin) // COINS_PER_PAGE if coin in names else 0
+
 
 # Screens
 
 
-def methods_screen(v: View, choice: Choice, networks: bool = False) -> Screen:
-    """The ways to pay; with `networks` the crypto networks alone."""
+def by_coin[T](items: Sequence[T], coin: Callable[[T], str]) -> list[tuple[str, list[T]]]:
+    """Items grouped by coin, in the order the coins first appear."""
+    groups: dict[str, list[T]] = {}
+    for item in items:
+        groups.setdefault(coin(item), []).append(item)
+    return list(groups.items())
+
+
+def coin_buttons(
+    kb: InlineKeyboardBuilder,
+    buttons: list[InlineKeyboardButton],
+    page: int,
+    to_page: Callable[[int], CallbackData],
+) -> None:
+    """Coins in rows of four, a page at a time (Cryptomus has 80 and more), with ◀ ▶."""
+    pages = max(1, -(-len(buttons) // COINS_PER_PAGE))
+    page = min(max(page, 0), pages - 1)
+    shown = buttons[page * COINS_PER_PAGE : (page + 1) * COINS_PER_PAGE]
+    for start in range(0, len(shown), COINS_PER_ROW):
+        kb.row(*shown[start : start + COINS_PER_ROW])
+    if pages > 1:
+        arrows = []
+        if page > 0:
+            arrows.append(button("◀", to_page(page - 1)))
+        arrows.append(button(f"{page + 1}/{pages}", to_page(page)))
+        if page < pages - 1:
+            arrows.append(button("▶", to_page(page + 1)))
+        kb.row(*arrows)
+
+
+def methods_screen(v: View, choice: Choice) -> Screen:
+    """The ways to pay."""
     data = choice.data
     acc = data.account.id
     lines = _head(v, data)
     kb = InlineKeyboardBuilder()
-    if networks:
-        lines += ["", v.t("topup.choose_network")]
-        for method in choice.crypto:
-            kb.row(button(method.name, TopupCb(acc=acc, m=method.id)))
-        kb.row(*nav(v, TopupCb(acc=acc)))
-        return Screen("\n".join(lines), kb.as_markup())
     lines += ["", v.t("topup.choose_method")]
     for method in choice.methods:
         if method.kind is TopupKind.SBP:
@@ -91,6 +134,78 @@ def methods_screen(v: View, choice: Choice, networks: bool = False) -> Screen:
         kb.row(button(v.t("topup.crypto"), TopupCb(acc=acc, m=CRYPTO)))
     _page_button(v, kb, data.plugin)
     kb.row(*nav(v, Nav(to="balance")))
+    return Screen("\n".join(lines), kb.as_markup())
+
+
+def coins_screen(v: View, choice: Choice, page: int = 0) -> Screen:
+    """Crypto before the invoice: a coin with one network leads straight to the amount."""
+    acc = choice.data.account.id
+    lines = [*_head(v, choice.data), "", v.t("topup.choose_coin")]
+    buttons = []
+    for coin, methods in choice.coins:
+        if len(methods) == 1:
+            only = methods[0]
+            buttons.append(button(only.name, TopupCb(acc=acc, m=only.id)))
+        else:
+            buttons.append(button(coin, TopupCb(acc=acc, m=CRYPTO, c=coin)))
+    kb = InlineKeyboardBuilder()
+    coin_buttons(kb, buttons, page, lambda p: TopupCb(acc=acc, m=CRYPTO, p=p))
+    kb.row(*nav(v, TopupCb(acc=acc)))
+    return Screen("\n".join(lines), kb.as_markup())
+
+
+def networks_screen(v: View, choice: Choice, coin: str) -> Screen:
+    acc = choice.data.account.id
+    methods = dict(choice.coins).get(coin)
+    if not methods:
+        return coins_screen(v, choice)
+    lines = [*_head(v, choice.data), "", v.t("topup.choose_coin_network", coin=escape(coin))]
+    kb = InlineKeyboardBuilder()
+    for method in methods:
+        kb.row(button(method.network or method.name, TopupCb(acc=acc, m=method.id)))
+    kb.row(*nav(v, TopupCb(acc=acc, m=CRYPTO, p=choice.page_of(coin))))
+    return Screen("\n".join(lines), kb.as_markup())
+
+
+def options_screen(
+    v: View,
+    title: str,
+    record: PaymentRecord,
+    options: Sequence[PayOption],
+    coin: str = "",
+    page: int = 0,
+) -> Screen:
+    """An invoice whose coin is chosen after it is made: coins, then the coin's networks."""
+    lines = [
+        v.t("topup.invoice_title", title=escape(title)),
+        v.t("topup.invoice_amount", amount=record.amount),
+        v.t("topup.invoice_id", id=escape(record.external_id)),
+        "",
+        v.t("topup.choose_after"),
+        "",
+    ]
+    groups = by_coin(options, lambda o: o.coin)
+    networks = dict(groups).get(coin) if coin else None
+    kb = InlineKeyboardBuilder()
+    if networks:
+        lines.append(v.t("topup.choose_coin_network", coin=escape(coin)))
+        for option in networks:
+            kb.row(button(option.network, PayOptCb(pay=record.id, o=option.id)))
+        index = [c for c, _ in groups].index(coin)
+        kb.row(button(v.t("bot.button.back"), PayOptCb(pay=record.id, p=index // COINS_PER_PAGE)))
+    else:
+        lines.append(v.t("topup.choose_coin"))
+        buttons = [
+            button(c, PayOptCb(pay=record.id, o=group[0].id))
+            if len(group) == 1
+            else button(c, PayOptCb(pay=record.id, c=c))
+            for c, group in groups
+        ]
+        coin_buttons(kb, buttons, page, lambda p: PayOptCb(pay=record.id, p=p))
+    if record.url.startswith("https://"):
+        kb.row(InlineKeyboardButton(text=v.t("topup.open"), url=record.url))
+    kb.row(button(v.t("topup.paid"), PaidCb(pay=record.id)))
+    kb.row(*nav(v))
     return Screen("\n".join(lines), kb.as_markup())
 
 
@@ -188,9 +303,12 @@ def _page_button(v: View, kb: InlineKeyboardBuilder, plugin: type[Plugin]) -> No
 
 def _back_from_amount(choice: Choice, method: TopupMethod) -> TopupCb:
     acc = choice.data.account.id
-    if method.kind is TopupKind.CRYPTO and len(choice.crypto) > 1:
-        return TopupCb(acc=acc, m=CRYPTO)
-    return TopupCb(acc=acc)
+    if method.kind is not TopupKind.CRYPTO or len(choice.crypto) < 2:
+        return TopupCb(acc=acc)
+    coin = method.coin or method.name
+    if len(choice.coin_of(method)) > 1:
+        return TopupCb(acc=acc, m=CRYPTO, c=coin)
+    return TopupCb(acc=acc, m=CRYPTO, p=choice.page_of(coin))
 
 
 def _currency(method: TopupMethod) -> str:
@@ -266,8 +384,14 @@ async def on_topup(
     except Exception as error:
         await show(query, failed_screen(v, data, error, Nav(to="balance")))
         return
-    if callback_data.m in ("", CRYPTO):
-        await show(query, methods_screen(v, choice, networks=callback_data.m == CRYPTO))
+    if callback_data.m == CRYPTO:
+        if callback_data.c:
+            await show(query, networks_screen(v, choice, callback_data.c))
+        else:
+            await show(query, coins_screen(v, choice, callback_data.p))
+        return
+    if not callback_data.m:
+        await show(query, methods_screen(v, choice))
         return
     method = choice.method(callback_data.m)
     if method is None:
@@ -375,9 +499,113 @@ async def create(hub: Hub, choice: Choice, method: TopupMethod, amount: Money) -
         return Delivery(screen.text, kb or InlineKeyboardBuilder())
     record_id = hub.payments.add(acc, payment)
     _journal(hub, acc, {**params, "invoice": payment.id}, "invoice created", ok=True)
+    if payment.options:
+        remember_options(hub, record_id, payment.options)
+        record = hub.payments.get(record_id)
+        screen = options_screen(v, data.title, record, payment.options)
+        kb = InlineKeyboardBuilder.from_markup(screen.markup) if screen.markup else None
+        return Delivery(screen.text, kb or InlineKeyboardBuilder())
     text = payment_text(v, data.title, method, payment)
     qr = qr_png(payment.qr_data) if payment.qr_data else None
     return Delivery(text, payment_markup(v, payment, record_id), qr)
+
+
+def remember_options(hub: Hub, record_id: int, options: Sequence[PayOption]) -> None:
+    hub.topup_options[record_id] = tuple(options)
+    while len(hub.topup_options) > KEPT_OPTIONS:
+        del hub.topup_options[next(iter(hub.topup_options))]
+
+
+def _payment_of(record: PaymentRecord) -> Payment:
+    """The invoice as the plugin returned it, as far as `payments` keeps it."""
+    link = record.url.startswith("https://")
+    return Payment(
+        id=record.external_id,
+        amount=record.amount,
+        method=record.method,
+        created_at=record.created_at,
+        url=record.url if link else None,
+        address=None if link else record.url,
+    )
+
+
+@on("callback_query", PayOptCb.filter())
+async def on_pay_option(query: CallbackQuery, callback_data: PayOptCb, hub: Hub) -> None:
+    """Coins and networks of an invoice that is already made; a network gets the address."""
+    v = view(hub)
+    try:
+        record = hub.payments.get(callback_data.pay)
+        data = hub.load(record.account_id)
+    except NotFound:
+        await answer(query, v.t("account.gone"), alert=True)
+        return
+    acc = record.account_id
+    payment = _payment_of(record)
+    if not callback_data.o:
+        await answer(query)
+        options = hub.topup_options.get(record.id)
+        if options is None:
+
+            async def read(plugin: Plugin) -> list[PayOption]:
+                if not isinstance(plugin, SupportsPayOptions):
+                    raise NotImplementedError
+                return await plugin.pay_options(payment)
+
+            try:
+                options = tuple(await hub.poller.runner.call(acc, read, track_status=False))
+            except Exception as error:
+                log.warning("coins of top-up %s: %s", record.id, describe(error))
+                reason = escape(explain(describe(error), v.lang))
+                await show(
+                    query, _choice_failed(v, record, v.t("topup.options_failed", reason=reason))
+                )
+                return
+            remember_options(hub, record.id, options)
+        screen = options_screen(v, data.title, record, options, callback_data.c, callback_data.p)
+        await show(query, screen)
+        return
+    option_id = callback_data.o
+    await answer(query, v.t("topup.getting_address"))
+    await show(query, Screen(v.t("topup.getting_address")))
+
+    async def choose(plugin: Plugin) -> Payment:
+        if not isinstance(plugin, SupportsPayOptions):
+            raise NotImplementedError
+        return await plugin.pay_with(payment, option_id)
+
+    params = {"invoice": record.external_id, "option": option_id}
+    try:
+        paid = await hub.poller.runner.call(acc, choose, track_status=False)
+    except Exception as error:
+        log.warning("address of top-up %s failed: %s", record.id, describe(error))
+        _journal(hub, acc, params, describe(error), ok=False)
+        reason = escape(explain(describe(error), v.lang))
+        screen = _choice_failed(v, record, v.t("topup.address_failed", reason=reason))
+        await show(query, screen)
+        return
+    _journal(hub, acc, params, "address received", ok=True)
+    method = TopupMethod(
+        id=record.method, name=_option_name(record, option_id, hub), kind=TopupKind.CRYPTO
+    )
+    text = payment_text(v, data.title, method, paid)
+    qr = qr_png(paid.qr_data) if paid.qr_data else None
+    await _deliver(query.message, Delivery(text, payment_markup(v, paid, record.id), qr))
+
+
+def _option_name(record: PaymentRecord, option_id: str, hub: Hub) -> str:
+    options = hub.topup_options.get(record.id, ())
+    option = next((o for o in options if o.id == option_id), None)
+    return f"{option.coin} ({option.network})" if option is not None else record.method
+
+
+def _choice_failed(v: View, record: PaymentRecord, text: str) -> Screen:
+    kb = InlineKeyboardBuilder()
+    kb.row(button(v.t("topup.choose_coin"), PayOptCb(pay=record.id)))
+    if record.url.startswith("https://"):
+        kb.row(InlineKeyboardButton(text=v.t("topup.open"), url=record.url))
+    kb.row(button(v.t("topup.paid"), PaidCb(pay=record.id)))
+    kb.row(*nav(v))
+    return Screen(text, kb.as_markup())
 
 
 def _journal(hub: Hub, acc: int, params: dict[str, str], response: str, ok: bool) -> None:

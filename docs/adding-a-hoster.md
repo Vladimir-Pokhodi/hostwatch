@@ -134,9 +134,11 @@ others:
 Never put response bodies, tokens or cookies into error texts or logs.
 
 **Capabilities.** A capability is a set of methods from `hostwatch/core/plugin.py`:
-`SupportsUsage`, `SupportsTopup`, `SupportsInvoices`, `SupportsPayInvoice`,
-`SupportsAutorenew`, `SupportsRenew`, `SupportsPower`, `SupportsOrder`,
-`SupportsRootPassword`. Implement all methods of a protocol or none of them; the bot shows a
+`SupportsUsage`, `SupportsTopup`, `SupportsPayOptions`, `SupportsInvoices`,
+`SupportsPayInvoice`, `SupportsAutorenew`, `SupportsRenew`, `SupportsPower`, `SupportsOrder`,
+`SupportsRootPassword`. A crypto `TopupMethod` may name its `coin` and `network`: the bot
+asks for the coin first. When the payment page lists its coins only once the invoice exists,
+return them in `Payment.options` and implement `SupportsPayOptions`. Implement all methods of a protocol or none of them; the bot shows a
 button only when the plugin has the capability. `Server.actions` says what is allowed for a
 single server (for example, the hoster does not let you stop a dedicated server).
 

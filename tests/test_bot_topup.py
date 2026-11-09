@@ -9,9 +9,11 @@ from decimal import Decimal
 
 import pytest
 from aiogram.methods import SendMessage, SendPhoto
+from aiogram.types import InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from hostwatch.bot.callbacks import PaidCb, TopupAmountCb, TopupCb
-from hostwatch.bot.topup import CRYPTO, parse_amount
+from hostwatch.bot.callbacks import PaidCb, PayOptCb, TopupAmountCb, TopupCb
+from hostwatch.bot.topup import CRYPTO, coin_buttons, parse_amount
 from hostwatch.storage.repositories import AccountRepository
 from tests.test_bot import Harness
 
@@ -40,11 +42,25 @@ async def test_methods_then_networks(harness: Harness) -> None:
     assert TopupCb(acc=acc, m=CRYPTO).pack() in buttons
     assert "Пополнение" in harness.session.last_text()
 
+    # Coins first: USDT has two networks, Bitcoin and the page one lead to the amount.
     await harness.press(TopupCb(acc=acc, m=CRYPTO))
-    assert set(harness.session.buttons()) >= {
-        TopupCb(acc=acc, m="usdt").pack(),
-        TopupCb(acc=acc, m="btc").pack(),
-    }
+    coins = harness.session.keyboard()
+    assert coins[TopupCb(acc=acc, m=CRYPTO, c="USDT").pack()] == "USDT"
+    assert coins[TopupCb(acc=acc, m="btc").pack()] == "Bitcoin"
+    assert TopupCb(acc=acc, m="page").pack() in coins
+    assert TopupCb(acc=acc, m="usdt").pack() not in coins
+
+    await harness.press(TopupCb(acc=acc, m=CRYPTO, c="USDT"))
+    networks = harness.session.keyboard()
+    assert networks[TopupCb(acc=acc, m="usdt").pack()] == "TRC-20"
+    assert networks[TopupCb(acc=acc, m="usdt_ton").pack()] == "TON"
+    assert "Какая сеть для USDT?" in harness.session.last_text()
+
+    # «Back» from the amount of a network leads to the coin's networks, of a coin to coins.
+    await harness.press(TopupCb(acc=acc, m="usdt_ton"))
+    assert TopupCb(acc=acc, m=CRYPTO, c="USDT").pack() in harness.session.keyboard()
+    await harness.press(TopupCb(acc=acc, m="btc"))
+    assert TopupCb(acc=acc, m=CRYPTO).pack() in harness.session.keyboard()
 
 
 async def test_amount_screen_offers_minimum_month_and_custom(harness: Harness) -> None:
@@ -149,3 +165,76 @@ def test_parse_amount() -> None:
     assert parse_amount("1.005") is None
     assert parse_amount("ноль") is None
     assert parse_amount("0") is None
+
+
+async def test_coin_is_chosen_under_the_invoice(harness: Harness) -> None:
+    acc = await _account(harness)
+
+    await harness.press(TopupAmountCb(acc=acc, m="page", amt="5"))
+
+    assert not any(isinstance(c, SendPhoto) for c in harness.session.calls)
+    coins = harness.session.keyboard()
+    assert coins[PayOptCb(pay=1, c="USDT").pack()] == "USDT"
+    # One network: the coin button gets the address at once.
+    assert coins[PayOptCb(pay=1, o="BTC.btc").pack()] == "BTC"
+    assert PaidCb(pay=1).pack() in coins
+    assert "Выберите монету и сеть" in harness.session.last_text()
+    assert harness.hub.payments.get(1).url == "https://pay.example.com/pay/fake-invoice"
+
+    await harness.press(PayOptCb(pay=1, c="USDT"))
+    networks = harness.session.keyboard()
+    assert networks[PayOptCb(pay=1, o="USDT.tron").pack()] == "TRON (TRC-20)"
+    assert networks[PayOptCb(pay=1, o="USDT.ton").pack()] == "TON"
+    assert PayOptCb(pay=1, p=0).pack() in networks
+
+    await harness.press(PayOptCb(pay=1, o="USDT.ton"))
+
+    photo = next(c for c in harness.session.calls if isinstance(c, SendPhoto))
+    assert photo.caption is not None
+    assert "<code>FakeUSDTAddress00000000000000000</code>" in photo.caption
+    assert "5.01 USDT (TON)" in photo.caption
+    entry = harness.hub.journal.recent()[0]
+    assert entry.params == {"invoice": "202", "option": "USDT.ton"}
+    assert (entry.action, entry.ok) == ("topup", True)
+
+
+async def test_coins_are_read_again_after_a_restart(harness: Harness) -> None:
+    acc = await _account(harness)
+    await harness.press(TopupAmountCb(acc=acc, m="page", amt="5"))
+    harness.hub.topup_options.clear()
+
+    await harness.press(PayOptCb(pay=1))
+
+    assert PayOptCb(pay=1, c="USDT").pack() in harness.session.keyboard()
+    assert 1 in harness.hub.topup_options
+
+
+async def test_failed_address_offers_other_coins_and_the_page(harness: Harness) -> None:
+    acc = await _account(harness)
+    await harness.press(TopupAmountCb(acc=acc, m="page", amt="5"))
+    harness.hub.accounts.save_secrets(acc, {"fail": "hoster_error"})
+
+    await harness.press(PayOptCb(pay=1, o="BTC.btc"))
+
+    assert "Адрес не получен" in harness.session.last_text()
+    assert PayOptCb(pay=1).pack() in harness.session.keyboard()
+    assert harness.hub.journal.recent()[0].ok is False
+
+    harness.hub.topup_options.clear()
+    await harness.press(PayOptCb(pay=1))
+    assert "Не прочитал монеты" in harness.session.last_text()
+
+
+def test_coins_go_by_pages_and_callbacks_fit() -> None:
+    buttons = [InlineKeyboardButton(text=str(n), callback_data=f"c{n}") for n in range(30)]
+    kb = InlineKeyboardBuilder()
+
+    coin_buttons(kb, buttons, 1, lambda p: PayOptCb(pay=1, p=p))
+
+    rows = kb.as_markup().inline_keyboard
+    assert [b.text for b in rows[0]] == ["24", "25", "26", "27"]
+    assert [b.text for b in rows[-1]] == ["◀", "2/2"]
+    # The longest ids Cryptomus could give still fit Telegram's 64 bytes.
+    longest = PayOptCb(pay=10**9, o="ABCDEFGHIJKL.ABCDEFGHIJKL").pack()
+    assert len(longest.encode()) <= 64
+    assert len(TopupCb(acc=10**6, m=CRYPTO, c="ABCDEFGHIJKLMNOP", p=9).pack().encode()) <= 64

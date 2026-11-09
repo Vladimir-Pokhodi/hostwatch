@@ -10,9 +10,11 @@ Server ids are WHMCS service ids (invoices refer to them); the Virtualizor VPS i
 details, status and usage sits in the service's custom field `vpsid`.
 
 Top-up is crypto through Cryptomus only: `addfunds` makes a WHMCS invoice, and
-`cryptomus/create-payment` gives its Cryptomus page. The wallet address is on that page
-only, so a headless tab reads it (see `cryptomus.py`). Without the tab the owner gets the
-page link and chooses the coin there.
+`cryptomus/create-payment` gives its Cryptomus page. The page lists its coins and networks
+for each invoice, so the owner chooses the coin after the invoice is made
+(`SupportsPayOptions`). The wallet address is on that page only, so a headless tab reads it
+(see `cryptomus.py`). Without the list or the tab the owner gets the page link and chooses
+the coin there.
 
 Control is what the site's pages send (their scripts, read 2026-11-08; not sent to a live
 server yet): `POST /api/services/vps/power/{start|stop|restart}/{vpsid}` without a body, and
@@ -44,6 +46,7 @@ from hostwatch.core.models import (
     InvoiceStatus,
     Money,
     Payment,
+    PayOption,
     PowerAction,
     Server,
     ServerAction,
@@ -107,19 +110,8 @@ RECORD_MONEY = {
     "expenses",
 }
 
-# Cryptomus networks the bot offers; `cryptomus` alone leaves the choice to the page.
+# The one top-up method: the coin and the network are chosen once the invoice is made.
 PAGE_METHOD = "cryptomus"
-NETWORKS = {
-    "usdt_trc20": cryptomus.Network("USDT", "TRON (TRC-20)", "tron"),
-    "usdt_bep20": cryptomus.Network("USDT", "BSC (BEP-20)", "bsc"),
-    "usdt_ton": cryptomus.Network("USDT", "TON", "ton"),
-}
-METHOD_NAMES = {
-    "usdt_trc20": "USDT (TRC-20)",
-    "usdt_bep20": "USDT (BEP-20)",
-    "usdt_ton": "USDT (TON)",
-    PAGE_METHOD: "Cryptomus",
-}
 MIN_TOPUP = Decimal(5)
 # Opening the page and three clicks take ~15 s on the bot's one CPU.
 BROWSER_TIMEOUT = 90.0
@@ -273,12 +265,11 @@ class RegxaPlugin(Plugin):
     async def topup_methods(self) -> list[TopupMethod]:
         minimum = Money(amount=MIN_TOPUP, currency=self.meta.currency)
         return [
-            TopupMethod(id=method, name=name, kind=TopupKind.CRYPTO, minimum=minimum)
-            for method, name in METHOD_NAMES.items()
+            TopupMethod(id=PAGE_METHOD, name="Cryptomus", kind=TopupKind.CRYPTO, minimum=minimum)
         ]
 
     async def topup(self, amount: Money, method_id: str) -> Payment:
-        if method_id not in METHOD_NAMES:
+        if method_id != PAGE_METHOD:
             raise HosterError(f"unknown method {method_id}")
         if amount.currency != self.meta.currency or amount.amount < MIN_TOPUP:
             raise HosterError(f"the minimum is {MIN_TOPUP} {self.meta.currency}")
@@ -306,18 +297,28 @@ class RegxaPlugin(Plugin):
             url=link.url,
             qr_data=link.url,
         )
-        network = NETWORKS.get(method_id)
-        if network is None or self.ctx.pages is None:
-            return payment
         try:
-            async with self.ctx.pages.open(cryptomus.DOMAINS) as page:
-                found = await asyncio.wait_for(
-                    cryptomus.address(page, link.url, network), BROWSER_TIMEOUT
-                )
+            options = await self.pay_options(payment)
         except Exception as exc:
             # The invoice is made; its page still pays it, so the owner gets the link.
-            log.warning("regxa: no Cryptomus address (%s); giving the page", type(exc).__name__)
+            log.warning("regxa: no Cryptomus coin list (%s); giving the page", type(exc).__name__)
             return payment
+        return payment.model_copy(update={"options": tuple(options)})
+
+    async def pay_options(self, payment: Payment) -> list[PayOption]:
+        return [network.option for network in await self._networks(payment)]
+
+    async def pay_with(self, payment: Payment, option_id: str) -> Payment:
+        """The address for one coin and network of the invoice's Cryptomus page."""
+        network = next((n for n in await self._networks(payment) if n.option.id == option_id), None)
+        if network is None:
+            raise HosterError(f"the payment page does not take {option_id}")
+        if self.ctx.pages is None or payment.url is None:
+            raise HosterError("no browser to read the address; choose the coin on the page")
+        async with self.ctx.pages.open(cryptomus.DOMAINS) as page:
+            found = await asyncio.wait_for(
+                cryptomus.address(page, payment.url, network), BROWSER_TIMEOUT
+            )
         return payment.model_copy(
             update={
                 "address": found.address,
@@ -325,8 +326,14 @@ class RegxaPlugin(Plugin):
                 "pay_amount": found.amount,
                 "pay_currency": found.currency,
                 "expires_at": found.expires_at,
+                "options": (),
             }
         )
+
+    async def _networks(self, payment: Payment) -> list[cryptomus.Network]:
+        if not payment.url or not payment.url.startswith(cryptomus.PAY_PAGE):
+            raise HosterError("not a Cryptomus invoice")
+        return await cryptomus.networks(self.ctx.http, payment.url)
 
     @classmethod
     def record_text(cls, text: str, scrubber: Scrubber) -> str:

@@ -15,7 +15,10 @@ def test_check_fake_prints_everything(capsys: pytest.CaptureFixture[str]) -> Non
     assert "Fake hoster (fake)" in out
     assert "Response time: servers" in out
     assert "Balance: €20.00" in out
-    caps = "autorenew, invoices, order, pay_invoice, power, renew, root_password, topup, usage"
+    caps = (
+        "autorenew, invoices, order, pay_invoice, pay_options, power, renew, root_password,"
+        " topup, usage"
+    )
     assert f"Capabilities: {caps}" in out
     assert "Servers: 3" in out
     assert "beaver [1] vps running" in out

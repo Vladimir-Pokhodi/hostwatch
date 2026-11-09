@@ -163,13 +163,31 @@ class TopupKind(StrEnum):
 
 
 class TopupMethod(Model):
-    """A way to top up the balance. `id` goes into callback data: keep it under 30 bytes."""
+    """A way to top up the balance. `id` goes into callback data: keep it under 30 bytes.
+
+    A crypto method may name its `coin` («USDT») and `network` («TRC20»): the bot then asks
+    for the coin first and for the network only when the coin has several.
+    """
 
     id: str = Field(max_length=30)
     name: str
     kind: TopupKind
     # In the account currency.
     minimum: Money | None = None
+    coin: str | None = Field(default=None, max_length=16)
+    network: str | None = None
+
+
+class PayOption(Model):
+    """A coin on a network that an invoice's payment page takes (`SupportsPayOptions`).
+
+    `id` goes into callback data: short, without `|`. `network` is the page's own label
+    («TRON (TRC-20)»).
+    """
+
+    id: str = Field(max_length=25, pattern=r"^[^|]+$")
+    coin: str = Field(max_length=16)
+    network: str
 
 
 class Payment(Model):
@@ -191,6 +209,8 @@ class Payment(Model):
     pay_amount: Decimal | None = None
     pay_currency: str | None = None
     expires_at: AwareDatetime | None = None
+    # Coins and networks still to choose from when the hoster's page asks after the invoice.
+    options: tuple[PayOption, ...] = ()
 
     @model_validator(mode="after")
     def _payable(self) -> Self:

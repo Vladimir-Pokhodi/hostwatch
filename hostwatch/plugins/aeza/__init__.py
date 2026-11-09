@@ -19,6 +19,7 @@ does the plugin.
 from __future__ import annotations
 
 import asyncio
+import re
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Any, TypeVar
@@ -188,7 +189,9 @@ class AezaPlugin(Plugin):
         return sorted(charges, key=lambda c: c.due_at or datetime.min.replace(tzinfo=UTC))[::-1]
 
     async def topup_methods(self) -> list[TopupMethod]:
-        """SBP and the coins of `pawnow`; Aeza lists cards and others too, the bot does not."""
+        """SBP and every coin of `pawnow` the API lists (13 on 2026-11-09: USDT on four
+        networks, USDC on two, BTC, ETH, LTC, TRX, TON, SOL, BNB). Aeza lists cards too,
+        the bot does not offer them."""
         currency = (await self._me()).currency
         methods = await self._get(api.PaymentMethods, "billing/payment-methods")
         return [
@@ -197,6 +200,7 @@ class AezaPlugin(Plugin):
                 name=method.name,
                 kind=TopupKind.SBP if method.slug == SBP_METHOD else TopupKind.CRYPTO,
                 minimum=_money(Decimal(method.min), currency),
+                **_coin(method),
             )
             for method in methods.items
             if method.slug == SBP_METHOD or method.slug.startswith(CRYPTO_PREFIX)
@@ -360,6 +364,16 @@ class AezaPlugin(Plugin):
             billing=BillingModel.HOURLY if hourly else BillingModel.PERIODIC,
             actions=frozenset(actions & allowed),
         )
+
+
+def _coin(method: api.PaymentMethod) -> dict[str, str | None]:
+    """«pawnow:usdt_trc20», «USDT (TRC20)» → coin USDT, network TRC20; «Bitcoin» has no
+    network in its name."""
+    if not method.slug.startswith(CRYPTO_PREFIX):
+        return {}
+    coin = method.slug.removeprefix(CRYPTO_PREFIX).split("_")[0].upper()
+    found = re.search(r"\(([^()]+)\)\s*$", method.name)
+    return {"coin": coin[:16] or None, "network": found.group(1) if found else None}
 
 
 def _id(server_id: str) -> int:

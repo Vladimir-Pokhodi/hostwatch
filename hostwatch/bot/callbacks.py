@@ -74,11 +74,14 @@ class LabelCb(CallbackData, prefix="lbl"):
 
 
 class TopupCb(CallbackData, prefix="tu", sep="|"):
-    """Top up an account: `m` empty lists the methods, `*crypto` the crypto networks,
-    a method id asks for the amount. `|` separates: Aeza's method ids hold colons."""
+    """Top up an account: `m` empty lists the methods, `*crypto` the coins (page `p`) or,
+    with a coin `c`, its networks; a method id asks for the amount. `|` separates: Aeza's
+    method ids hold colons."""
 
     acc: int
     m: str = ""
+    c: str = ""
+    p: int = 0
 
 
 class TopupAmountCb(CallbackData, prefix="ta", sep="|"):
@@ -87,6 +90,17 @@ class TopupAmountCb(CallbackData, prefix="ta", sep="|"):
     acc: int
     m: str
     amt: str
+
+
+class PayOptCb(CallbackData, prefix="po", sep="|"):
+    """The coin of an invoice made before the coin is chosen: `pay` is the row id in
+    `payments`; empty `c` and `o` list the coins (page `p`), `c` the coin's networks,
+    `o` (a `PayOption` id) gets the address."""
+
+    pay: int
+    c: str = ""
+    o: str = ""
+    p: int = 0
 
 
 class PaidCb(CallbackData, prefix="pd"):

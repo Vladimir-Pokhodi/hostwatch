@@ -11,6 +11,10 @@ Secrets it understands:
 - `order_price`: what the hoster asks for a month of «Fake Small» when the order is
   confirmed, default 4.50, the catalog price;
 - `password`: the root password the hoster tells, default `Fake-Root-Pass-1`.
+
+Top-up: SBP gives a link; USDT (two networks) and Bitcoin an address at once; «Crypto
+page» makes the invoice first and lets the owner choose the coin under it, the way Regxa
+does with Cryptomus.
 """
 
 from __future__ import annotations
@@ -41,6 +45,7 @@ from hostwatch.core.models import (
     InvoiceStatus,
     Money,
     Payment,
+    PayOption,
     PowerAction,
     Server,
     ServerAction,
@@ -53,6 +58,12 @@ from hostwatch.core.models import (
 from hostwatch.core.plugin import ApiKeyAuth, Plugin, PluginMeta
 
 CURRENCY = "EUR"
+PAGE = "https://pay.example.com/pay/fake-invoice"
+PAGE_OPTIONS = (
+    PayOption(id="USDT.tron", coin="USDT", network="TRON (TRC-20)"),
+    PayOption(id="USDT.ton", coin="USDT", network="TON"),
+    PayOption(id="BTC.btc", coin="BTC", network="BTC"),
+)
 ALL_ACTIONS = frozenset(ServerAction)
 
 _ERRORS: dict[str, Callable[[], Exception]] = {
@@ -148,8 +159,26 @@ class FakePlugin(Plugin):
         await self._behave()
         return [
             TopupMethod(id="sbp", name="SBP", kind=TopupKind.SBP, minimum=eur("0.50")),
-            TopupMethod(id="usdt", name="USDT (TRC-20)", kind=TopupKind.CRYPTO, minimum=eur("5")),
-            TopupMethod(id="btc", name="Bitcoin", kind=TopupKind.CRYPTO, minimum=eur("10")),
+            TopupMethod(
+                id="usdt",
+                name="USDT (TRC-20)",
+                kind=TopupKind.CRYPTO,
+                minimum=eur("5"),
+                coin="USDT",
+                network="TRC-20",
+            ),
+            TopupMethod(
+                id="usdt_ton",
+                name="USDT (TON)",
+                kind=TopupKind.CRYPTO,
+                minimum=eur("5"),
+                coin="USDT",
+                network="TON",
+            ),
+            TopupMethod(
+                id="btc", name="Bitcoin", kind=TopupKind.CRYPTO, minimum=eur("10"), coin="BTC"
+            ),
+            TopupMethod(id="page", name="Crypto page", kind=TopupKind.CRYPTO, minimum=eur("5")),
         ]
 
     async def topup(self, amount: Money, method_id: str) -> Payment:
@@ -165,6 +194,16 @@ class FakePlugin(Plugin):
                 qr_data=link,
                 created_at=datetime.now(UTC),
             )
+        if method_id == "page":
+            return Payment(
+                id="202",
+                amount=amount,
+                method=method_id,
+                url=PAGE,
+                qr_data=PAGE,
+                created_at=datetime.now(UTC),
+                options=PAGE_OPTIONS,
+            )
         address = "TFakeAddress000000000000000000000"
         return Payment(
             id="201",
@@ -175,6 +214,27 @@ class FakePlugin(Plugin):
             pay_amount=Decimal("5.45"),
             pay_currency="USDT (TRC-20)",
             created_at=datetime.now(UTC),
+        )
+
+    async def pay_options(self, payment: Payment) -> list[PayOption]:
+        await self._behave()
+        return list(PAGE_OPTIONS)
+
+    async def pay_with(self, payment: Payment, option_id: str) -> Payment:
+        await self._behave()
+        self.calls.append(f"pay_with {payment.id} {option_id}")
+        option = next((o for o in PAGE_OPTIONS if o.id == option_id), None)
+        if option is None:
+            raise HosterError(f"the page does not take {option_id}")
+        address = f"Fake{option.coin}Address00000000000000000"
+        return payment.model_copy(
+            update={
+                "address": address,
+                "qr_data": address,
+                "pay_amount": Decimal("5.01"),
+                "pay_currency": f"{option.coin} ({option.network})",
+                "options": (),
+            }
         )
 
     async def catalog(self) -> Catalog:

@@ -70,6 +70,7 @@ QRATOR пропускает запросы из Python и с IP сервера �
   - Для крипты в `payload` сразу приходят `address`, `amount`, `currency` и строка для QR вида `адрес?amount=6.51`. Сумма в крипте больше суммы в евро на комиссию.
   - В ответе ещё `id` счёта, `status: "created"`, `amount` в центах, `createdAt`. Списка счетов (`GET /billing/invoices`) нет: 404.
   - Минимумы — поле `min` (в центах) в `/billing/payment-methods`: СБП 50, большинство монет 500, BTC/ETH/USDT ERC20 1000.
+  - Список монет (проверено 09.11): `/billing/payment-methods` отдаёт 15 способов, из них 13 крипто `pawnow:*` — USDT в 4 сетях (TRC20, BEP20, ERC20, TON), USDC в 2 (ETH, BEP20), BTC, ETH, LTC, TRX, TON («Gram»), SOL, BNB; ещё СБП и карты ЮKassa. Плагин берёт все `pawnow:*` из ответа, список не урезан и не зашит в код.
 
 Управление (этап 10). Запросы взяты из скриптов кабинета `my.aeza.net/assets/*.js` (08.11). Вживую не вызывались: тестового сервера нет.
 
@@ -104,6 +105,8 @@ QRATOR пропускает запросы из Python и с IP сервера �
   Ответы (08.11): `addfunds` → `{"success": true, "data": {"invoiceid", "total", "status"}}`; `create-payment` → `{"success": true, "url": "https://pay.cryptomus.com/pay/<uuid>"}`.
 
 **Адрес кошелька Cryptomus без браузера не получить.** Страница выбирает сеть запросом `POST https://api-pay.cryptomus.com/v1/payment/method`, а в нём зашифрованный «отпечаток браузера». Поэтому адрес достаёт браузер без окна в контейнере `browser` (проверено 08.11): «Select currency» → монета → «Select network» → сеть («TRON (TRC-20)», «BSC (BEP-20)», «TON») → «Proceed to the payment». Ответ `payment/method` содержит `address`, `payer_amount`, `payer_currency`, `network` (`tron`, `bsc`, `ton`), `expired_at` (час). Если сеть уже выбрана, адрес есть сразу в `payment/info` при загрузке. Названия сетей страница пишет через CSS заглавными («Ton» → «TON»), искать текст надо без учёта регистра. Запасной вариант — отправить человеку ссылку.
+
+**Список монет и сетей без браузера есть** (проверено 09.11 на неоплаченном счёте $5). Страница при загрузке спрашивает `payment/info {"uuid"}` (в нём списка нет, только сам счёт), затем `POST payment/currencies {"uuid", "search": ""}` → `result.currencies[]` (`currency`, `currency_icon`, `status`, `amount`) — монеты в порядке страницы. После выбора монеты она спрашивает `POST payment/methods {"uuid", "currency", "search"}`; без `currency` ответ даёт сразу все пары монета-сеть: `result.methods[]` (`currency`, `network`, `token_standard`, `status`, `amount`, `min_amount`, комиссии). Оба запроса работают обычным HTTP без отпечатка. В тот день: 83 монеты и 97 пар; USDT в 8 сетях (BSC, TRON, ETH, POLYGON, ARBITRUM, AVALANCHE, SOL, TON), USDC в 5, DAI в 3, POL в 2, остальные в одной (BTC, LTC, TRX, ETH, XMR, BNB, SOL, DASH, DOGE, GRAM — бывший TON, BCH и т. д.). Подпись сети на странице: `network` заглавными и `token_standard` в скобках. У монеты с одной сетью страница выбирает сеть сама, кнопки «Select network» нет.
 
 ## AdminVPS
 

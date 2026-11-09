@@ -143,11 +143,26 @@ async def test_aeza_methods_are_sbp_and_coins(web: respx.MockRouter) -> None:
 
     methods = await plugin.topup_methods()
 
-    assert [(m.id, m.kind, m.minimum) for m in methods] == [
+    # The live list of 2026-11-09: SBP and all 13 coin-network pairs, not the cards.
+    assert len(methods) == 14
+    assert [(m.id, m.kind, m.minimum) for m in methods[:3]] == [
         ("yookassa:sbp", TopupKind.SBP, Money.of("0.50", "EUR")),
         ("pawnow:usdt_trc20", TopupKind.CRYPTO, Money.of("5", "EUR")),
-        ("pawnow:btc_btc", TopupKind.CRYPTO, Money.of("10", "EUR")),
+        ("pawnow:bnb_bsc", TopupKind.CRYPTO, Money.of("5", "EUR")),
     ]
+    assert "yookassa:bank_card" not in {m.id for m in methods}
+    usdt = [(m.id, m.network) for m in methods if m.coin == "USDT"]
+    assert usdt == [
+        ("pawnow:usdt_trc20", "TRC20"),
+        ("pawnow:usdt_bsc", "BEP20"),
+        ("pawnow:usdt_eth", "ERC20"),
+        ("pawnow:usdt_ton", "TON"),
+    ]
+    coins = {m.coin for m in methods if m.kind is TopupKind.CRYPTO}
+    assert coins == {"USDT", "USDC", "BNB", "BTC", "ETH", "SOL", "LTC", "TRX", "TON"}
+    btc = next(m for m in methods if m.id == "pawnow:btc_btc")
+    assert (btc.coin, btc.network, btc.name) == ("BTC", None, "Bitcoin")
+    assert methods[0].coin is None
 
 
 async def test_aeza_sbp_invoice_becomes_an_nspk_link(web: respx.MockRouter) -> None:
@@ -307,12 +322,21 @@ async def test_timeweb_offers_sbp_from_500() -> None:
 REGXA_SECRETS = {"rgx.session-token": "rgx-cookie-for-tests"}
 
 
-def mock_regxa(web: respx.MockRouter) -> respx.Route:
+CRYPTOMUS = "https://api-pay.cryptomus.com/v1/payment/"
+PAY_URL = "https://pay.cryptomus.com/pay/00000000-0000-4000-8000-000000000006"
+
+
+def mock_regxa(web: respx.MockRouter, coins: bool = True) -> respx.Route:
     web.get(f"{REGXA}/api/auth/session").respond(json={"user": {"client_id": "100002"}})
     add = web.post(f"{REGXA}/api/billing/addfunds").respond(json=fixture("regxa-addfunds.json"))
     web.post(f"{REGXA}/api/billing/cryptomus/create-payment").respond(
         json=fixture("regxa-create-payment.json")
     )
+    if coins:
+        web.post(f"{CRYPTOMUS}currencies").respond(json=fixture("cryptomus-currencies.json"))
+        web.post(f"{CRYPTOMUS}methods").respond(json=fixture("cryptomus-methods.json"))
+    else:
+        web.post(f"{CRYPTOMUS}currencies").respond(500)
     return add
 
 
@@ -329,18 +353,54 @@ class FakePages:
         yield object()
 
 
-async def test_regxa_without_browser_gives_the_cryptomus_page(web: respx.MockRouter) -> None:
+async def test_regxa_offers_one_method_and_the_coins_come_with_the_invoice(
+    web: respx.MockRouter,
+) -> None:
     add = mock_regxa(web)
+    plugin = RegxaPlugin(context(dict(REGXA_SECRETS)))
+    assert [m.id for m in await plugin.topup_methods()] == ["cryptomus"]
 
-    payment = await RegxaPlugin(context(dict(REGXA_SECRETS))).topup(
-        Money.of("5", "USD"), "usdt_trc20"
-    )
+    payment = await plugin.topup(Money.of("5", "USD"), "cryptomus")
 
     assert json.loads(add.calls[0].request.content) == {"amount": 5.0}
     assert add.calls[0].request.headers["Cookie"] == "rgx.session-token=rgx-cookie-for-tests"
     assert payment.id == "100005"
-    assert payment.url == "https://pay.cryptomus.com/pay/00000000-0000-4000-8000-000000000006"
+    assert payment.url == PAY_URL
     assert payment.address is None
+    # The page's coin order (USDT, BTC, LTC, ...), each coin's networks in the page's order.
+    coins = list(dict.fromkeys(o.coin for o in payment.options))
+    assert coins == [
+        "USDT", "BTC", "LTC", "TRX", "ETH", "XMR", "POL", "BNB", "USDC", "SOL", "DOGE", "GRAM"
+    ]  # fmt: skip
+    usdt = [(o.id, o.network) for o in payment.options if o.coin == "USDT"]
+    assert usdt == [
+        ("USDT.bsc", "BSC (BEP-20)"),
+        ("USDT.tron", "TRON (TRC-20)"),
+        ("USDT.eth", "ETH (ERC-20)"),
+        ("USDT.polygon", "POLYGON (ERC-20)"),
+        ("USDT.arbitrum", "ARBITRUM"),
+        ("USDT.avalanche", "AVALANCHE"),
+        ("USDT.sol", "SOL"),
+        ("USDT.ton", "TON"),
+    ]
+    assert [o.id for o in payment.options if o.coin in ("BTC", "GRAM")] == ["BTC.btc", "GRAM.ton"]
+    sent = web.calls.last.request
+    assert json.loads(sent.content) == {
+        "uuid": "00000000-0000-4000-8000-000000000006",
+        "search": "",
+    }
+    assert sent.headers["Origin"] == "https://pay.cryptomus.com"
+    # The Regxa session cookie does not go to Cryptomus.
+    assert "Cookie" not in sent.headers
+
+
+async def test_regxa_without_the_coin_list_gives_the_page(web: respx.MockRouter) -> None:
+    mock_regxa(web, coins=False)
+    payment = await RegxaPlugin(context(dict(REGXA_SECRETS))).topup(
+        Money.of("5", "USD"), "cryptomus"
+    )
+    assert payment.url == PAY_URL
+    assert payment.options == ()
 
 
 async def test_regxa_reads_the_address_in_the_browser(
@@ -356,25 +416,46 @@ async def test_regxa_reads_the_address_in_the_browser(
 
     monkeypatch.setattr(cryptomus, "address", address)
     pages = FakePages()
+    plugin = RegxaPlugin(context(dict(REGXA_SECRETS), pages=pages))
+    invoice = await plugin.topup(Money.of("5", "USD"), "cryptomus")
 
-    payment = await RegxaPlugin(context(dict(REGXA_SECRETS), pages=pages)).topup(
-        Money.of("5", "USD"), "usdt_trc20"
-    )
+    payment = await plugin.pay_with(invoice, "USDT.tron")
 
     assert pages.opened == [("cryptomus.com",)]
-    assert seen[0].code == "tron"
+    assert seen == [cryptomus.Network("USDT", "TRON (TRC-20)", "tron", single=False)]
     assert payment.address == payment.qr_data == ADDRESS
     assert payment.pay_amount == Decimal("5.02")
     assert payment.pay_currency == "USDT (TRC-20)"
     assert payment.expires_at == datetime(2026, 11, 8, 13, 0, tzinfo=UTC)
+    assert payment.options == ()
+
+    with pytest.raises(LayoutChanged):  # the fixture answers USDT on TRON, not BTC
+        await plugin.pay_with(invoice, "BTC.btc")
+    assert seen[-1] == cryptomus.Network("BTC", "BTC", "btc", single=True)
 
 
-async def test_regxa_busy_browser_falls_back_to_the_page(web: respx.MockRouter) -> None:
+async def test_regxa_choice_refusals(web: respx.MockRouter) -> None:
     mock_regxa(web)
-    payment = await RegxaPlugin(context(dict(REGXA_SECRETS), pages=FakePages(busy=True))).topup(
-        Money.of("5", "USD"), "usdt_ton"
+    invoice = Payment(
+        id="100005",
+        amount=Money.of("5", "USD"),
+        method="cryptomus",
+        created_at=datetime(2026, 11, 9, tzinfo=UTC),
+        url=PAY_URL,
     )
-    assert payment.url is not None and payment.address is None
+    with pytest.raises(HosterError, match="does not take"):
+        await RegxaPlugin(context(dict(REGXA_SECRETS), pages=FakePages())).pay_with(
+            invoice, "USDT.nowhere"
+        )
+    with pytest.raises(HosterError, match="no browser"):
+        await RegxaPlugin(context(dict(REGXA_SECRETS))).pay_with(invoice, "USDT.tron")
+    with pytest.raises(BrowserBusy):
+        await RegxaPlugin(context(dict(REGXA_SECRETS), pages=FakePages(busy=True))).pay_with(
+            invoice, "USDT.tron"
+        )
+    elsewhere = invoice.model_copy(update={"url": "https://example.com/pay/x"})
+    with pytest.raises(HosterError, match="not a Cryptomus"):
+        await RegxaPlugin(context(dict(REGXA_SECRETS))).pay_options(elsewhere)
 
 
 async def test_regxa_refusals(web: respx.MockRouter) -> None:
@@ -385,6 +466,8 @@ async def test_regxa_refusals(web: respx.MockRouter) -> None:
         await plugin.topup(Money.of("5", "USD"), "cryptomus")
     with pytest.raises(HosterError):
         await plugin.topup(Money.of("4", "USD"), "cryptomus")
+    with pytest.raises(HosterError, match="unknown method"):
+        await plugin.topup(Money.of("5", "USD"), "usdt_trc20")
     web.get(f"{REGXA}/api/auth/session").respond(json={})
     with pytest.raises(AuthExpired):
         await RegxaPlugin(context(dict(REGXA_SECRETS))).topup(Money.of("5", "USD"), "cryptomus")
@@ -401,6 +484,12 @@ def test_cryptomus_answers() -> None:
         cryptomus._address(chosen, cryptomus.Network("USDT", "TON", "ton"))
     with pytest.raises(LayoutChanged):
         cryptomus._payment('{"state": 1, "result": {"payment": {}}}')
+    with pytest.raises(LayoutChanged):
+        cryptomus._methods(b'{"state": 0, "result": {"methods": []}}')
+    with pytest.raises(LayoutChanged):
+        cryptomus._coins(b'{"state": 0, "result": {}}')
+    with pytest.raises(LayoutChanged):
+        cryptomus._uuid("https://pay.cryptomus.com/pay/")
 
 
 # AdminVPS

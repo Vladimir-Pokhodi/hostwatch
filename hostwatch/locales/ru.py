@@ -149,7 +149,20 @@ MESSAGES: dict[str, str] = {
     "topup.title": "<b>Пополнение: {title}</b>",
     "topup.balance": "Баланс: {amount}",
     "topup.choose_method": "Как платить?",
-    "topup.choose_network": "Какая монета и сеть?",
+    "topup.choose_coin": "Какая монета?",
+    "topup.choose_coin_network": "Какая сеть для {coin}?",
+    "topup.invoice_amount": "Сумма: {amount}",
+    "topup.choose_after": (
+        "Выберите монету и сеть: я возьму адрес со страницы оплаты."
+        " Можно выбрать и на самой странице."
+    ),
+    "topup.getting_address": "Беру адрес со страницы оплаты, это до минуты…",
+    "topup.address_failed": (
+        "Адрес не получен: {reason}. Выберите другую монету или оплатите на странице оплаты."
+    ),
+    "topup.options_failed": (
+        "Не прочитал монеты страницы оплаты: {reason}. Выберите на самой странице."
+    ),
     "topup.sbp": "СБП ({name})",
     "topup.crypto": "Криптовалюта",
     "topup.crypto_one": "Криптовалюта ({name})",

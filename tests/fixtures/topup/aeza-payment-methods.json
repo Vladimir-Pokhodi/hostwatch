@@ -2,21 +2,25 @@
   "groups": [
     {
       "slug": "online",
-      "name": "Online"
+      "name": "Онлайн платежи"
     },
     {
       "slug": "crypto",
-      "name": "Crypto"
+      "name": "Криптовалюты"
+    },
+    {
+      "slug": "card",
+      "name": "Банковские карты"
     }
   ],
   "items": [
     {
-      "icon": "https://io.aeza.net/icons/payment/x.svg",
+      "icon": "https://io.aeza.net/icons/payment/sbp.svg",
       "payload": {
         "lang": [
           "ru"
         ],
-        "exchangeNotice": false
+        "exchangeNotice": true
       },
       "min": 50,
       "max": 100000000,
@@ -27,53 +31,164 @@
       "name": "СБП"
     },
     {
-      "icon": "https://io.aeza.net/icons/payment/x.svg",
-      "payload": {
-        "lang": [
-          "ru"
-        ],
-        "exchangeNotice": false
-      },
+      "icon": "https://io.aeza.net/icons/payment/usdt.svg",
+      "payload": {},
       "min": 500,
       "max": 100000000,
       "order": 0,
       "group": "crypto",
-      "fee": 1,
+      "fee": 9,
       "slug": "pawnow:usdt_trc20",
       "name": "USDT (TRC20)"
     },
     {
-      "icon": "https://io.aeza.net/icons/payment/x.svg",
+      "icon": "https://io.aeza.net/icons/flags/ru.png",
       "payload": {
         "lang": [
           "ru"
         ],
-        "exchangeNotice": false
+        "exchangeNotice": true
       },
       "min": 50,
       "max": 100000000,
-      "order": 0,
+      "order": 1,
       "group": "card",
-      "fee": 1,
+      "fee": 5,
       "slug": "yookassa:bank_card",
-      "name": "Bank cards"
+      "name": "Bank cards (Russian Federation)"
     },
     {
-      "icon": "https://io.aeza.net/icons/payment/x.svg",
-      "payload": {
-        "lang": [
-          "ru"
-        ],
-        "exchangeNotice": false
-      },
+      "icon": "https://io.aeza.net/icons/payment/bnb.svg",
+      "payload": {},
+      "min": 500,
+      "max": 100000000,
+      "order": 1,
+      "group": "crypto",
+      "fee": 9,
+      "slug": "pawnow:bnb_bsc",
+      "name": "BNB (BNB Chain)"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/btc.svg",
+      "payload": {},
       "min": 1000,
       "max": 100000000,
-      "order": 0,
+      "order": 2,
       "group": "crypto",
-      "fee": 1,
+      "fee": 9,
       "slug": "pawnow:btc_btc",
       "name": "Bitcoin"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/eth.svg",
+      "payload": {},
+      "min": 1000,
+      "max": 100000000,
+      "order": 3,
+      "group": "crypto",
+      "fee": 9,
+      "slug": "pawnow:eth_eth",
+      "name": "ETH (Mainnet)"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/usdt.svg",
+      "payload": {},
+      "min": 500,
+      "max": 100000000,
+      "order": 4,
+      "group": "crypto",
+      "fee": 9,
+      "slug": "pawnow:usdt_bsc",
+      "name": "USDT (BEP20)"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/usdt.svg",
+      "payload": {},
+      "min": 1000,
+      "max": 100000000,
+      "order": 5,
+      "group": "crypto",
+      "fee": 9,
+      "slug": "pawnow:usdt_eth",
+      "name": "USDT (ERC20)"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/usdt.svg",
+      "payload": {},
+      "min": 500,
+      "max": 100000000,
+      "order": 7,
+      "group": "crypto",
+      "fee": 9,
+      "slug": "pawnow:usdt_ton",
+      "name": "USDT (TON)"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/solana.svg",
+      "payload": {},
+      "min": 500,
+      "max": 100000000,
+      "order": 7,
+      "group": "crypto",
+      "fee": 9,
+      "slug": "pawnow:sol_sol",
+      "name": "SOLANA (SOL)"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/usdc.svg",
+      "payload": {},
+      "min": 1000,
+      "max": 100000000,
+      "order": 8,
+      "group": "crypto",
+      "fee": 9,
+      "slug": "pawnow:usdc_eth",
+      "name": "USDC (ETH)"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/usdc.svg",
+      "payload": {},
+      "min": 500,
+      "max": 100000000,
+      "order": 8,
+      "group": "crypto",
+      "fee": 9,
+      "slug": "pawnow:usdc_bsc",
+      "name": "USDC (BEP20)"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/ltc.svg",
+      "payload": {},
+      "min": 500,
+      "max": 100000000,
+      "order": 10,
+      "group": "crypto",
+      "fee": 9,
+      "slug": "pawnow:ltc_ltc",
+      "name": "Litecoin"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/tron.svg",
+      "payload": {},
+      "min": 500,
+      "max": 100000000,
+      "order": 12,
+      "group": "crypto",
+      "fee": 9,
+      "slug": "pawnow:trx_trc20",
+      "name": "TRX (TRC20)"
+    },
+    {
+      "icon": "https://io.aeza.net/icons/payment/gram.svg",
+      "payload": {},
+      "min": 500,
+      "max": 100000000,
+      "order": 14,
+      "group": "crypto",
+      "fee": 9,
+      "slug": "pawnow:ton_ton",
+      "name": "Gram"
     }
   ],
-  "total": 4
+  "total": 15
 }

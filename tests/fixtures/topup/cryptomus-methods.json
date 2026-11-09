@@ -1,0 +1,770 @@
+{
+  "state": 0,
+  "result": {
+    "methods": [
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "BNB",
+        "currency_icon": "https://storage.cryptomus.com/currencies/BNB.svg",
+        "network": "bsc",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/bsc.svg",
+        "token_standard": "BEP-20",
+        "is_popular_choise": true,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 9,
+        "avg_confirmation_time": 120,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDT",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDT.svg",
+        "network": "bsc",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/bsc.svg",
+        "token_standard": "BEP-20",
+        "is_popular_choise": true,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 16,
+        "avg_confirmation_time": 120,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDC",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDC.svg",
+        "network": "bsc",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/bsc.svg",
+        "token_standard": "BEP-20",
+        "is_popular_choise": true,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 8,
+        "avg_confirmation_time": 120,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "TRX",
+        "currency_icon": "https://storage.cryptomus.com/currencies/TRX.svg",
+        "network": "tron",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/tron.svg",
+        "token_standard": "TRC-20",
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 13,
+        "avg_confirmation_time": 177,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDT",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDT.svg",
+        "network": "tron",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/tron.svg",
+        "token_standard": "TRC-20",
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 16,
+        "avg_confirmation_time": 177,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDT",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDT.svg",
+        "network": "eth",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/eth.svg",
+        "token_standard": "ERC-20",
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 16,
+        "avg_confirmation_time": 264,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "ETH",
+        "currency_icon": "https://storage.cryptomus.com/currencies/ETH.svg",
+        "network": "eth",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/eth.svg",
+        "token_standard": "ERC-20",
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 12,
+        "avg_confirmation_time": 264,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "BTC",
+        "currency_icon": "https://storage.cryptomus.com/currencies/BTC.svg",
+        "network": "btc",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/btc.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 15,
+        "avg_confirmation_time": 536,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "LTC",
+        "currency_icon": "https://storage.cryptomus.com/currencies/LTC.svg",
+        "network": "ltc",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/ltc.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 14,
+        "avg_confirmation_time": 728,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "POL",
+        "currency_icon": "https://storage.cryptomus.com/currencies/POL.svg",
+        "network": "polygon",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/polygon.svg",
+        "token_standard": "ERC-20",
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 10,
+        "avg_confirmation_time": 160,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDT",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDT.svg",
+        "network": "polygon",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/polygon.svg",
+        "token_standard": "ERC-20",
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 16,
+        "avg_confirmation_time": 160,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "GRAM",
+        "currency_icon": "https://storage.cryptomus.com/currencies/GRAM.svg",
+        "network": "ton",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/ton.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 4,
+        "avg_confirmation_time": 120,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "DOGE",
+        "currency_icon": "https://storage.cryptomus.com/currencies/DOGE.svg",
+        "network": "doge",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/doge.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 5,
+        "avg_confirmation_time": 170,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDC",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDC.svg",
+        "network": "eth",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/eth.svg",
+        "token_standard": "ERC-20",
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 8,
+        "avg_confirmation_time": 264,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDC",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDC.svg",
+        "network": "polygon",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/polygon.svg",
+        "token_standard": "ERC-20",
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 8,
+        "avg_confirmation_time": 160,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "XMR",
+        "currency_icon": "https://storage.cryptomus.com/currencies/XMR.svg",
+        "network": "xmr",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/xmr.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 11,
+        "avg_confirmation_time": 450,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "POL",
+        "currency_icon": "https://storage.cryptomus.com/currencies/POL.svg",
+        "network": "eth",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/eth.svg",
+        "token_standard": "ERC-20",
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 10,
+        "avg_confirmation_time": null,
+        "priorities_fee": null,
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "SOL",
+        "currency_icon": "https://storage.cryptomus.com/currencies/SOL.svg",
+        "network": "sol",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/sol.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 7,
+        "avg_confirmation_time": 120,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDT",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDT.svg",
+        "network": "arbitrum",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/arbitrum.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 16,
+        "avg_confirmation_time": 120,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDC",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDC.svg",
+        "network": "arbitrum",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/arbitrum.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 8,
+        "avg_confirmation_time": 120,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDT",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDT.svg",
+        "network": "avalanche",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/avalanche.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 16,
+        "avg_confirmation_time": 132,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDC",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDC.svg",
+        "network": "avalanche",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/avalanche.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 8,
+        "avg_confirmation_time": 132,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDT",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDT.svg",
+        "network": "sol",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/sol.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 16,
+        "avg_confirmation_time": 120,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      },
+      {
+        "amount": "1.00",
+        "real_amount": "1.00000000",
+        "exchange_rate": "1.00000000",
+        "discount": 0,
+        "discount_percent": 0,
+        "currency": "USDT",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDT.svg",
+        "network": "ton",
+        "network_icon": "https://storage.cryptomus.com/networks/{theme}/ton.svg",
+        "token_standard": null,
+        "is_popular_choise": false,
+        "min_amount": "0.10000000",
+        "status": true,
+        "is_cashback": false,
+        "cashback_amount": "0.00",
+        "priority_payment": 16,
+        "avg_confirmation_time": 120,
+        "priorities_fee": {
+          "recommended": {
+            "fee": "0.10",
+            "equivalent_currency_fee": "0.10",
+            "equivalent_currency_symbol": "$"
+          }
+        },
+        "fiat": {
+          "mercuryo": {
+            "is_allowed": true,
+            "is_available": false
+          }
+        }
+      }
+    ],
+    "payload": "test-payload"
+  }
+}

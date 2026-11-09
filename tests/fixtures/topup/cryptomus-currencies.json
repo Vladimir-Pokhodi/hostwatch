@@ -1,0 +1,80 @@
+{
+  "state": 0,
+  "result": {
+    "currencies": [
+      {
+        "currency": "USDT",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDT.svg",
+        "status": true,
+        "amount": "1.00"
+      },
+      {
+        "currency": "BTC",
+        "currency_icon": "https://storage.cryptomus.com/currencies/BTC.svg",
+        "status": true,
+        "amount": "1.00"
+      },
+      {
+        "currency": "LTC",
+        "currency_icon": "https://storage.cryptomus.com/currencies/LTC.svg",
+        "status": true,
+        "amount": "1.00"
+      },
+      {
+        "currency": "TRX",
+        "currency_icon": "https://storage.cryptomus.com/currencies/TRX.svg",
+        "status": true,
+        "amount": "1.00"
+      },
+      {
+        "currency": "ETH",
+        "currency_icon": "https://storage.cryptomus.com/currencies/ETH.svg",
+        "status": true,
+        "amount": "1.00"
+      },
+      {
+        "currency": "XMR",
+        "currency_icon": "https://storage.cryptomus.com/currencies/XMR.svg",
+        "status": true,
+        "amount": "1.00"
+      },
+      {
+        "currency": "POL",
+        "currency_icon": "https://storage.cryptomus.com/currencies/POL.svg",
+        "status": true,
+        "amount": "1.00"
+      },
+      {
+        "currency": "BNB",
+        "currency_icon": "https://storage.cryptomus.com/currencies/BNB.svg",
+        "status": true,
+        "amount": "1.00"
+      },
+      {
+        "currency": "USDC",
+        "currency_icon": "https://storage.cryptomus.com/currencies/USDC.svg",
+        "status": true,
+        "amount": "1.00"
+      },
+      {
+        "currency": "SOL",
+        "currency_icon": "https://storage.cryptomus.com/currencies/SOL.svg",
+        "status": true,
+        "amount": "1.00"
+      },
+      {
+        "currency": "DOGE",
+        "currency_icon": "https://storage.cryptomus.com/currencies/DOGE.svg",
+        "status": true,
+        "amount": "1.00"
+      },
+      {
+        "currency": "GRAM",
+        "currency_icon": "https://storage.cryptomus.com/currencies/GRAM.svg",
+        "status": true,
+        "amount": "1.00"
+      }
+    ],
+    "payload": "test-payload"
+  }
+}
