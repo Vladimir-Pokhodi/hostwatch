@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from collections.abc import Coroutine
+from collections.abc import Coroutine, Sequence
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import Any
@@ -19,6 +19,8 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import InlineKeyboardMarkup
 
 from hostwatch.core.accounts import AccountRunner
+from hostwatch.core.alerts import Message as AlertMessage
+from hostwatch.core.alerts import Reason, render
 from hostwatch.core.config import Settings
 from hostwatch.core.http import make_client
 from hostwatch.core.logs import register_secrets
@@ -49,9 +51,10 @@ from hostwatch.web.server import serve, serve_admin
 
 from . import views
 from .autopay import Reporter
-from .handlers import make_router
+from .handlers import home, make_router
 from .hub import Hub
 from .login import BotLogin
+from .menu import DeleteOwnerMessages, Menu, MenuGuard
 from .middleware import OwnerOnly
 from .prefs import Prefs
 from .views import View
@@ -77,6 +80,9 @@ def current_version() -> str:
 def build_dispatcher(hub: Hub, owner_id: int) -> Dispatcher:
     dp = Dispatcher(storage=MemoryStorage(), hub=hub)
     dp.update.outer_middleware(OwnerOnly(owner_id))
+    # The one menu (`menu.py`): the owner's messages go, old menus answer «closed».
+    dp.message.outer_middleware(DeleteOwnerMessages())
+    dp.callback_query.outer_middleware(MenuGuard(home))
     dp.include_router(make_router())
     return dp
 
@@ -195,6 +201,17 @@ def autopay_job(hub: Hub, runner: AccountRunner, owner: Owner, registry: Registr
     )
 
 
+def alert_markup(hub: Hub, keys: list[str]) -> InlineKeyboardMarkup | None:
+    """Buttons under an alert message: each opens a new menu on its screen."""
+    if not keys:
+        return None
+    accounts = hub.load_all()
+    titles = {d.account.id: d.title for d in accounts}
+    servers = {(d.account.id, s.external_id): s.name for d in accounts for s in d.servers}
+    v = View(hub.prefs.lang, hub.prefs.tz)
+    return views.alert_buttons(v, keys, titles, servers)
+
+
 def touch_alive() -> None:
     """The container health check looks at this file's age."""
     ALIVE_FILE.touch()
@@ -244,6 +261,7 @@ async def run(settings: Settings) -> None:
             backups=Backups(conn, settings.data_dir / "backups", settings_repo, lambda: prefs.tz),
         )
         bot = await make_bot(settings.bot_token.get_secret_value(), settings.tg_proxy)
+        hub.menu = Menu(bot, settings.owner_id, prefs)
         dp = build_dispatcher(hub, settings.owner_id)
         owner = Owner(bot, settings.owner_id)
 
@@ -264,7 +282,7 @@ async def run(settings: Settings) -> None:
             for task in tasks:
                 task.cancel()
             await asyncio.gather(*tasks, return_exceptions=True)
-            for task in list(hub.background):
+            for task in [*hub.background, *hub.timers]:
                 task.cancel()
             await hub.login.close()
             await web.cleanup()
@@ -283,8 +301,17 @@ def _jobs(
     settings_repo: SettingsRepository,
 ) -> dict[str, Coroutine[Any, Any, None]]:
     prefs = hub.prefs
+
+    async def deliver(batch: Sequence[AlertMessage]) -> bool:
+        keys = [m.key for m in batch if m.reason is not Reason.RESOLVED]
+        return await owner.send(render(batch), alert_markup(hub, keys))
+
     alerts = AlertService(
-        hub.alert_views, lambda: prefs.alert_settings(hub.own_ip), alert_store, owner.send
+        hub.alert_views,
+        lambda: prefs.alert_settings(hub.own_ip),
+        alert_store,
+        owner.send,
+        deliver=deliver,
     )
 
     async def alerts_tick() -> None:

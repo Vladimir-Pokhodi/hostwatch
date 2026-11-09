@@ -242,7 +242,9 @@ async def test_password_is_shown_then_deleted_and_never_kept(
         await asyncio.sleep(0)
 
     sent = [c for c in harness.session.calls if isinstance(c, SendMessage)]
-    assert PASSWORD in str(sent[-1].text)
+    # The password is a message of its own; the menu goes below it with the server card.
+    assert PASSWORD in str(sent[-2].text)
+    assert "<b>beaver</b>" in str(sent[-1].text)
     assert any(isinstance(c, DeleteMessage) for c in harness.session.calls)
     assert FakePlugin.calls == ["root_password 1"]
     [entry] = [e for e in harness.hub.journal.recent() if e.action == "root_password"]

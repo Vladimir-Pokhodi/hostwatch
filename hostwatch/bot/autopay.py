@@ -16,7 +16,7 @@ from aiogram import F
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import CallbackQuery, InlineKeyboardMarkup, Message
+from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from hostwatch.core.autopay import MAX_DAYS, Verdict, eligible, month_start
@@ -28,9 +28,9 @@ from hostwatch.scheduler.autopay import Event, Outcome
 from hostwatch.storage.autopay import APPROVED, DECLINED
 from hostwatch.storage.repositories import NotFound
 
-from .callbacks import ActionCb, InvoicesCb, Nav, SetCb, TopupCb
+from .callbacks import ActionCb, InvoicesCb, Nav, SetCb, TopupCb, note
 from .control import _call, _invoices, execute, failed_screen, result_screen
-from .handlers import answer, on, server_screen, show, view
+from .handlers import answer, menu, on, server_screen, show, show_below, view, with_error
 from .hub import AccountData, Hub
 from .views import Screen, View
 from .views import _button as button
@@ -144,6 +144,11 @@ def report_text(v: View, data: AccountData | None, event: Event, spent: Money | 
     return v.t("autopay.report.low_balance", balance=event.balance, missing=missing, **common)
 
 
+def _note(text: str, data: CallbackData) -> InlineKeyboardButton:
+    """A button under a notification: it opens a new menu below (`menu.MenuGuard`)."""
+    return InlineKeyboardButton(text=text, callback_data=note(data))
+
+
 def report_markup(v: View, event: Event) -> InlineKeyboardMarkup | None:
     acc = event.account_id
     verdict = event.decision.verdict
@@ -151,16 +156,16 @@ def report_markup(v: View, event: Event) -> InlineKeyboardMarkup | None:
     if event.outcome is None and verdict.asks:
         inv = event.decision.invoice.id
         kb.row(
-            button(v.t("autopay.button.pay"), AutopayCb(acc=acc, inv=inv, op="pay")),
-            button(v.t("autopay.button.skip"), AutopayCb(acc=acc, inv=inv, op="no")),
+            _note(v.t("autopay.button.pay"), AutopayCb(acc=acc, inv=inv, op="pay")),
+            _note(v.t("autopay.button.skip"), AutopayCb(acc=acc, inv=inv, op="no")),
         )
         return kb.as_markup()
     if event.outcome is None and verdict is Verdict.OVER_LIMIT:
-        kb.row(button(v.t("autopay.settings.button"), SetCb(key="ap")))
+        kb.row(_note(v.t("autopay.settings.button"), SetCb(key="ap")))
     if event.outcome is None and verdict is Verdict.LOW_BALANCE:
-        kb.row(button(v.t("autopay.button.topup"), TopupCb(acc=acc)))
+        kb.row(_note(v.t("autopay.button.topup"), TopupCb(acc=acc)))
     if event.outcome is not Outcome.PAID:
-        kb.row(button(v.t("autopay.button.invoices"), InvoicesCb(acc=acc)))
+        kb.row(_note(v.t("autopay.button.invoices"), InvoicesCb(acc=acc)))
         return kb.as_markup()
     return None
 
@@ -218,7 +223,7 @@ async def on_mark(query: CallbackQuery, callback_data: ActionCb, hub: Hub) -> No
         await answer(query, text, alert=True)
     screen = server_screen(hub, acc, sid)
     if screen is not None:
-        await show(query, screen)
+        await show(hub, query, screen)
 
 
 @on("callback_query", SetCb.filter(F.key == "ap"))
@@ -234,7 +239,7 @@ async def on_settings(
     if value == "days" and hub.autopay is not None:
         await state.set_state(AutopayInput.days)
         text = v.t("autopay.ask_days", days=hub.autopay.days(), max=MAX_DAYS)
-        await show(query, Screen(text, kb.as_markup()))
+        await show(hub, query, Screen(text, kb.as_markup()))
         return
     if value.startswith("lim") and value[3:].isdigit() and hub.autopay is not None:
         acc = int(value[3:])
@@ -244,10 +249,10 @@ async def on_settings(
             await state.update_data(acc=acc)
             limit = hub.autopay.limit(acc, currency_of(data))
             text = v.t("autopay.ask_limit", title=escape(data.title), limit=limit)
-            await show(query, Screen(text, kb.as_markup()))
+            await show(hub, query, Screen(text, kb.as_markup()))
             return
     await state.clear()
-    await show(query, settings_screen(hub))
+    await show(hub, query, settings_screen(hub))
 
 
 @on("message", AutopayInput.days, F.text)
@@ -258,11 +263,13 @@ async def on_days_text(message: Message, hub: Hub, state: FSMContext) -> None:
         await state.clear()
         return
     if not text.isdigit() or not 1 <= int(text) <= MAX_DAYS:
-        await message.answer(view(hub).t("autopay.bad_days", max=MAX_DAYS))
+        v = view(hub)
+        ask = _ask(v, v.t("autopay.ask_days", days=store.days(), max=MAX_DAYS))
+        await show(hub, message, with_error(v.t("autopay.bad_days", max=MAX_DAYS), ask))
         return
     store.set_days(int(text))
     await state.clear()
-    await show(message, settings_screen(hub))
+    await show(hub, message, settings_screen(hub))
 
 
 @on("message", AutopayInput.limit, F.text)
@@ -274,11 +281,22 @@ async def on_limit_text(message: Message, hub: Hub, state: FSMContext) -> None:
         return
     amount = parse_limit(message.text or "")
     if amount is None:
-        await message.answer(view(hub).t("autopay.bad_limit"))
+        v = view(hub)
+        data = next((d for d in payable_accounts(hub) if d.account.id == acc), None)
+        limit = store.limit(acc, currency_of(data)) if data is not None else None
+        title = escape(data.title) if data is not None else "—"
+        ask = _ask(v, v.t("autopay.ask_limit", title=title, limit=limit or "—"))
+        await show(hub, message, with_error(v.t("autopay.bad_limit"), ask))
         return
     store.set_limit(acc, amount)
     await state.clear()
-    await show(message, settings_screen(hub))
+    await show(hub, message, settings_screen(hub))
+
+
+def _ask(v: View, text: str) -> Screen:
+    kb = InlineKeyboardBuilder()
+    kb.row(*nav(v, SetCb(key="ap")))
+    return Screen(text, kb.as_markup())
 
 
 def parse_limit(text: str) -> Decimal | None:
@@ -314,7 +332,7 @@ async def on_owner_answer(query: CallbackQuery, callback_data: AutopayCb, hub: H
     if callback_data.op != "pay":
         if store.take_notice(acc, inv, ASKS, DECLINED):
             await answer(query, v.t("control.cancelled"))
-            await show(query, result_screen(v, v.t("autopay.declined", id=escape(inv)), back))
+            await show(hub, query, result_screen(v, v.t("autopay.declined", id=escape(inv)), back))
         else:
             await answer(query, v.t("control.expired"), alert=True)
         return
@@ -328,16 +346,18 @@ async def on_owner_answer(query: CallbackQuery, callback_data: AutopayCb, hub: H
     try:
         invoices = await _call(hub, acc, _invoices)
     except Exception as error:
-        await show(query, failed_screen(v, data, error, back))
+        await show(hub, query, failed_screen(v, data, error, back))
         return
     invoice = next((i for i in invoices if i.id == inv), None)
     if invoice is None or invoice.status is not InvoiceStatus.UNPAID or not invoice.server_id:
-        await show(query, result_screen(v, v.t("invoices.not_payable"), back))
+        await show(hub, query, result_screen(v, v.t("invoices.not_payable"), back))
         return
     if invoice.amount != notice.amount:
         # The sum changed again: the next run asks about the new one.
         store.put_notice(acc, inv, "changed", invoice.amount, hub.now())
-        await show(query, result_screen(v, v.t("autopay.changed", amount=invoice.amount), back))
+        await show(
+            hub, query, result_screen(v, v.t("autopay.changed", amount=invoice.amount), back)
+        )
         return
     request = Request(
         action=Control.PAY_INVOICE,
@@ -347,9 +367,7 @@ async def on_owner_answer(query: CallbackQuery, callback_data: AutopayCb, hub: H
         amount=notice.amount,
     )
     what = v.t("control.what.pay_invoice", id=escape(inv))
-    await show(query, Screen(v.t("control.running_what", what=what)))
+    await show(hub, query, Screen(v.t("control.running_what", what=what)))
     text = await execute(hub, data, request, what)
-    await show(query, result_screen(v, text, back))
-    message = query.message
-    if isinstance(message, Message):
-        await message.answer(v.t("control.money_notice", text=text))
+    await menu(hub).notify(v.t("control.money_notice", text=text))
+    await show_below(hub, query, result_screen(v, text, back))

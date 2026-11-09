@@ -11,7 +11,8 @@ from html import escape
 from typing import TYPE_CHECKING, Any, Protocol
 
 import httpx
-from aiogram.types import InlineKeyboardMarkup
+from aiogram.filters.callback_data import CallbackData
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from hostwatch.core.errors import AuthExpired, describe, explain
@@ -29,13 +30,17 @@ from hostwatch.locales import t
 from hostwatch.storage.repositories import JournalEntry, NotFound
 from hostwatch.web.login import EndReason, LoginEvents, LoginService, LoginTarget, NotDone
 
-from .callbacks import LoginCb, Nav
+from .callbacks import NOTE, LoginCb, Nav, note
 from .hub import key_fields
+from .views import Screen
 
 if TYPE_CHECKING:
     from .hub import Hub
 
 log = logging.getLogger(__name__)
+
+# The menu shows a login link: the screen changes by itself while it is still there.
+LOGIN_TAG = "login"
 
 
 class OwnerChat(Protocol):
@@ -136,10 +141,12 @@ class BotLogin(LoginEvents):
         self._chat = chat
         self._make_http = make_http
         self._domain = domain
-        # The link message and «link opened» of the current login: they go once it is over.
+        # «Link opened» notices of the current login: they go once it is over.
         self._shown: list[int] = []
         self._opened = False
         self._expiry: asyncio.Task[None] | None = None
+        # Where «Back» on the login screen leads; None: the main menu.
+        self._back: CallbackData | None = None
 
     # Links
 
@@ -202,38 +209,87 @@ class BotLogin(LoginEvents):
         log.info("login link issued for %s", target.plugin_id)
         return f"{base}/login/{token}"
 
-    def link_message(self, target: LoginTarget, url: str) -> tuple[str, InlineKeyboardMarkup]:
+    def link_screen(self, target: LoginTarget, url: str) -> Screen:
         kb = InlineKeyboardBuilder()
-        kb.button(text=t("login.open", target.lang), url=url)
+        kb.row(InlineKeyboardButton(text=t("login.open", target.lang), url=url))
+        kb.row(*self._nav(target.lang))
         text = t("login.link", target.lang, hoster=escape(target.hoster), url=escape(url))
-        return text, kb.as_markup()
+        return Screen(text, kb.as_markup())
 
-    async def send_link(self, target: LoginTarget) -> str | None:
-        """Issue a link and message it to the owner; the URL, or None without an address.
+    async def send_link(
+        self, target: LoginTarget, back: CallbackData | None = None, in_place: bool = False
+    ) -> str | None:
+        """Issue a link and show it in the menu; the URL, or None without an address.
 
-        The new link replaces the old one, so the old link's messages go."""
+        `in_place`: the owner pressed a button in the menu, which shows the link now;
+        otherwise (`hostwatch login`) a new menu comes at the bottom. The new link replaces
+        the old one, so the old link's notices go."""
         if self.base_url() is None:
             return None
         await self._drop(target.lang)
         url = await self.link(target)
         if url is None:
             return None
-        text, markup = self.link_message(target, url)
-        await self._show(text, markup)
+        self._back = back
+        screen = self.link_screen(target, url)
+        menu = self.hub.menu
+        if menu is not None:
+            if in_place:
+                await menu.show(screen, LOGIN_TAG)
+            else:
+                await menu.open(screen, LOGIN_TAG)
         self._opened = False
-        self._expiry = asyncio.get_running_loop().create_task(self._expire(target.lang))
+        self._expiry = asyncio.get_running_loop().create_task(self._expire(target))
         return url
 
-    async def _expire(self, lang: str) -> None:
-        """A link nobody opened dies after LINK_TTL; its message goes with it."""
+    async def _expire(self, target: LoginTarget) -> None:
+        """A link nobody opened dies after LINK_TTL; the menu says so if it still shows it."""
         await asyncio.sleep(self.service.link_ttl)
         if not self._opened:
             self._expiry = None
-            await self._drop(lang)
+            await self._drop(target.lang)
+            text = t("bot.login.expired", target.lang, hoster=escape(target.hoster))
+            await self._tell(target, text, notify=False)
 
-    async def _show(self, text: str, markup: InlineKeyboardMarkup | None) -> None:
-        message_id = await self._chat.post(text, markup)
-        if message_id is not None:
+    def _nav(self, lang: str) -> list[InlineKeyboardButton]:
+        home = InlineKeyboardButton(
+            text=t("bot.button.home", lang), callback_data=Nav(to="menu").pack()
+        )
+        if self._back is None:
+            return [home]
+        back = InlineKeyboardButton(
+            text=t("bot.button.back", lang), callback_data=self._back.pack()
+        )
+        return [back, home]
+
+    async def _tell(
+        self,
+        target: LoginTarget,
+        text: str,
+        notify: bool,
+        extra: InlineKeyboardButton | None = None,
+        keep: bool = False,
+    ) -> None:
+        """In the menu while it shows this login; else, if `notify`, a notification.
+        `extra`: a button above «Back» and «Menu»; `keep`: the login goes on."""
+        lang = target.lang
+        menu = self.hub.menu
+        kb = InlineKeyboardBuilder()
+        if extra is not None:
+            kb.row(extra)
+        kb.row(*self._nav(lang))
+        if menu is not None and await menu.update(LOGIN_TAG, Screen(text, kb.as_markup()), keep):
+            return
+        if not notify:
+            return
+        notice = InlineKeyboardBuilder()
+        if extra is not None and extra.callback_data:
+            notice.row(
+                InlineKeyboardButton(text=extra.text, callback_data=NOTE + extra.callback_data)
+            )
+        notice.row(self._home_note(lang))
+        message_id = await self._chat.post(text, notice.as_markup())
+        if keep and message_id is not None:
             self._shown.append(message_id)
 
     async def _drop(self, lang: str) -> None:
@@ -247,10 +303,11 @@ class BotLogin(LoginEvents):
             if not await self._chat.delete(message_id):
                 await self._chat.edit(message_id, t("bot.login.link_gone", lang))
 
-    def _home(self, lang: str) -> InlineKeyboardMarkup:
-        kb = InlineKeyboardBuilder()
-        kb.button(text=t("bot.button.home", lang), callback_data=Nav(to="menu"))
-        return kb.as_markup()
+    def _home_note(self, lang: str) -> InlineKeyboardButton:
+        """«Menu» under a notification: a new menu at the bottom."""
+        return InlineKeyboardButton(
+            text=t("bot.button.home", lang), callback_data=note(Nav(to="menu"))
+        )
 
     async def close(self) -> None:
         if self._expiry is not None:
@@ -261,8 +318,11 @@ class BotLogin(LoginEvents):
     # Events of the login page
 
     async def opened(self, target: LoginTarget, ip: str, user_agent: str) -> None:
-        kb = InlineKeyboardBuilder()
-        kb.button(text=t("login.not_me", target.lang), callback_data=LoginCb(op="kill"))
+        """In the login screen if the menu still shows it; else a notice of its own, as
+        anyone with the link could open it. Both have «Not me»."""
+        not_me = InlineKeyboardButton(
+            text=t("login.not_me", target.lang), callback_data=LoginCb(op="kill").pack()
+        )
         text = t(
             "login.opened",
             target.lang,
@@ -272,7 +332,7 @@ class BotLogin(LoginEvents):
         )
         log.info("login link for %s opened from %s", target.plugin_id, ip)
         self._opened = True
-        await self._show(text, kb.as_markup())
+        await self._tell(target, text, notify=True, extra=not_me, keep=True)
 
     async def ended(self, target: LoginTarget, reason: EndReason) -> None:
         # A new link cleans up after the old one itself; «Done» does it in `store`.
@@ -280,7 +340,7 @@ class BotLogin(LoginEvents):
             return
         await self._drop(target.lang)
         text = t(f"login.ended.{reason.value}", target.lang, hoster=escape(target.hoster))
-        await self._chat.post(text, self._home(target.lang))
+        await self._tell(target, text, notify=True)
 
     async def finish(self, target: LoginTarget, cookies: list[dict[str, Any]]) -> str:
         picked = pick_cookies(cookies, target.auth)
@@ -343,8 +403,8 @@ class BotLogin(LoginEvents):
             text = t("login.connected_unchecked", lang, hoster=escape(target.hoster), reason=reason)
         else:
             text = t("login.connected", lang, hoster=escape(target.hoster))
-        await self._chat.post(text, self._home(lang))
         await self._drop(lang)
+        await self._tell(target, text, notify=True)
         return reason
 
     def _free_label(self, target: LoginTarget) -> str:

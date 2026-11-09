@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator
 
 import pytest
 import respx
-from aiogram.methods import SendMessage
+from aiogram.methods import DeleteMessage, SendMessage
 
 from hostwatch.bot.callbacks import (
     ActionCb,
@@ -237,8 +237,10 @@ async def test_pay_invoice_from_the_balance_screen(harness: Harness) -> None:
         "amount": "4.50",
         "currency": "EUR",
     }
-    notice = harness.session.texts()[-1]
+    notice, result = harness.session.texts()[-2:]
     assert "Действие с деньгами" in notice and "оплатить счёт #100" in notice
+    assert isinstance(harness.session.calls[-1], DeleteMessage)  # the menu went below it
+    assert "Действие с деньгами" not in result
 
 
 async def test_journal_names_the_actions(harness: Harness) -> None:

@@ -13,7 +13,7 @@ from collections.abc import Awaitable, Callable
 from html import escape
 
 from aiogram import F
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from hostwatch.core.control import Control, Request, journal_text, perform
@@ -23,7 +23,7 @@ from hostwatch.core.plugin import Plugin, SupportsInvoices, SupportsRenew, brows
 from hostwatch.storage.repositories import JournalEntry, NotFound
 
 from .callbacks import AccountCb, ActionCb, ConfirmCb, InvoicesCb, Nav, PayCb, ServerCb
-from .handlers import answer, on, server_screen, show, view
+from .handlers import answer, menu, on, server_screen, show, show_below, view
 from .hub import AccountData, Hub
 from .views import Screen, View, server_actions
 from .views import _button as button
@@ -159,7 +159,7 @@ async def on_action(query: CallbackQuery, callback_data: ActionCb, hub: Hub) -> 
         await answer(query, v.t("control.unavailable"), alert=True)
         screen = server_screen(hub, acc, sid)
         if screen is not None:
-            await show(query, screen)
+            await show(hub, query, screen)
         return
     action = Control(callback_data.act)
     amount = None
@@ -169,13 +169,13 @@ async def on_action(query: CallbackQuery, callback_data: ActionCb, hub: Hub) -> 
             amount = await _call(hub, acc, lambda p: _renew_price(p, sid))
         except Exception as error:
             log.warning("renewal price of account %s: %s", acc, describe(error))
-            await show(query, failed_screen(v, data, error, back))
+            await show(hub, query, failed_screen(v, data, error, back))
             return
     else:
         await answer(query)
     request = Request(action=action, account_id=acc, server_id=sid, amount=amount)
     nonce = hub.confirmations.issue(request)
-    await show(query, confirm_screen(v, data, request, nonce, _what(v, request)))
+    await show(hub, query, confirm_screen(v, data, request, nonce, _what(v, request)))
 
 
 @on("callback_query", InvoicesCb.filter())
@@ -191,9 +191,9 @@ async def on_invoices(query: CallbackQuery, callback_data: InvoicesCb, hub: Hub)
     try:
         invoices = await _call(hub, acc, _invoices)
     except Exception as error:
-        await show(query, failed_screen(v, data, error, InvoicesCb(acc=acc)))
+        await show(hub, query, failed_screen(v, data, error, InvoicesCb(acc=acc)))
         return
-    await show(query, invoices_screen(v, data, invoices))
+    await show(hub, query, invoices_screen(v, data, invoices))
 
 
 @on("callback_query", PayCb.filter())
@@ -211,11 +211,11 @@ async def on_pay(query: CallbackQuery, callback_data: PayCb, hub: Hub) -> None:
     try:
         invoices = await _call(hub, acc, _invoices)
     except Exception as error:
-        await show(query, failed_screen(v, data, error, back))
+        await show(hub, query, failed_screen(v, data, error, back))
         return
     invoice = next((i for i in invoices if i.id == callback_data.inv), None)
     if invoice is None or invoice.status is not InvoiceStatus.UNPAID or not invoice.server_id:
-        await show(query, result_screen(v, v.t("invoices.not_payable"), back))
+        await show(hub, query, result_screen(v, v.t("invoices.not_payable"), back))
         return
     request = Request(
         action=Control.PAY_INVOICE,
@@ -225,7 +225,7 @@ async def on_pay(query: CallbackQuery, callback_data: PayCb, hub: Hub) -> None:
         amount=invoice.amount,
     )
     nonce = hub.confirmations.issue(request)
-    await show(query, confirm_screen(v, data, request, nonce, _what(v, request)))
+    await show(hub, query, confirm_screen(v, data, request, nonce, _what(v, request)))
 
 
 @on("callback_query", ConfirmCb.filter())
@@ -242,7 +242,7 @@ async def on_confirm(query: CallbackQuery, callback_data: ConfirmCb, hub: Hub) -
         screen = server_screen(hub, request.account_id, request.server_id)
         if request.action is Control.PAY_INVOICE or screen is None:
             screen = result_screen(v, v.t("control.cancelled"), back)
-        await show(query, screen)
+        await show(hub, query, screen)
         return
     try:
         data = hub.load(request.account_id)
@@ -251,14 +251,16 @@ async def on_confirm(query: CallbackQuery, callback_data: ConfirmCb, hub: Hub) -
         return
     what = _what(v, request)
     await answer(query, v.t("control.running"))
-    await show(query, Screen(v.t("control.running_what", what=what)))
+    await show(hub, query, Screen(v.t("control.running_what", what=what)))
     text = await execute(hub, data, request, what)
-    await show(query, result_screen(v, text, back))
-    message = query.message
+    screen = result_screen(v, text, back)
+    if not request.action.spends_money:
+        await show(hub, query, screen)
+        return
     # A message of its own for every action with money (spec, decision 5): it cannot be
-    # switched off and stays in the chat when the screen above is edited away.
-    if request.action.spends_money and isinstance(message, Message):
-        await message.answer(v.t("control.money_notice", text=text))
+    # switched off and stays in the chat; the menu goes below it.
+    await menu(hub).notify(v.t("control.money_notice", text=text))
+    await show_below(hub, query, screen)
 
 
 async def execute(hub: Hub, data: AccountData, request: Request, what: str) -> str:

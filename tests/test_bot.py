@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import sqlite3
-from collections.abc import AsyncGenerator, AsyncIterator
+from collections.abc import AsyncGenerator, AsyncIterator, Callable
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -15,6 +15,7 @@ import pytest
 import respx
 from aiogram import Bot, Dispatcher
 from aiogram.client.session.base import BaseSession
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.methods import (
     AnswerCallbackQuery,
     DeleteMessage,
@@ -39,6 +40,7 @@ from hostwatch.bot.callbacks import (
     SetCb,
 )
 from hostwatch.bot.hub import AccountData, Hub
+from hostwatch.bot.menu import Menu
 from hostwatch.bot.order import OrderCb
 from hostwatch.bot.prefs import Prefs
 from hostwatch.bot.views import View, monthly_cost, server_actions, summary_text
@@ -88,11 +90,16 @@ class RecordingSession(BaseSession):
     def __init__(self) -> None:
         super().__init__()
         self.calls: list[TelegramMethod[Any]] = []
+        # Telegram's refusal of a call (e.g. «message can't be deleted»), or None.
+        self.refuse: Callable[[TelegramMethod[Any]], str | None] = lambda _: None
 
     async def make_request(
         self, bot: Bot, method: TelegramMethod[Any], timeout: int | None = None
     ) -> Any:
         self.calls.append(method)
+        refusal = self.refuse(method)
+        if refusal is not None:
+            raise TelegramBadRequest(method=method, message=refusal)
         if method.__returning__ is bool:
             return True
         message = Message(
@@ -171,6 +178,7 @@ class Harness:
         )
         self.session = RecordingSession()
         self.bot = Bot("42:TEST", session=self.session, default=bot_properties())
+        self.hub.menu = Menu(self.bot, OWNER, self.hub.prefs)
         self.dp: Dispatcher = build_dispatcher(self.hub, OWNER)
         self._update_id = 0
 
@@ -181,6 +189,8 @@ class Harness:
         self.hub.prefs.lang = lang
         self.hub.prefs.timezone = "Europe/Moscow"
         self.hub.prefs.finish_onboarding()
+        # The chat has its «☰ Menu» keyboard already (a /start long ago).
+        self.hub.prefs.menu_keyboard = lang
 
     def _next_id(self) -> int:
         self._update_id += 1
@@ -199,10 +209,14 @@ class Harness:
         )
         await self.dp.feed_update(self.bot, Update(update_id=self._next_id(), message=message))
 
-    async def press(self, data: Any, user_id: int = OWNER) -> None:
+    async def press(self, data: Any, user_id: int = OWNER, message_id: int | None = None) -> None:
+        """A button in the live menu, or in the message `message_id` (an old menu or a
+        notification). Before the first menu, the pressed message becomes the menu."""
         packed = data if isinstance(data, str) else data.pack()
+        if message_id is None:
+            message_id = self.hub.prefs.menu_id or 10_000 + self._next_id()
         message = Message(
-            message_id=self._next_id(),
+            message_id=message_id,
             date=datetime.now(UTC),
             chat=Chat(id=user_id, type="private"),
             from_user=User(id=42, is_bot=True, first_name="bot"),
@@ -254,7 +268,8 @@ async def test_owner_gets_an_answer(harness: Harness) -> None:
 
     await harness.send("/start")
 
-    assert harness.session.texts() == [harness.session.last_text()]
+    # The «☰ Menu» keyboard comes with a message that goes at once; then the menu.
+    assert harness.session.texts() == ["☰ Меню", harness.session.last_text()]
     assert "hostwatch" in harness.session.last_text()
 
 
@@ -571,7 +586,7 @@ async def test_typed_label_and_taken_label(harness: Harness) -> None:
 
     await harness.press(AddCb(plugin="fake"))
     await harness.send("work")
-    assert "is taken" in harness.session.texts()[-2]
+    assert "is taken" in harness.session.last_text()
     assert LabelCb().pack() in harness.session.buttons()
     assert len(harness.hub.accounts.all()) == 1
 

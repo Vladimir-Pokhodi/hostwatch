@@ -183,3 +183,22 @@ class Prefs:
     @ssh_key.setter
     def ssh_key(self, value: str | None) -> None:
         self._settings.set("order.ssh_key", value or "")
+
+    @property
+    def menu_id(self) -> int | None:
+        """The message id of the one live menu in the chat; kept over restarts."""
+        value = self._settings.get("menu.message_id") or ""
+        return int(value) if value.isdigit() else None
+
+    @menu_id.setter
+    def menu_id(self, value: int | None) -> None:
+        self._settings.set("menu.message_id", "" if value is None else str(value))
+
+    @property
+    def menu_keyboard(self) -> str:
+        """The language of the «☰ Menu» keyboard last sent; empty if none was."""
+        return self._settings.get("menu.keyboard") or ""
+
+    @menu_keyboard.setter
+    def menu_keyboard(self, value: str) -> None:
+        self._settings.set("menu.keyboard", value)

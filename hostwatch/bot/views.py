@@ -44,6 +44,7 @@ from .callbacks import (
     ServerCb,
     SetCb,
     TopupCb,
+    note,
 )
 from .hub import AccountData, key_fields
 from .prefs import CURRENCIES, DEFAULT_TZ, LANGUAGES, THRESHOLDS, TIMEZONES
@@ -60,6 +61,8 @@ HOURLY_METHODS = (Method.HOSTER_HOURS, Method.HOURLY_RATE, Method.MIXED)
 class Screen:
     text: str
     markup: InlineKeyboardMarkup | None = None
+    # A picture (a payment QR code): the menu becomes a photo with `text` as its caption.
+    photo: bytes | None = None
 
 
 @dataclass(frozen=True)
@@ -629,13 +632,6 @@ def ask_key(v: View, plugin_name: str, field: str, back: CallbackData | None = N
     )
 
 
-def login_sent(v: View, hoster: str, back: CallbackData) -> Screen:
-    """In place of the screen the login started from; the link itself comes below it."""
-    kb = InlineKeyboardBuilder()
-    kb.row(*_nav(v, back))
-    return Screen(v.t("bot.login.sent", hoster=escape(hoster)), kb.as_markup())
-
-
 # Journal
 
 
@@ -781,3 +777,53 @@ def ask_threshold(v: View, key: str, current: str) -> Screen:
     kb = InlineKeyboardBuilder()
     kb.row(*_nav(v, Nav(to="settings")))
     return Screen(v.t(f"threshold.ask.{key}", value=current), kb.as_markup())
+
+
+# Buttons under notifications
+
+# Alert keys are «kind:account[:server[:metric]]» (`core.alerts`).
+SERVER_ALERTS = frozenset({"server_status", "ends_soon", "load", "disk"})
+ACCOUNT_ALERTS = frozenset({"relogin", "plugin_broken"})
+MAX_ALERT_BUTTONS = 6
+
+
+def alert_buttons(
+    v: View, keys: list[str], titles: dict[int, str], servers: dict[tuple[int, str], str]
+) -> InlineKeyboardMarkup | None:
+    """«Top up», «Open server» and «Open hoster» under alerts. They open a new menu below on
+    that screen (`callbacks.note`). Accounts and servers that are gone get no button."""
+    kb = InlineKeyboardBuilder()
+    seen: set[str] = set()
+    for key in keys:
+        kind, _, rest = key.partition(":")
+        acc_text, _, sid = rest.partition(":")
+        sid = sid.split(":", 1)[0]
+        if not acc_text.isdigit() or int(acc_text) not in titles:
+            continue
+        acc = int(acc_text)
+        data: CallbackData
+        if kind == "balance_low":
+            text, data = v.t("alert.button.topup", title=titles[acc]), TopupCb(acc=acc)
+        elif kind in SERVER_ALERTS and (acc, sid) in servers:
+            text, data = (
+                v.t("alert.button.server", server=servers[acc, sid]),
+                ServerCb(acc=acc, sid=sid),
+            )
+        elif kind in ACCOUNT_ALERTS:
+            text, data = (
+                v.t("alert.button.account", title=titles[acc]),
+                AccountCb(acc=acc, op="card"),
+            )
+        else:
+            continue
+        try:
+            packed = note(data)
+        except ValueError:
+            continue
+        if packed in seen:
+            continue
+        seen.add(packed)
+        kb.row(InlineKeyboardButton(text=text, callback_data=packed))
+        if len(seen) >= MAX_ALERT_BUTTONS:
+            break
+    return kb.as_markup() if seen else None

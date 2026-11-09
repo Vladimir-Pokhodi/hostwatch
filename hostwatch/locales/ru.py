@@ -37,10 +37,6 @@ MESSAGES: dict[str, str] = {
     "bot.connect.all_connected": "Все хостеры уже подключены.",
     "bot.connect.more": "Можно добавить ещё один аккаунт у уже подключённого хостера.",
     "bot.connect.another": "+ ещё аккаунт {hoster}",
-    "bot.login.sent": (
-        "Ссылка для входа в {hoster} — в сообщении ниже. Она действует 10 минут"
-        " и исчезнет, когда вход закончится."
-    ),
     "bot.login.link_gone": "Ссылка больше не действует.",
     "stub": "Будет на этапе {stage}.",
     "menu.title": "<b>hostwatch</b>\nВыберите раздел.",
@@ -586,4 +582,14 @@ MESSAGES: dict[str, str] = {
     "order.settings.private_key": (
         "Это приватный ключ: удалил сообщение. Пришлите публичный, файл с окончанием .pub."
     ),
+    # One menu in the chat (1.1)
+    "menu.button": "☰ Меню",
+    "menu.closed": "Меню закрыто: актуальное ниже.",
+    "menu.stale": "Это меню закрыто, актуальное внизу",
+    "bot.login.expired": "Ссылка для входа в {hoster} истекла: её не открыли за 10 минут.",
+    "topup.expired": "Срок счёта истёк. Если не успели оплатить, выставите новый.",
+    "topup.again": "Новый счёт",
+    "alert.button.topup": "💰 Пополнить {title}",
+    "alert.button.server": "🖥 {server}",
+    "alert.button.account": "🔌 {title}",
 }

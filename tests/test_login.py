@@ -9,9 +9,11 @@ from collections.abc import AsyncIterator
 import httpx
 import pytest
 import respx
+from aiogram.methods import EditMessageText, SendMessage
+from aiogram.types import InlineKeyboardMarkup
 from aiohttp.test_utils import TestClient, TestServer
 
-from hostwatch.bot.callbacks import AccountCb, AddCb, LabelCb, LoginCb
+from hostwatch.bot.callbacks import AccountCb, AddCb, LabelCb, LoginCb, Nav
 from hostwatch.bot.login import BotLogin, browser_name, parse_cookie_text, pick_cookies
 from hostwatch.core.errors import AuthExpired
 from hostwatch.core.models import AccountStatus
@@ -298,9 +300,12 @@ async def test_relogin_button_sends_a_link(login_harness: tuple[Harness, Sent]) 
 
     await h.press(AccountCb(acc=account, op="relogin"))
 
-    assert "в сообщении ниже" in h.session.last_text()
+    # The link is a button in the menu itself, not a message of its own.
+    assert isinstance(h.session.calls[-1], EditMessageText)
+    assert "https://hw.example/login/" in h.session.last_text()
     assert AccountCb(acc=account, op="card").pack() in h.session.buttons()
-    assert "https://hw.example/login/" in sent.texts[-1]
+    assert any(url.startswith("https://hw.example/login/") for url in _urls(h))
+    assert sent.texts == []
     assert h.hub.login is not None
     assert h.hub.login.service._links  # a link waits to be opened
 
@@ -314,9 +319,19 @@ async def test_add_browser_plugin_asks_label_then_sends_link(
     await h.press(AddCb(plugin="regxa"))
     await h.press(LabelCb())
 
-    assert "message below" in h.session.last_text()
-    assert "https://hw.example/login/" in sent.texts[-1]
+    assert "https://hw.example/login/" in h.session.last_text()
+    assert sent.texts == []
     assert h.hub.accounts.all() == []  # the account appears once the login is done
+
+
+def _urls(h: Harness) -> list[str]:
+    """URL buttons under the last screen."""
+    for call in reversed(h.session.calls):
+        if isinstance(call, SendMessage | EditMessageText):
+            markup = call.reply_markup
+            assert isinstance(markup, InlineKeyboardMarkup)
+            return [b.url for row in markup.inline_keyboard for b in row if b.url]
+    return []
 
 
 async def test_finish_merges_cookies_into_the_account(login_harness: tuple[Harness, Sent]) -> None:
@@ -401,18 +416,26 @@ async def test_plugin_with_api_key_needs_an_account_first(
     assert found is not None and found.account_id == account
 
 
-# The link message (and «link opened») goes once the login is over
+# The link is shown in the menu; the screen changes by itself while the menu shows it.
+# Once the menu moved on, the news comes as notifications, and «link opened» goes at the end.
 
 
 async def _issue(h: Harness, target: LoginTarget) -> str:
-    """Send a link the way the bot and `hostwatch login` do; its token."""
+    """Send a link the way `hostwatch login` does (a new menu below); its token."""
     assert h.hub.login is not None
     url = await h.hub.login.send_link(target)
     assert url is not None
     return url.rsplit("/", 1)[1]
 
 
-async def test_link_messages_go_when_the_login_is_done(
+CONNECTED = "✅ Timeweb Cloud (main) подключён."
+COOKIES = [
+    {"name": "refresh_token", "value": "new-refresh-1", "domain": "timeweb.cloud"},
+    {"name": "device_token", "value": "device-1", "domain": ".timeweb.cloud"},
+]
+
+
+async def test_login_screen_follows_the_login_in_the_menu(
     login_harness: tuple[Harness, Sent],
 ) -> None:
     h, sent = login_harness
@@ -421,16 +444,38 @@ async def test_link_messages_go_when_the_login_is_done(
     account = h.hub.accounts.add("timeweb", "main", {"api_token": "tw-token-1"})
     target = h.hub.login.target(TimewebPlugin, account)
     token = await _issue(h, target)
+    assert "https://hw.example/login/" in h.session.last_text()
+    menu_id = h.hub.prefs.menu_id
+
     await h.hub.login.service.open(token, "198.51.100.1", "Firefox/150 Android")
-    assert len(sent.visible()) == 2
+    assert "198.51.100.1, Firefox, Android" in h.session.last_text()
+    assert LoginCb(op="kill").pack() in h.session.buttons()
 
-    cookies = [
-        {"name": "refresh_token", "value": "new-refresh-1", "domain": "timeweb.cloud"},
-        {"name": "device_token", "value": "device-1", "domain": ".timeweb.cloud"},
-    ]
-    await h.hub.login.finish(target, cookies)
+    await h.hub.login.finish(target, COOKIES)
 
-    assert sent.visible() == ["✅ Timeweb Cloud (main) подключён."]
+    assert h.session.last_text() == CONNECTED
+    assert h.hub.prefs.menu_id == menu_id  # all of it in the same message
+    assert sent.texts == []
+
+
+async def test_login_news_are_notifications_once_the_menu_moved_on(
+    login_harness: tuple[Harness, Sent],
+) -> None:
+    h, sent = login_harness
+    h.onboard("ru")
+    assert h.hub.login is not None
+    account = h.hub.accounts.add("timeweb", "main", {"api_token": "tw-token-1"})
+    target = h.hub.login.target(TimewebPlugin, account)
+    token = await _issue(h, target)
+    await h.press(Nav(to="servers"))
+    servers = h.session.last_text()
+
+    await h.hub.login.service.open(token, "198.51.100.1", "Firefox/150 Android")
+    assert "198.51.100.1, Firefox, Android" in sent.visible()[0]
+    await h.hub.login.finish(target, COOKIES)
+
+    assert sent.visible() == [CONNECTED]  # «link opened» went
+    assert h.session.last_text() == servers  # the menu was left alone
 
 
 @pytest.mark.parametrize(
@@ -441,7 +486,7 @@ async def test_link_messages_go_when_the_login_is_done(
         (EndReason.REJECTED, "Вход в Regxa закрыт кнопкой «Это не я»."),
     ],
 )
-async def test_link_messages_go_when_the_login_ends(
+async def test_login_end_shows_in_the_menu(
     login_harness: tuple[Harness, Sent], reason: EndReason, text: str
 ) -> None:
     h, sent = login_harness
@@ -453,26 +498,42 @@ async def test_link_messages_go_when_the_login_ends(
 
     await service.end(reason)
 
-    assert sent.visible() == [text]
+    assert h.session.last_text() == text
+    assert sent.visible() == []
 
 
-async def test_unopened_link_message_goes_when_the_link_expires(
-    login_harness: tuple[Harness, Sent],
-) -> None:
+async def test_unopened_link_expires_in_the_menu(login_harness: tuple[Harness, Sent]) -> None:
     h, sent = login_harness
     h.onboard("ru")
     assert h.hub.login is not None
     h.hub.login.service.link_ttl = 0.05
     await _issue(h, h.hub.login.target(RegxaPlugin, None, "Regxa"))
-    assert len(sent.visible()) == 1
+    assert _urls(h)
 
     await asyncio.sleep(0.2)
 
+    assert "Ссылка для входа в Regxa истекла" in h.session.last_text()
+    assert _urls(h) == []
+    assert sent.visible() == []
+
+
+async def test_expired_link_leaves_a_moved_menu_alone(login_harness: tuple[Harness, Sent]) -> None:
+    h, sent = login_harness
+    h.onboard("ru")
+    assert h.hub.login is not None
+    h.hub.login.service.link_ttl = 0.05
+    await _issue(h, h.hub.login.target(RegxaPlugin, None, "Regxa"))
+    await h.press(Nav(to="journal"))
+    calls = len(h.session.calls)
+
+    await asyncio.sleep(0.2)
+
+    assert len(h.session.calls) == calls
     assert sent.visible() == []
 
 
 async def test_opened_link_outlives_its_ttl(login_harness: tuple[Harness, Sent]) -> None:
-    h, sent = login_harness
+    h, _ = login_harness
     h.onboard("ru")
     assert h.hub.login is not None
     h.hub.login.service.link_ttl = 0.05
@@ -481,24 +542,24 @@ async def test_opened_link_outlives_its_ttl(login_harness: tuple[Harness, Sent])
 
     await asyncio.sleep(0.2)
 
-    assert len(sent.visible()) == 2  # the session runs; its end cleans up
+    assert "198.51.100.1" in h.session.last_text()  # the session runs; its end cleans up
 
 
-async def test_new_link_replaces_the_old_messages(login_harness: tuple[Harness, Sent]) -> None:
+async def test_new_link_replaces_the_old_one(login_harness: tuple[Harness, Sent]) -> None:
     h, sent = login_harness
     h.onboard("ru")
     assert h.hub.login is not None
     target = h.hub.login.target(RegxaPlugin, None, "Regxa")
-    await h.hub.login.service.open(await _issue(h, target), "198.51.100.1", "Firefox/150 Android")
+    first = await _issue(h, target)
 
-    await _issue(h, target)
+    second = await _issue(h, target)
 
-    [left] = sent.visible()
-    assert "https://hw.example/login/" in left
-    assert left == sent.texts[-1]
+    assert second != first
+    assert second in h.session.last_text()
+    assert sent.visible() == []
 
 
-async def test_old_link_message_is_edited_when_it_cannot_be_deleted(
+async def test_old_link_notice_is_edited_when_it_cannot_be_deleted(
     login_harness: tuple[Harness, Sent],
 ) -> None:
     h, sent = login_harness
@@ -506,9 +567,11 @@ async def test_old_link_message_is_edited_when_it_cannot_be_deleted(
     assert h.hub.login is not None
     sent.can_delete = False
     target = h.hub.login.target(RegxaPlugin, None, "Regxa")
-    await _issue(h, target)
+    token = await _issue(h, target)
+    await h.press(Nav(to="menu"))
+    await h.hub.login.service.open(token, "198.51.100.1", "Firefox/150 Android")
 
     await _issue(h, target)
 
-    assert sent.visible()[0] == "Ссылка больше не действует."
-    assert "https://hw.example/login/" in sent.visible()[1]
+    assert sent.visible() == ["Ссылка больше не действует."]
+    assert "https://hw.example/login/" in h.session.last_text()

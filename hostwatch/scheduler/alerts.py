@@ -11,6 +11,7 @@ from hostwatch.core.alerts import (
     AccountView,
     AlertSettings,
     LoadStreaks,
+    Message,
     Sent,
     Severity,
     evaluate,
@@ -24,6 +25,8 @@ log = logging.getLogger(__name__)
 
 # Delivers a message to the owner; False when Telegram did not take it.
 Send = Callable[[str], Awaitable[bool]]
+# Delivers one batch of alerts (text and buttons); False when Telegram did not take it.
+Deliver = Callable[[Sequence[Message]], Awaitable[bool]]
 SUMMARY_WINDOW = timedelta(hours=1)
 SUMMARY_SENT_KEY = "summary.last_date"
 
@@ -65,12 +68,15 @@ class AlertService:
         store: AlertRepository,
         send: Send,
         now: Callable[[], datetime] = lambda: datetime.now(UTC),
+        deliver: Deliver | None = None,
     ) -> None:
         self._load = load
         self._settings = settings
         self._store = store
         self._send = send
         self._now = now
+        # The bot's delivery puts buttons under the alerts; `send` gets the text alone.
+        self._deliver = deliver
         self.streaks = LoadStreaks()
 
     async def tick(self) -> None:
@@ -94,7 +100,10 @@ class AlertService:
             self._remember(key, after)
         for batch in result.batches():
             # Not delivered: nothing is remembered, so the next tick tries again.
-            if await self._send(render(batch)):
+            delivered = (
+                await self._deliver(batch) if self._deliver else await self._send(render(batch))
+            )
+            if delivered:
                 for message in batch:
                     self._remember(message.key, message.after)
 

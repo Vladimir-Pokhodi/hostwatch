@@ -34,6 +34,7 @@ from .prefs import Prefs
 
 if TYPE_CHECKING:
     from .login import BotLogin
+    from .menu import Menu
 
 # The fake plugin is for tests and demos; the owner does not see it unless asked to.
 HIDDEN_PLUGINS = frozenset({"fake"})
@@ -89,6 +90,10 @@ class Hub:
     # After «Paid» the balance is read this many seconds later.
     paid_checks: tuple[float, ...] = (120.0, 300.0, 600.0)
     background: set[asyncio.Task[None]] = field(default_factory=set)
+    # Waits that end by themselves much later (an invoice that expires); cancelled on exit.
+    timers: set[asyncio.Task[None]] = field(default_factory=set)
+    # The one live menu in the chat; the app makes it with the bot (`menu.py`).
+    menu: Menu | None = None
     # «Yes» buttons of server and money actions waiting for the owner (stage 10).
     confirmations: Confirmations[Request] = field(default_factory=Confirmations)
     # Autopay marks and rule (stage 11); None: autopay is off and nothing is marked.

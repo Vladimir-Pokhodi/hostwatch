@@ -38,10 +38,6 @@ MESSAGES: dict[str, str] = {
     "bot.connect.all_connected": "Every hoster is connected already.",
     "bot.connect.more": "You can add another account of a hoster that is already connected.",
     "bot.connect.another": "+ another {hoster} account",
-    "bot.login.sent": (
-        "The {hoster} login link is in the message below. It works for 10 minutes"
-        " and goes away once the login is over."
-    ),
     "bot.login.link_gone": "This link no longer works.",
     "stub": "Coming at stage {stage}.",
     "menu.title": "<b>hostwatch</b>\nPick a section.",
@@ -589,4 +585,14 @@ MESSAGES: dict[str, str] = {
     "order.settings.private_key": (
         "This is a private key: I deleted the message. Send the public one, the .pub file."
     ),
+    # One menu in the chat (1.1)
+    "menu.button": "☰ Menu",
+    "menu.closed": "Menu closed: the current one is below.",
+    "menu.stale": "This menu is closed, the current one is at the bottom",
+    "bot.login.expired": "The {hoster} login link expired: nobody opened it within 10 minutes.",
+    "topup.expired": "The invoice expired. If you did not pay in time, make a new one.",
+    "topup.again": "New invoice",
+    "alert.button.topup": "💰 Top up {title}",
+    "alert.button.server": "🖥 {server}",
+    "alert.button.account": "🔌 {title}",
 }

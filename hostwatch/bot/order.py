@@ -20,11 +20,10 @@ from decimal import ROUND_CEILING
 from html import escape
 
 from aiogram import F
-from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import CallbackQuery, InaccessibleMessage, Message
+from aiogram.types import CallbackQuery, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from hostwatch.core.catalog import (
@@ -65,7 +64,7 @@ from hostwatch.core.rates import RatesUnavailable
 from hostwatch.storage.repositories import JournalEntry, NotFound
 
 from .callbacks import AccountCb, ActionCb, Nav, ServerCb, SetCb, TopupAmountCb
-from .handlers import answer, on, show, view
+from .handlers import answer, menu, on, server_screen, show, show_below, view, with_error
 from .hub import AccountData, Hub
 from .views import Screen, View
 from .views import _button as button
@@ -478,7 +477,7 @@ async def on_order(query: CallbackQuery, callback_data: OrderCb, hub: Hub) -> No
     if not cb.acc:
         if not single:
             await answer(query)
-            await show(query, accounts_screen(v, accounts))
+            await show(hub, query, accounts_screen(v, accounts))
             return
         cb = OrderCb(acc=accounts[0].account.id)
     try:
@@ -494,7 +493,7 @@ async def on_order(query: CallbackQuery, callback_data: OrderCb, hub: Hub) -> No
         catalog = await _catalog(hub, cb.acc)
     except Exception as error:
         log.warning("catalog of account %s: %s", cb.acc, describe(error))
-        await show(query, failed_screen(v, data, error, Nav(to="order")))
+        await show(hub, query, failed_screen(v, data, error, Nav(to="order")))
         return
     if cb.same:
         cb = await _same(hub, data, catalog, cb.same)
@@ -539,20 +538,20 @@ async def step(
 ) -> None:
     v = view(hub)
     if not cb.loc or catalog.location(cb.loc) is None:
-        await show(query, locations_screen(v, data, catalog, single))
+        await show(hub, query, locations_screen(v, data, catalog, single))
         return
     plan = catalog.plan(cb.plan) if cb.plan else None
     if plan is None or plan.location_id != cb.loc:
-        await show(query, plans_screen(v, data, catalog, cb.loc))
+        await show(hub, query, plans_screen(v, data, catalog, cb.loc))
         return
     if not cb.os or cb.os not in {s.id for s in catalog.systems_for(plan)}:
-        await show(query, systems_screen(v, data, catalog, plan))
+        await show(hub, query, systems_screen(v, data, catalog, plan))
         return
     listed = plan.price(cb.per) if cb.per >= 0 else None
     if listed is None:
-        await show(query, periods_screen(v, data, catalog, plan, cb.os))
+        await show(hub, query, periods_screen(v, data, catalog, plan, cb.os))
         return
-    await show(query, Screen(v.t("order.asking_price")))
+    await show(hub, query, Screen(v.t("order.asking_price")))
     await summary(query, hub, data, catalog, cb, plan, listed)
 
 
@@ -588,7 +587,7 @@ async def summary(
         quoted = await _call(hub, acc, ask)
     except Exception as error:
         log.warning("order price at account %s: %s", acc, describe(error))
-        await show(query, failed_screen(v, data, error, back))
+        await show(hub, query, failed_screen(v, data, error, back))
         return
     if quoted != listed:
         hub.catalogs.forget(acc)  # the next steps read the new prices
@@ -604,12 +603,12 @@ async def summary(
     missing = shortfall(balance, need) if balance is not None else None
     if missing is not None and balance is not None:
         methods = await _topup_methods(hub, acc)
-        await show(query, shortfall_screen(v, data, missing, need, balance, methods, cb))
+        await show(hub, query, shortfall_screen(v, data, missing, need, balance, methods, cb))
         return
     draft = Draft(account_id=acc, request=request, what=_describe(catalog, request))
     check = await limit_check(hub, quoted)
     nonce = hub.order_confirmations.issue(draft)
-    await show(query, summary_screen(v, data, catalog, draft, listed, balance, check, nonce))
+    await show(hub, query, summary_screen(v, data, catalog, draft, listed, balance, check, nonce))
 
 
 async def _topup_methods(hub: Hub, acc: int) -> list[TopupMethod]:
@@ -639,7 +638,7 @@ async def on_order_confirm(query: CallbackQuery, callback_data: OrderConfirmCb, 
     kb.row(*nav(v))
     if not callback_data.yes:
         await answer(query, v.t("control.cancelled"))
-        await show(query, Screen(v.t("order.cancelled"), kb.as_markup()))
+        await show(hub, query, Screen(v.t("order.cancelled"), kb.as_markup()))
         return
     try:
         data = hub.load(draft.account_id)
@@ -651,19 +650,16 @@ async def on_order_confirm(query: CallbackQuery, callback_data: OrderConfirmCb, 
         if check.over:
             await answer(query)
             nonce = hub.order_confirmations.issue(replace(draft, above_limit_confirmed=True))
-            await show(query, second_screen(v, draft, check, nonce))
+            await show(hub, query, second_screen(v, draft, check, nonce))
             return
     await answer(query, v.t("order.running"))
-    await show(query, Screen(v.t("order.running")))
+    await show(hub, query, Screen(v.t("order.running")))
     text, password = await execute(hub, data, draft)
-    await show(query, Screen(text, kb.as_markup()))
-    message = query.message
-    if message is None or isinstance(message, InaccessibleMessage):
-        return
     # Every order is an action with money: a message of its own, which cannot be switched off.
-    await message.answer(v.t("control.money_notice", text=text))
+    await menu(hub).notify(v.t("control.money_notice", text=text))
     if password:
-        await send_password(hub, message, draft.request.name, password)
+        await send_password(hub, draft.request.name, password)
+    await show_below(hub, query, Screen(text, kb.as_markup()))
 
 
 async def execute(hub: Hub, data: AccountData, draft: Draft) -> tuple[str, str | None]:
@@ -744,12 +740,12 @@ def _journal(
 # Root password
 
 
-async def send_password(hub: Hub, message: Message, server: str, password: str) -> None:
-    """The password in a message of its own, deleted after PASSWORD_TTL."""
+async def send_password(hub: Hub, server: str, password: str) -> None:
+    """The password in a message of its own (not the menu), deleted after PASSWORD_TTL."""
     register_secrets([password])
     v = view(hub)
     minutes = max(int(PASSWORD_TTL // 60), 1)
-    sent = await message.answer(
+    sent = await menu(hub).notify(
         v.t(
             "order.password",
             server=escape(server),
@@ -757,15 +753,16 @@ async def send_password(hub: Hub, message: Message, server: str, password: str) 
             minutes=minutes,
         )
     )
-    task = asyncio.create_task(_delete_later(sent), name=f"password-{sent.message_id}")
-    hub.background.add(task)
-    task.add_done_callback(hub.background.discard)
+    if sent is None:
+        return
+    task = asyncio.create_task(_delete_later(hub, sent), name=f"password-{sent}")
+    hub.timers.add(task)
+    task.add_done_callback(hub.timers.discard)
 
 
-async def _delete_later(message: Message) -> None:
+async def _delete_later(hub: Hub, message_id: int) -> None:
     await asyncio.sleep(PASSWORD_TTL)
-    with contextlib.suppress(TelegramBadRequest):
-        await message.delete()
+    await menu(hub).delete(message_id)
 
 
 @on("callback_query", ActionCb.filter(F.act == "password"))
@@ -778,12 +775,8 @@ async def on_password(query: CallbackQuery, callback_data: ActionCb, hub: Hub) -
         await answer(query, v.t("account.gone"), alert=True)
         return
     server = next((s for s in data.servers if s.external_id == sid), None)
-    message = query.message
     if server is None or Capability.ROOT_PASSWORD not in data.caps:
         await answer(query, v.t("control.unavailable"), alert=True)
-        return
-    if message is None or isinstance(message, InaccessibleMessage):
-        await answer(query)
         return
     await answer(query, v.t("order.password_asking"))
 
@@ -797,11 +790,13 @@ async def on_password(query: CallbackQuery, callback_data: ActionCb, hub: Hub) -
     except Exception as error:
         log.warning("root password at account %s: %s", acc, describe(error))
         _password_journal(hub, acc, sid, describe(error), ok=False)
-        screen = failed_screen(v, data, error, ServerCb(acc=acc, sid=sid))
-        await message.answer(screen.text, reply_markup=screen.markup)
+        await show(hub, query, failed_screen(v, data, error, ServerCb(acc=acc, sid=sid)))
         return
     _password_journal(hub, acc, sid, "shown", ok=True)
-    await send_password(hub, message, server.name, password)
+    await send_password(hub, server.name, password)
+    card = server_screen(hub, acc, sid)
+    if card is not None:
+        await show_below(hub, query, card)
 
 
 def _password_journal(hub: Hub, acc: int, sid: str, response: str, ok: bool) -> None:
@@ -827,6 +822,12 @@ async def on_order_same(query: CallbackQuery, callback_data: ActionCb, hub: Hub)
 # Settings: the monthly limit and the SSH key
 
 
+def _ask(v: View, text: str) -> Screen:
+    back = InlineKeyboardBuilder()
+    back.row(*nav(v, SetCb(key="order")))
+    return Screen(text, back.as_markup())
+
+
 def _settings(hub: Hub) -> Screen:
     return settings_screen(view(hub), order_limit(hub), hub.prefs.ssh_key)
 
@@ -842,43 +843,45 @@ async def on_order_settings(
     if callback_data.value == "limit":
         await state.set_state(OrderSettings.limit)
         text = v.t("order.settings.ask_limit", currency=hub.prefs.currency)
-        await show(query, Screen(text, back.as_markup()))
+        await show(hub, query, Screen(text, back.as_markup()))
         return
     if callback_data.value == "key":
         await state.set_state(OrderSettings.key)
-        await show(query, Screen(v.t("order.settings.ask_key"), back.as_markup()))
+        await show(hub, query, Screen(v.t("order.settings.ask_key"), back.as_markup()))
         return
     if callback_data.value == "nokey":
         hub.prefs.ssh_key = None
     await state.clear()
-    await show(query, _settings(hub))
+    await show(hub, query, _settings(hub))
 
 
 @on("message", OrderSettings.limit, F.text & ~F.text.startswith("/"))
 async def on_limit_text(message: Message, hub: Hub, state: FSMContext) -> None:
     amount = parse_limit(message.text or "")
     if amount is None:
-        await message.answer(view(hub).t("order.settings.bad_limit"))
+        v = view(hub)
+        ask = _ask(v, v.t("order.settings.ask_limit", currency=hub.prefs.currency))
+        await show(hub, message, with_error(v.t("order.settings.bad_limit"), ask))
         return
     await state.clear()
     hub.prefs.order_limit = amount
-    await show(message, _settings(hub))
+    await show(hub, message, _settings(hub))
 
 
 @on("message", OrderSettings.key, F.text & ~F.text.startswith("/"))
 async def on_key_text(message: Message, hub: Hub, state: FSMContext) -> None:
     v = view(hub)
     text = message.text or ""
+    ask = _ask(v, v.t("order.settings.ask_key"))
     if "PRIVATE KEY" in text:
-        # A private key must not stay in the chat.
-        with contextlib.suppress(TelegramBadRequest):
-            await message.delete()
-        await message.answer(v.t("order.settings.private_key"))
+        # A private key must not stay in the chat: its message is gone already
+        # (`menu.DeleteOwnerMessages`), like every message of the owner.
+        await show(hub, message, with_error(v.t("order.settings.private_key"), ask))
         return
     key = parse_ssh_key(text)
     if key is None:
-        await message.answer(v.t("order.settings.bad_key"))
+        await show(hub, message, with_error(v.t("order.settings.bad_key"), ask))
         return
     await state.clear()
     hub.prefs.ssh_key = key
-    await show(message, _settings(hub))
+    await show(hub, message, _settings(hub))

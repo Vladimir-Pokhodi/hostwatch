@@ -4,6 +4,19 @@ from __future__ import annotations
 
 from aiogram.filters.callback_data import CallbackData
 
+# Buttons under notifications carry this before their data: they are not the menu, yet they
+# work. Pressing one closes the old menu and opens a new one below, on the target screen.
+NOTE = "!"
+MAX_DATA = 64
+
+
+def note(data: CallbackData) -> str:
+    """Callback data of a button under a notification. ValueError if it does not fit."""
+    packed = NOTE + data.pack()
+    if len(packed.encode()) > MAX_DATA:
+        raise ValueError(f"callback data too long: {packed!r}")
+    return packed
+
 
 class Nav(CallbackData, prefix="n"):
     """Open a section: menu, summary, servers, balance, integrations, connect, journal,

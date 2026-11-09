@@ -8,7 +8,7 @@ from collections.abc import AsyncIterator
 from decimal import Decimal
 
 import pytest
-from aiogram.methods import SendMessage, SendPhoto
+from aiogram.methods import EditMessageText, SendPhoto
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -141,9 +141,12 @@ async def test_paid_reads_the_balance_until_the_money_arrives(harness: Harness) 
     await harness.press(PaidCb(pay=1))
     await asyncio.gather(*harness.hub.background)
 
-    texts = [str(c.text) for c in harness.session.calls if isinstance(c, SendMessage)]
+    # The invoice was a photo (its QR code): «Paid» puts a text menu in its place, and the
+    # arrival edits that menu, which still shows this invoice.
+    texts = harness.session.texts()
     assert any("Проверю баланс" in t for t in texts)
-    assert any("Пополнение дошло" in t and "€25.00" in t for t in texts)
+    assert "Пополнение дошло" in texts[-1] and "€25.00" in texts[-1]
+    assert isinstance(harness.session.calls[-1], EditMessageText)
     assert harness.hub.payments.get(1).status == "arrived"
 
 

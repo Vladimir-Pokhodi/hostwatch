@@ -1,11 +1,13 @@
 """Balance → Top up: method → coin → network (crypto) → amount → invoice with a link, a QR
-and «Paid».
+and «Paid», all in the one menu (`menu.py`).
 
 The invoice is made when the owner picks the amount, not earlier: an SBP payment of
 ЮKassa lives about ten minutes. Some payment pages list their coins per invoice
 (Cryptomus at Regxa, `SupportsPayOptions`): there the coin and the network are chosen
 under the invoice, and the bot then gets the address. After «Paid» the bot reads the
-balance 2, 5 and 10 minutes later and says whether the money arrived.
+balance 2, 5 and 10 minutes later and says whether the money arrived: in the menu while it
+still shows that invoice, else in a notification. An invoice with a QR code turns the menu
+into a photo (a text message cannot get a picture); an invoice that expires says so.
 """
 
 from __future__ import annotations
@@ -15,6 +17,7 @@ import io
 import logging
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
+from datetime import datetime
 from decimal import ROUND_CEILING, Decimal, InvalidOperation
 from html import escape
 
@@ -23,13 +26,7 @@ from aiogram import F
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import (
-    BufferedInputFile,
-    CallbackQuery,
-    InaccessibleMessage,
-    InlineKeyboardButton,
-    Message,
-)
+from aiogram.types import CallbackQuery, InlineKeyboardButton, Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from hostwatch.core.errors import AuthExpired, describe, explain
@@ -39,7 +36,7 @@ from hostwatch.core.plugin import Plugin, SupportsPayOptions, SupportsTopup, bro
 from hostwatch.storage.repositories import JournalEntry, NotFound, PaymentRecord
 
 from .callbacks import AccountCb, Nav, PaidCb, PayOptCb, TopupAmountCb, TopupCb
-from .handlers import answer, on, show, view
+from .handlers import answer, home_markup, menu, on, show, view, with_error
 from .hub import AccountData, Hub
 from .views import Screen, View
 from .views import _button as button
@@ -382,22 +379,24 @@ async def on_topup(
     try:
         choice = await _choice(hub, acc)
     except Exception as error:
-        await show(query, failed_screen(v, data, error, Nav(to="balance")))
+        await show(hub, query, failed_screen(v, data, error, Nav(to="balance")))
         return
     if callback_data.m == CRYPTO:
         if callback_data.c:
-            await show(query, networks_screen(v, choice, callback_data.c))
+            await show(hub, query, networks_screen(v, choice, callback_data.c))
         else:
-            await show(query, coins_screen(v, choice, callback_data.p))
+            await show(hub, query, coins_screen(v, choice, callback_data.p))
         return
     if not callback_data.m:
-        await show(query, methods_screen(v, choice))
+        await show(hub, query, methods_screen(v, choice))
         return
     method = choice.method(callback_data.m)
     if method is None:
-        await show(query, methods_screen(v, choice))
+        await show(hub, query, methods_screen(v, choice))
         return
-    await show(query, amount_screen(v, choice, method, until_next_month(hub, choice.data, method)))
+    await show(
+        hub, query, amount_screen(v, choice, method, until_next_month(hub, choice.data, method))
+    )
 
 
 @on("callback_query", TopupAmountCb.filter())
@@ -413,28 +412,29 @@ async def on_amount(
         return
     except Exception as error:
         await answer(query)
-        await show(query, failed_screen(v, hub.load(acc), error, Nav(to="balance")))
+        await show(hub, query, failed_screen(v, hub.load(acc), error, Nav(to="balance")))
         return
     method = choice.method(callback_data.m)
     if method is None:
         await answer(query)
-        await show(query, methods_screen(v, choice))
+        await show(hub, query, methods_screen(v, choice))
         return
     back = TopupCb(acc=acc, m=method.id)
     if not callback_data.amt:
         await answer(query)
         await state.set_state(TopupAmount.amount)
         await state.update_data(acc=acc, method=method.id)
-        await show(query, ask_amount(v, method, back))
+        await show(hub, query, ask_amount(v, method, back))
         return
     amount = parse_amount(callback_data.amt)
     if amount is None:
         await answer(query)
         return
     await answer(query, v.t("topup.creating"))
-    await show(query, Screen(v.t("topup.creating")))
-    delivery = await create(hub, choice, method, Money(amount=amount, currency=_currency(method)))
-    await _deliver(query.message, delivery)
+    await show(hub, query, Screen(v.t("topup.creating")))
+    made = await create(hub, choice, method, Money(amount=amount, currency=_currency(method)))
+    await show(hub, query, made.screen, made.tag)
+    made.start_expiry(hub)
 
 
 @on("message", TopupAmount.amount, F.text & ~F.text.startswith("/"))
@@ -447,37 +447,72 @@ async def on_amount_text(message: Message, hub: Hub, state: FSMContext) -> None:
         choice = await _choice(hub, acc)
     except Exception as error:
         await state.clear()
-        screen = failed_screen(v, hub.load(acc), error, Nav(to="balance"))
-        await message.answer(screen.text, reply_markup=screen.markup)
+        await show(hub, message, failed_screen(v, hub.load(acc), error, Nav(to="balance")))
         return
     method = choice.method(method_id)
     if method is None:
         await state.clear()
-        await show(message, methods_screen(v, choice))
+        await show(hub, message, methods_screen(v, choice))
         return
     back = TopupCb(acc=acc, m=method.id)
     if amount is None:
-        await show(message, ask_amount(v, method, back))
+        await show(hub, message, ask_amount(v, method, back))
         return
     if method.minimum is not None and amount < method.minimum.amount:
-        await message.answer(v.t("topup.below_minimum", amount=method.minimum))
+        ask = ask_amount(v, method, back)
+        await show(hub, message, with_error(v.t("topup.below_minimum", amount=method.minimum), ask))
         return
     await state.clear()
-    await message.answer(v.t("topup.creating"))
-    delivery = await create(hub, choice, method, Money(amount=amount, currency=_currency(method)))
-    await _deliver(message, delivery)
+    await show(hub, message, Screen(v.t("topup.creating")))
+    made = await create(hub, choice, method, Money(amount=amount, currency=_currency(method)))
+    await show(hub, message, made.screen, made.tag)
+    made.start_expiry(hub)
+
+
+def pay_tag(record_id: int) -> str:
+    """The menu shows this invoice: «Paid» and its expiry change the screen by themselves."""
+    return f"pay:{record_id}"
 
 
 @dataclass(frozen=True)
-class Delivery:
-    """What to send after an invoice attempt: a QR picture with a caption, or a text."""
+class Invoice:
+    """The screen after an invoice attempt; `record` is the `payments` row if one was made."""
 
-    text: str
-    markup: InlineKeyboardBuilder
-    qr: bytes | None = None
+    screen: Screen
+    record: int | None = None
+    expires_at: datetime | None = None
+
+    @property
+    def tag(self) -> str | None:
+        return pay_tag(self.record) if self.record is not None else None
+
+    def start_expiry(self, hub: Hub) -> None:
+        if self.record is None or self.expires_at is None:
+            return
+        task = asyncio.create_task(
+            expire(hub, self.record, self.expires_at), name=f"invoice-expiry-{self.record}"
+        )
+        hub.timers.add(task)
+        task.add_done_callback(hub.timers.discard)
 
 
-async def create(hub: Hub, choice: Choice, method: TopupMethod, amount: Money) -> Delivery:
+async def expire(hub: Hub, record_id: int, at: datetime) -> None:
+    """When the invoice dies, its screen says so, unless it was paid or the menu moved on."""
+    await asyncio.sleep(max((at - hub.now()).total_seconds(), 0))
+    try:
+        record = hub.payments.get(record_id)
+    except NotFound:
+        return
+    if record.status != "created" or hub.menu is None:
+        return
+    v = view(hub)
+    kb = InlineKeyboardBuilder()
+    kb.row(button(v.t("topup.again"), TopupCb(acc=record.account_id)))
+    kb.row(*nav(v, Nav(to="balance")))
+    await hub.menu.update(pay_tag(record_id), Screen(v.t("topup.expired"), kb.as_markup()))
+
+
+async def create(hub: Hub, choice: Choice, method: TopupMethod, amount: Money) -> Invoice:
     """Make the invoice at the hoster; log it in the journal and in `payments`."""
     v = view(hub)
     data = choice.data
@@ -494,20 +529,25 @@ async def create(hub: Hub, choice: Choice, method: TopupMethod, amount: Money) -
     except Exception as error:
         log.warning("top-up of account %s failed: %s", acc, describe(error))
         _journal(hub, acc, params, describe(error), ok=False)
-        screen = failed_screen(v, data, error, TopupCb(acc=acc, m=method.id))
-        kb = InlineKeyboardBuilder.from_markup(screen.markup) if screen.markup else None
-        return Delivery(screen.text, kb or InlineKeyboardBuilder())
+        return Invoice(failed_screen(v, data, error, TopupCb(acc=acc, m=method.id)))
     record_id = hub.payments.add(acc, payment)
     _journal(hub, acc, {**params, "invoice": payment.id}, "invoice created", ok=True)
     if payment.options:
         remember_options(hub, record_id, payment.options)
         record = hub.payments.get(record_id)
-        screen = options_screen(v, data.title, record, payment.options)
-        kb = InlineKeyboardBuilder.from_markup(screen.markup) if screen.markup else None
-        return Delivery(screen.text, kb or InlineKeyboardBuilder())
-    text = payment_text(v, data.title, method, payment)
+        return Invoice(options_screen(v, data.title, record, payment.options), record_id)
+    return Invoice(
+        invoice_screen(v, data.title, method, payment, record_id), record_id, payment.expires_at
+    )
+
+
+def invoice_screen(
+    v: View, title: str, method: TopupMethod, payment: Payment, record_id: int
+) -> Screen:
+    """The invoice: its link as a button, the QR code (if any) as the menu's picture."""
     qr = qr_png(payment.qr_data) if payment.qr_data else None
-    return Delivery(text, payment_markup(v, payment, record_id), qr)
+    markup = payment_markup(v, payment, record_id).as_markup()
+    return Screen(payment_text(v, title, method, payment), markup, qr)
 
 
 def remember_options(hub: Hub, record_id: int, options: Sequence[PayOption]) -> None:
@@ -557,16 +597,18 @@ async def on_pay_option(query: CallbackQuery, callback_data: PayOptCb, hub: Hub)
                 log.warning("coins of top-up %s: %s", record.id, describe(error))
                 reason = escape(explain(describe(error), v.lang))
                 await show(
-                    query, _choice_failed(v, record, v.t("topup.options_failed", reason=reason))
+                    hub,
+                    query,
+                    _choice_failed(v, record, v.t("topup.options_failed", reason=reason)),
                 )
                 return
             remember_options(hub, record.id, options)
         screen = options_screen(v, data.title, record, options, callback_data.c, callback_data.p)
-        await show(query, screen)
+        await show(hub, query, screen)
         return
     option_id = callback_data.o
     await answer(query, v.t("topup.getting_address"))
-    await show(query, Screen(v.t("topup.getting_address")))
+    await show(hub, query, Screen(v.t("topup.getting_address")))
 
     async def choose(plugin: Plugin) -> Payment:
         if not isinstance(plugin, SupportsPayOptions):
@@ -581,15 +623,17 @@ async def on_pay_option(query: CallbackQuery, callback_data: PayOptCb, hub: Hub)
         _journal(hub, acc, params, describe(error), ok=False)
         reason = escape(explain(describe(error), v.lang))
         screen = _choice_failed(v, record, v.t("topup.address_failed", reason=reason))
-        await show(query, screen)
+        await show(hub, query, screen)
         return
     _journal(hub, acc, params, "address received", ok=True)
     method = TopupMethod(
         id=record.method, name=_option_name(record, option_id, hub), kind=TopupKind.CRYPTO
     )
-    text = payment_text(v, data.title, method, paid)
-    qr = qr_png(paid.qr_data) if paid.qr_data else None
-    await _deliver(query.message, Delivery(text, payment_markup(v, paid, record.id), qr))
+    made = Invoice(
+        invoice_screen(v, data.title, method, paid, record.id), record.id, paid.expires_at
+    )
+    await show(hub, query, made.screen, made.tag)
+    made.start_expiry(hub)
 
 
 def _option_name(record: PaymentRecord, option_id: str, hub: Hub) -> str:
@@ -622,17 +666,6 @@ def _journal(hub: Hub, acc: int, params: dict[str, str], response: str, ok: bool
     )
 
 
-async def _deliver(message: Message | InaccessibleMessage | None, delivery: Delivery) -> None:
-    if message is None or isinstance(message, InaccessibleMessage):
-        return
-    markup = delivery.markup.as_markup()
-    if delivery.qr is None:
-        await message.answer(delivery.text, reply_markup=markup)
-        return
-    photo = BufferedInputFile(delivery.qr, filename="qr.png")
-    await message.answer_photo(photo, caption=delivery.text, reply_markup=markup)
-
-
 # «Paid»
 
 
@@ -651,16 +684,24 @@ async def on_paid(query: CallbackQuery, callback_data: PaidCb, hub: Hub) -> None
     before = data.balance.money if data.balance is not None else None
     hub.payments.set_status(record.id, "waiting", before)
     await answer(query, v.t("topup.will_check"))
-    message = query.message
-    if message is None or isinstance(message, InaccessibleMessage):
-        return
-    await message.answer(v.t("topup.will_check"))
-    task = asyncio.create_task(watch_balance(hub, record.id, message), name=f"paid-{record.id}")
+    text = "\n".join(
+        [v.t("topup.invoice_title", title=escape(data.title)), v.t("topup.will_check")]
+    )
+    await show(hub, query, Screen(text, home_markup(v, Nav(to="balance"))), pay_tag(record.id))
+    task = asyncio.create_task(watch_balance(hub, record.id), name=f"paid-{record.id}")
     hub.background.add(task)
     task.add_done_callback(hub.background.discard)
 
 
-async def watch_balance(hub: Hub, record_id: int, message: Message) -> None:
+async def _tell(hub: Hub, record_id: int, text: str) -> None:
+    """In the menu while it shows this invoice; else a notification of its own."""
+    v = view(hub)
+    if await menu(hub).update(pay_tag(record_id), Screen(text, home_markup(v, Nav(to="balance")))):
+        return
+    await menu(hub).notify(text)
+
+
+async def watch_balance(hub: Hub, record_id: int) -> None:
     """Read the balance at each of `hub.paid_checks` (seconds after «Paid»)."""
     record = hub.payments.get(record_id)
     acc = record.account_id
@@ -686,9 +727,9 @@ async def watch_balance(hub: Hub, record_id: int, message: Message) -> None:
             forecast = hub.load(acc).forecast
             if forecast is not None:
                 lines.append(escape(forecast.explain(v.lang, v.tz)))
-            await message.answer("\n".join(lines))
+            await _tell(hub, record_id, "\n".join(lines))
             return
     hub.payments.set_status(record_id, "not_seen")
     v = view(hub)
     minutes = int(hub.paid_checks[-1] // 60) if hub.paid_checks else 0
-    await message.answer(v.t("topup.not_seen", title=escape(title), minutes=minutes))
+    await _tell(hub, record_id, v.t("topup.not_seen", title=escape(title), minutes=minutes))

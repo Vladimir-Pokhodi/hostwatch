@@ -15,7 +15,7 @@ from aiogram.types import InlineKeyboardMarkup
 
 from hostwatch.autopay_cli import Assume, describe_plan, memory_copy
 from hostwatch.bot.autopay import AutopayCb, Reporter, parse_limit
-from hostwatch.bot.callbacks import ActionCb, ServerCb, SetCb
+from hostwatch.bot.callbacks import ActionCb, ServerCb, SetCb, note
 from hostwatch.bot.views import server_actions
 from hostwatch.core.accounts import AccountRunner
 from hostwatch.core.alerts import AccountView
@@ -638,7 +638,10 @@ async def test_owner_pays_a_grown_invoice_once(harness: Harness) -> None:
     assert harness.alerts()[-1] == "Кнопка устарела или уже нажата. Ничего не сделал."
     entry = harness.hub.journal.recent()[0]
     assert (entry.actor, entry.ok, entry.params["invoice"]) == ("owner", True, "500")
-    assert "Действие с деньгами" in harness.session.last_text()
+    # The money notice stays in the chat; the menu with the result goes below it.
+    notice, result = harness.session.texts()[-2:]
+    assert "Действие с деньгами" in notice
+    assert "оплатить счёт #500" in result and "Действие с деньгами" not in result
 
 
 async def test_owner_declines_a_grown_invoice(harness: Harness) -> None:
@@ -693,7 +696,8 @@ async def test_reports_reach_the_owner_with_buttons(harness: Harness) -> None:
     assert "вырос: $9.00 вместо $5.00" in grown[0]
     assert grown[1] is not None
     buttons = [b.callback_data for row in grown[1].inline_keyboard for b in row]
-    assert AutopayCb(acc=acc, inv="501", op="pay").pack() in buttons
+    # A notification's buttons work outside the menu: they carry the note mark.
+    assert note(AutopayCb(acc=acc, inv="501", op="pay")) in buttons
 
 
 def test_an_autopay_server_is_not_reported_as_lapsing() -> None:

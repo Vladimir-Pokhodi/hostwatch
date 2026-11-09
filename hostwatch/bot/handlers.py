@@ -16,7 +16,14 @@ from aiogram.filters import Command, CommandStart
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import BufferedInputFile, CallbackQuery, InaccessibleMessage, Message
+from aiogram.types import (
+    BufferedInputFile,
+    CallbackQuery,
+    InaccessibleMessage,
+    InlineKeyboardMarkup,
+    Message,
+)
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from hostwatch.core.alerts import Thresholds
 from hostwatch.core.logs import register_secrets
@@ -40,7 +47,8 @@ from .callbacks import (
     SetCb,
 )
 from .hub import AccountData, Hub, key_fields
-from .login import parse_cookie_text
+from .login import LOGIN_TAG, parse_cookie_text
+from .menu import Menu, menu_buttons
 from .prefs import THRESHOLD_BY_KEY, THRESHOLDS, valid_timezone
 from .views import Screen, View
 
@@ -61,8 +69,10 @@ def on(event: str, *filters: Any) -> Callable[[Handler], Handler]:
 
 def make_router() -> Router:
     router = Router(name="hostwatch")
-    # The catch-all for text goes last, whichever module registered its handlers first.
-    routes = sorted(_ROUTES, key=lambda route: route[1] is on_other_text)
+    # «☰ Menu» goes first, before the questions that wait for text; the catch-all for text
+    # goes last, whichever module registered its handlers first.
+    order = {on_menu_button: 0, on_other_text: 2}
+    routes = sorted(_ROUTES, key=lambda route: order.get(route[1], 1))
     for event, handler, filters in routes:
         getattr(router, event).register(handler, *filters)
     return router
@@ -94,20 +104,44 @@ def view(hub: Hub) -> View:
     return View(hub.prefs.lang, hub.prefs.tz)
 
 
-async def show(target: Message | CallbackQuery, screen: Screen) -> None:
-    """Edit the message under a pressed button, or send a new one in reply to a message."""
-    if isinstance(target, Message):
-        await target.answer(screen.text, reply_markup=screen.markup)
-        return
-    message = target.message
-    if message is None or isinstance(message, InaccessibleMessage):
-        return
-    try:
-        await message.edit_text(screen.text, reply_markup=screen.markup)
-    except TelegramBadRequest as exc:
-        # Pressing «Refresh» with nothing new is not an error.
-        if "message is not modified" not in str(exc):
-            raise
+def menu(hub: Hub) -> Menu:
+    assert hub.menu is not None, "the menu middleware makes it with the first update"
+    return hub.menu
+
+
+async def show(
+    hub: Hub, target: CallbackQuery | Message | None, screen: Screen, tag: str | None = None
+) -> None:
+    """Show a screen in the one menu (`menu.py`), whatever the owner pressed or typed.
+
+    After a button press: unless the owner opened another menu since (a slow answer from a
+    hoster does not take over the new menu). `tag` marks a screen that changes by itself."""
+    if isinstance(target, CallbackQuery):
+        message = target.message
+        if message is not None and not menu(hub).follows(message.message_id):
+            return
+    await menu(hub).show(screen, tag)
+
+
+async def show_below(hub: Hub, target: CallbackQuery | Message | None, screen: Screen) -> None:
+    """The menu goes below a message the bot just sent (a money notice, a password, a file),
+    showing `screen`; unless the owner opened another menu since."""
+    if isinstance(target, CallbackQuery):
+        message = target.message
+        if message is not None and not menu(hub).follows(message.message_id):
+            return
+    await menu(hub).move_down(screen)
+
+
+def with_error(text: str, screen: Screen) -> Screen:
+    """The question again, with what was wrong with the answer above it."""
+    return Screen(f"{text}\n\n{screen.text}", screen.markup, screen.photo)
+
+
+def home_markup(v: View, back: CallbackData | None = None) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.row(*views._nav(v, back))
+    return kb.as_markup()
 
 
 async def answer(query: CallbackQuery, text: str | None = None, alert: bool = False) -> None:
@@ -200,39 +234,51 @@ def account_screen(hub: Hub, account_id: int) -> Screen | None:
 # Start, menu and first run
 
 
+async def home(hub: Hub) -> Screen:
+    """The first screen of a new menu: the main menu, or the first-run questions."""
+    if not hub.prefs.onboarded:
+        return views.choose_language(view(hub), onb=True)
+    return await screen_for(hub, "menu")
+
+
 @on("message", CommandStart())
 async def on_start(message: Message, hub: Hub, state: FSMContext) -> None:
+    """A new menu at the bottom, and the «☰ Menu» keyboard again."""
     await state.clear()
-    if not hub.prefs.onboarded:
-        await show(message, views.choose_language(view(hub), onb=True))
-        return
-    await show(message, await screen_for(hub, "menu"))
+    await menu(hub).open(await home(hub), keyboard=True)
 
 
 @on("message", Command("menu"))
 async def on_menu(message: Message, hub: Hub, state: FSMContext) -> None:
     await state.clear()
-    await show(message, await screen_for(hub, "menu"))
+    await menu(hub).open(await home(hub))
+
+
+@on("message", F.text.in_(menu_buttons()))
+async def on_menu_button(message: Message, hub: Hub, state: FSMContext) -> None:
+    """«☰ Menu» under the input field; a question the old menu asked is over."""
+    await state.clear()
+    await menu(hub).open(await home(hub))
 
 
 @on("callback_query", Nav.filter())
 async def on_nav(query: CallbackQuery, callback_data: Nav, hub: Hub, state: FSMContext) -> None:
     await state.clear()
     await answer(query)
-    await show(query, await screen_for(hub, callback_data.to))
+    await show(hub, query, await screen_for(hub, callback_data.to))
 
 
 @on("callback_query", SetCb.filter(F.key == "lang"))
 async def on_language(query: CallbackQuery, callback_data: SetCb, hub: Hub) -> None:
     await answer(query)
     if not callback_data.value:
-        await show(query, views.choose_language(view(hub), onb=False))
+        await show(hub, query, views.choose_language(view(hub), onb=False))
         return
     hub.prefs.lang = callback_data.value
     if callback_data.onb:
-        await show(query, views.choose_timezone(view(hub), onb=True))
+        await show(hub, query, views.choose_timezone(view(hub), onb=True))
     else:
-        await show(query, settings_screen(hub))
+        await show(hub, query, settings_screen(hub))
 
 
 @on("callback_query", SetCb.filter(F.key == "tz"))
@@ -242,12 +288,12 @@ async def on_timezone(
     await answer(query)
     v = view(hub)
     if not callback_data.value:
-        await show(query, views.choose_timezone(v, onb=False))
+        await show(hub, query, views.choose_timezone(v, onb=False))
         return
     if callback_data.value == "other":
         await state.set_state(EditSetting.timezone)
         await state.update_data(onb=callback_data.onb)
-        await show(query, views.ask_timezone(v, callback_data.onb))
+        await show(hub, query, views.ask_timezone(v, callback_data.onb))
         return
     hub.prefs.timezone = callback_data.value
     await _after_timezone(query, hub, callback_data.onb)
@@ -255,18 +301,20 @@ async def on_timezone(
 
 async def _after_timezone(target: Message | CallbackQuery, hub: Hub, onb: bool) -> None:
     if onb:
-        await show(target, views.choose_currency(view(hub), onb=True))
+        await show(hub, target, views.choose_currency(view(hub), onb=True))
     else:
-        await show(target, settings_screen(hub))
+        await show(hub, target, settings_screen(hub))
 
 
 @on("message", EditSetting.timezone, F.text)
 async def on_timezone_text(message: Message, hub: Hub, state: FSMContext) -> None:
     name = (message.text or "").strip()
-    if not valid_timezone(name):
-        await message.answer(view(hub).t("settings.timezone_bad"))
-        return
     onb = bool((await state.get_data()).get("onb"))
+    if not valid_timezone(name):
+        v = view(hub)
+        ask = views.ask_timezone(v, onb)
+        await show(hub, message, with_error(v.t("settings.timezone_bad"), ask))
+        return
     await state.clear()
     hub.prefs.timezone = name
     await _after_timezone(message, hub, onb)
@@ -277,15 +325,15 @@ async def on_currency(query: CallbackQuery, callback_data: SetCb, hub: Hub) -> N
     await answer(query)
     v = view(hub)
     if not callback_data.value:
-        await show(query, views.choose_currency(v, onb=False))
+        await show(hub, query, views.choose_currency(v, onb=False))
         return
     hub.prefs.currency = callback_data.value
     if not callback_data.onb:
-        await show(query, settings_screen(hub))
+        await show(hub, query, settings_screen(hub))
         return
     hub.prefs.finish_onboarding()
     screen = views.connect(v, hub.plugins(), hub.load_all())
-    await show(query, Screen(f"{v.t('onboarding.done')}\n\n{screen.text}", screen.markup))
+    await show(hub, query, Screen(f"{v.t('onboarding.done')}\n\n{screen.text}", screen.markup))
 
 
 @on("callback_query", SetCb.filter(F.key == "th"))
@@ -298,7 +346,7 @@ async def on_threshold(
         return
     await state.set_state(EditSetting.threshold)
     await state.update_data(key=key)
-    await show(query, views.ask_threshold(view(hub), key, hub.prefs.threshold(key)))
+    await show(hub, query, views.ask_threshold(view(hub), key, hub.prefs.threshold(key)))
 
 
 @on("message", EditSetting.threshold, F.text)
@@ -308,10 +356,12 @@ async def on_threshold_text(message: Message, hub: Hub, state: FSMContext) -> No
         await state.clear()
         return
     if not hub.prefs.set_threshold(key, message.text or ""):
-        await message.answer(view(hub).t("threshold.bad"))
+        v = view(hub)
+        ask = views.ask_threshold(v, key, hub.prefs.threshold(key))
+        await show(hub, message, with_error(v.t("threshold.bad"), ask))
         return
     await state.clear()
-    await show(message, settings_screen(hub))
+    await show(hub, message, settings_screen(hub))
 
 
 @on("callback_query", SetCb.filter(F.key == "backup"))
@@ -337,6 +387,8 @@ async def on_backup(query: CallbackQuery, hub: Hub) -> None:
     await message.answer_document(
         BufferedInputFile(data, filename=name), caption=v.t("backup.caption", date=v.moment(now))
     )
+    # The file is not the menu: the menu goes below it.
+    await show_below(hub, query, settings_screen(hub))
 
 
 # Sections
@@ -347,10 +399,10 @@ async def on_host(query: CallbackQuery, callback_data: HostCb, hub: Hub) -> None
     screen = host_screen(hub, callback_data.acc, callback_data.page)
     if screen is None:
         await answer(query, view(hub).t("account.gone"), alert=True)
-        await show(query, await screen_for(hub, "servers"))
+        await show(hub, query, await screen_for(hub, "servers"))
         return
     await answer(query)
-    await show(query, screen)
+    await show(hub, query, screen)
 
 
 @on("callback_query", ServerCb.filter())
@@ -359,16 +411,16 @@ async def on_server(query: CallbackQuery, callback_data: ServerCb, hub: Hub) -> 
     if screen is None:
         await answer(query, view(hub).t("servers.gone"), alert=True)
         back = host_screen(hub, callback_data.acc)
-        await show(query, back or await screen_for(hub, "servers"))
+        await show(hub, query, back or await screen_for(hub, "servers"))
         return
     await answer(query)
-    await show(query, screen)
+    await show(hub, query, screen)
 
 
 @on("callback_query", JournalCb.filter())
 async def on_journal_page(query: CallbackQuery, callback_data: JournalCb, hub: Hub) -> None:
     await answer(query)
-    await show(query, journal_screen(hub, max(callback_data.page, 0)))
+    await show(hub, query, journal_screen(hub, max(callback_data.page, 0)))
 
 
 @on("callback_query", RefreshCb.filter())
@@ -396,7 +448,7 @@ async def on_refresh(query: CallbackQuery, callback_data: RefreshCb, hub: Hub) -
         screen = account_screen(hub, callback_data.acc)
     else:
         screen = await screen_for(hub, callback_data.view)
-    await show(query, screen or await screen_for(hub, "menu"))
+    await show(hub, query, screen or await screen_for(hub, "menu"))
 
 
 async def _wait(*polls: asyncio.Future[None]) -> None:
@@ -418,7 +470,7 @@ async def on_account(
         data = hub.load(acc)
     except NotFound:
         await answer(query, v.t("account.gone"), alert=True)
-        await show(query, await screen_for(hub, "integrations"))
+        await show(hub, query, await screen_for(hub, "integrations"))
         return
     if op == "relogin":
         if hub.login is None or browser_auth(data.plugin) is None:
@@ -433,7 +485,7 @@ async def on_account(
         await state.set_state(ChangeKey.key)
         await state.update_data(acc=acc, fields=list(key_fields(data.plugin)), values={})
         field = key_fields(data.plugin)[0]
-        await show(query, views.ask_key(v, data.plugin.meta.name, field, _card(acc)))
+        await show(hub, query, views.ask_key(v, data.plugin.meta.name, field, _card(acc)))
         return
     if op == "disable":
         hub.poller.stop_account(acc)
@@ -442,16 +494,16 @@ async def on_account(
         hub.accounts.set_status(acc, AccountStatus.OK)
         hub.poller.start_account(acc)
     elif op == "delete":
-        await show(query, views.confirm_delete(v, data))
+        await show(hub, query, views.confirm_delete(v, data))
         return
     elif op == "delete_yes":
         hub.poller.stop_account(acc)
         hub.accounts.delete(acc)
-        await show(query, await screen_for(hub, "integrations"))
+        await show(hub, query, await screen_for(hub, "integrations"))
         return
     screen = account_screen(hub, acc)
     if screen is not None:
-        await show(query, screen)
+        await show(hub, query, screen)
 
 
 @on("callback_query", AddCb.filter())
@@ -467,7 +519,7 @@ async def on_add(query: CallbackQuery, callback_data: AddCb, hub: Hub, state: FS
     await answer(query)
     await state.set_state(AddAccount.label)
     await state.update_data(plugin=plugin.meta.id)
-    await show(query, views.ask_label(v, plugin.meta.name))
+    await show(hub, query, views.ask_label(v, plugin.meta.name))
 
 
 @on("callback_query", AddAccount.label, LabelCb.filter())
@@ -491,8 +543,8 @@ async def _ask_first_key(
     plugin = hub.registry.get((await state.get_data())["plugin"])
     taken = {a.label for a in hub.accounts.all() if a.plugin_id == plugin.meta.id}
     if label in taken:
-        await _send(target, v.t("integrations.label_taken", label=label))
-        await _send(target, views.ask_label(v, plugin.meta.name))
+        ask = views.ask_label(v, plugin.meta.name)
+        await show(hub, target, with_error(v.t("integrations.label_taken", label=label), ask))
         return
     fields = list(key_fields(plugin))
     if not fields:
@@ -503,23 +555,13 @@ async def _ask_first_key(
         return
     await state.set_state(AddAccount.key)
     await state.update_data(label=label, fields=fields, values={})
-    await show(target, views.ask_key(v, plugin.meta.name, fields[0]))
-
-
-async def _send(target: Message | CallbackQuery, content: str | Screen) -> None:
-    """A new message in the chat, also when the owner pressed a button."""
-    screen = content if isinstance(content, Screen) else Screen(content)
-    message = target.message if isinstance(target, CallbackQuery) else target
-    if message is not None and not isinstance(message, InaccessibleMessage):
-        await message.answer(screen.text, reply_markup=screen.markup)
+    await show(hub, target, views.ask_key(v, plugin.meta.name, fields[0]))
 
 
 async def _take_secret(message: Message) -> str:
-    """The key text. Its message is deleted right away, so the key does not stay in the chat."""
+    """The key text. Its message is gone from the chat already (`menu.DeleteOwnerMessages`)."""
     value = (message.text or "").strip()
     register_secrets([value])
-    with contextlib.suppress(TelegramBadRequest):
-        await message.delete()
     return value
 
 
@@ -531,13 +573,19 @@ async def on_key(message: Message, hub: Hub, state: FSMContext) -> None:
     values: dict[str, str] = {**data["values"], data["fields"][len(data["values"])]: value}
     if len(values) < len(data["fields"]):
         await state.update_data(values=values)
-        await show(message, views.ask_key(view(hub), plugin.meta.name, data["fields"][len(values)]))
+        await show(
+            hub,
+            message,
+            views.ask_key(view(hub), plugin.meta.name, data["fields"][len(values)]),
+        )
         return
     await state.clear()
     try:
         account_id = hub.accounts.add(plugin.meta.id, data["label"], values)
     except sqlite3.IntegrityError:
-        await message.answer(view(hub).t("integrations.label_taken", label=data["label"]))
+        v = view(hub)
+        text = v.t("integrations.label_taken", label=data["label"])
+        await show(hub, message, Screen(text, home_markup(v, Nav(to="connect"))))
         return
     await _connect(message, hub, account_id)
 
@@ -553,14 +601,17 @@ async def on_new_key(message: Message, hub: Hub, state: FSMContext) -> None:
         await state.update_data(values=values)
         plugin = hub.load(acc).plugin
         await show(
-            message, views.ask_key(view(hub), plugin.meta.name, fields[len(values)], _card(acc))
+            hub,
+            message,
+            views.ask_key(view(hub), plugin.meta.name, fields[len(values)], _card(acc)),
         )
         return
     await state.clear()
     try:
         old = hub.accounts.load_secrets(acc)
     except NotFound:
-        await message.answer(view(hub).t("account.gone"))
+        v = view(hub)
+        await show(hub, message, Screen(v.t("account.gone"), home_markup(v)))
         return
     hub.accounts.save_secrets(acc, {**old, **values})
     hub.accounts.set_status(acc, AccountStatus.OK)
@@ -570,13 +621,13 @@ async def on_new_key(message: Message, hub: Hub, state: FSMContext) -> None:
 async def _connect(message: Message, hub: Hub, account_id: int) -> None:
     """Start polling the account and show its card once the first poll is done."""
     v = view(hub)
-    note = await message.answer(v.t("integrations.checking"))
+    await show(hub, message, Screen(v.t("integrations.checking")))
     done = hub.poller.poll_done(account_id)
     hub.poller.start_account(account_id)
     await _wait(done)
     screen = account_screen(hub, account_id)
     if screen is not None:
-        await note.edit_text(screen.text, reply_markup=screen.markup)
+        await show(hub, message, screen)
 
 
 # Browser login
@@ -589,14 +640,18 @@ def _card(acc: int) -> AccountCb:
 async def _send_link(
     target: Message | CallbackQuery, hub: Hub, login: LoginTarget, back: CallbackData
 ) -> None:
-    """The screen says a link is coming; the link is a message of its own below it,
-    which goes away once the login is over (`BotLogin`)."""
+    """The link is a button in the menu; the screen changes by itself when the login is
+    over or the link dies (`BotLogin`)."""
     assert hub.login is not None
+    if isinstance(target, CallbackQuery):
+        message = target.message
+        if message is not None and not menu(hub).follows(message.message_id):
+            return
     if hub.login.base_url() is None:
-        await _send(target, view(hub).t("login.no_address"))
+        v = view(hub)
+        await show(hub, target, Screen(v.t("login.no_address"), home_markup(v, back)))
         return
-    await show(target, views.login_sent(view(hub), login.hoster, back))
-    await hub.login.send_link(login)
+    await hub.login.send_link(login, back, in_place=True)
 
 
 @on("callback_query", LoginCb.filter(F.op == "kill"))
@@ -620,22 +675,27 @@ async def on_cookie(message: Message, hub: Hub, state: FSMContext) -> None:
             for a in hub.accounts.all()
             if a.plugin_id in hub.registry and browser_auth(hub.registry.get(a.plugin_id))
         ]
-        await message.answer(
-            v.t(
-                "cookie.usage",
-                plugins="|".join(plugins) or "-",
-                accounts=escape(", ".join(accounts) or "-"),
-            )
+        text = v.t(
+            "cookie.usage",
+            plugins="|".join(plugins) or "-",
+            accounts=escape(", ".join(accounts) or "-"),
         )
+        await menu(hub).open(Screen(text, home_markup(v)))
         return
     login = hub.login.resolve(arg)
     if login is None:
-        await message.answer(v.t("cookie.unknown", target=escape(arg)))
+        await menu(hub).open(Screen(v.t("cookie.unknown", target=escape(arg)), home_markup(v)))
         return
     await state.set_state(PasteCookies.cookies)
     await state.update_data(plugin=login.plugin_id, acc=login.account_id, label=login.label)
+    # Tagged as a login: once the cookies are saved, `BotLogin` says so in this screen.
+    await menu(hub).open(_cookie_ask(v, login), tag=LOGIN_TAG)
+
+
+def _cookie_ask(v: View, login: LoginTarget) -> Screen:
     names = ", ".join(login.auth.cookies)
-    await message.answer(v.t("cookie.ask", hoster=escape(login.hoster), names=escape(names)))
+    text = v.t("cookie.ask", hoster=escape(login.hoster), names=escape(names))
+    return Screen(text, home_markup(v))
 
 
 @on("message", PasteCookies.cookies, F.text & ~F.text.startswith("/"))
@@ -649,25 +709,29 @@ async def on_cookie_text(message: Message, hub: Hub, state: FSMContext) -> None:
     plugin = hub.registry.get(data["plugin"])
     login = hub.login.target(plugin, data.get("acc"), data.get("label", ""))
     parsed = parse_cookie_text(raw)
+    ask = _cookie_ask(v, login)
     if not parsed:
-        await message.answer(v.t("cookie.bad"))
+        await menu(hub).show(with_error(v.t("cookie.bad"), ask), LOGIN_TAG)
         return
     register_secrets(parsed.values())
     cookies = {k: val for k, val in parsed.items() if login.auth.wants(k)}
     missing = login.auth.missing(cookies)
     if missing:
-        await message.answer(v.t("cookie.missing", names=escape(", ".join(missing))))
+        text = v.t("cookie.missing", names=escape(", ".join(missing)))
+        await menu(hub).show(with_error(text, ask), LOGIN_TAG)
         return
     await state.clear()
     try:
         await hub.login.store(login, cookies, via="cookie")
     except NotDone:
-        await message.answer(v.t("web.notdone_check"))
+        await show(hub, message, Screen(v.t("web.notdone_check"), home_markup(v)))
 
 
-@on("message", F.text & ~F.text.startswith("/"))
-async def on_other_text(message: Message, hub: Hub) -> None:
-    await show(message, await screen_for(hub, "menu"))
+@on("message")
+async def on_other_text(message: Message, hub: Hub, state: FSMContext) -> None:
+    """Anything else the owner sends: it is deleted, and a new menu comes at the bottom."""
+    await state.clear()
+    await menu(hub).open(await home(hub))
 
 
 # Top-up and control handlers live in their own modules; importing them registers them.
