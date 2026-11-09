@@ -54,11 +54,13 @@ from hostwatch.web.miniapp import (
     ServersOut,
     ServerSpend,
     Span,
+    TipsOut,
     UsageOut,
 )
 
 from . import views
 from .hub import AccountData, Hub
+from .tips import Catalogs, PlanReader, build_tips, no_catalogs
 from .views import View
 from .webapp import LEVEL_NAME, _amount, _sum, build_overview
 
@@ -700,6 +702,8 @@ class WebData:
     view: Callable[[], View]
     currency: Callable[[], str]
     thresholds: Callable[[], Thresholds]
+    # Order catalogs for the tips; none by default.
+    catalogs: Callable[[list[AccountData]], Awaitable[Catalogs]] = no_catalogs
 
     @classmethod
     def of(cls, hub: Hub) -> WebData:
@@ -717,6 +721,7 @@ class WebData:
             view=lambda: View(hub.prefs.lang, hub.prefs.tz, hub.now()),
             currency=lambda: hub.prefs.currency,
             thresholds=lambda: hub.prefs.alert_settings(hub.own_ip).thresholds,
+            catalogs=PlanReader.of(hub),
         )
 
     async def overview(self) -> Overview:
@@ -759,3 +764,9 @@ class WebData:
 
     async def journal(self, query: JournalQuery) -> JournalOut:
         return build_journal(self.view(), self.accounts(), self.journal_repo, query)
+
+    async def tips(self) -> TipsOut:
+        accounts = self.accounts()
+        rates = await self.rates()
+        catalogs = await self.catalogs(views._live(accounts))
+        return build_tips(self.view(), accounts, self.history, rates, self.currency(), catalogs)

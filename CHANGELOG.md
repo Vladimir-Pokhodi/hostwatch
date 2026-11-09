@@ -1,6 +1,32 @@
 # Changelog
 
-## Unreleased
+## 1.1.0 — unreleased
+
+The chat becomes one live menu with short screens; a Telegram Mini App shows history,
+charts, money, the journal and tips. Nothing changed in what the bot does at the hosters.
+
+### Top-up
+
+- Crypto top-ups offer every coin and network the hoster lists, coin first, then the
+  network when the coin has several. Aeza: all crypto methods of `/billing/payment-methods`
+  (13 on 09.11). Regxa: the coins and networks of the Cryptomus invoice page (97 pairs on
+  09.11), read over plain HTTP, shown a page of coins at a time; if the list cannot be read,
+  the owner picks on the payment page.
+
+### Chat
+
+- One live menu: every button edits the same message. «☰ Menu» under the input field and
+  `/start` send a fresh menu to the bottom and delete the old one; a menu older than 48
+  hours loses its buttons instead. Pressing an old menu says «This menu is closed».
+- Typed answers (a sum, a name) are deleted after reading, and the menu shows the result.
+  Payment and login links are buttons inside the menu; the screen changes by itself when
+  the link expires or the payment arrives.
+- Alert buttons («Top up», «Open server») close the old menu and open a new one on that
+  screen.
+- Every screen redone: one line of state first, then short lines; a «⚠️ Problems» screen;
+  servers by hoster, 8 to a page; a server card with IP and plan, load, price and next
+  charge; «💰 Money» with a line per hoster and top-up in 3 visible steps; «🔌 Hosters»
+  with connected and available ones apart.
 
 ### History
 
@@ -13,6 +39,31 @@
 - The journal also records connecting and disconnecting hosters, account status, settings,
   «Paid» and its result, autopay marks, holds and answers; the bot's own actions show as
   «bot».
+
+### Mini App
+
+- `HOSTWATCH_DOMAIN` turns it on: Caddy gets a usual certificate for the domain, login links
+  move to it, and «📊 Analytics» appears left of the input field. Outside only `/login/*`,
+  `/app/*` and `/api/*` answer. Without a domain everything works in the chat as before.
+- Every API request carries Telegram `initData`, checked against the bot token and
+  `OWNER_ID`, at most 24 hours old; anything else gets 401, and repeated failures 429.
+- No build step and no npm: plain JS modules and uPlot in the repository, colours from the
+  Telegram theme, light and dark, Russian and English.
+- Tabs: Overview (balances, month spending against last month, problems, forecasts);
+  Servers (table with filters and sorting; a server page with CPU, RAM, disk and network
+  for 24 h, 7 d, 30 d and a year, plan and price history, cost by month); Money (by month,
+  split by hoster and server, every top-up and charge); Journal (filters by who, what,
+  hoster and dates). «📊 Charts» on a chat server card opens the server's page.
+- Tips tab: rules in `hostwatch/core/tips.py`, sorted by money. Oversized (30-day hourly
+  peaks p95 under 10% CPU and 30% RAM: a smaller plan of the same location that holds the
+  peaks with headroom, and the saving), cramped (7-day hourly averages p95 over 85% CPU or
+  90% RAM or disk: a bigger plan and the extra cost), cheaper at another connected hoster
+  (same or more CPU, RAM and disk, at least 15% cheaper after conversion; by the catalog,
+  regardless of country and bandwidth), not renewing within 14 days, money short for a
+  coming charge, stopped for 7 days but billed, month spending pace 25% above last month.
+  Load rules need 7 days with 70% of the hours covered; until then one «little data» card.
+  Specs come from the hosters' order catalogs (Aeza, Timeweb, Regxa), never from plan
+  names; AdminVPS has no catalog, so its servers get no plan suggestions.
 
 ## 1.0.0 — 2026-11-09
 

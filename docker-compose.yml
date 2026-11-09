@@ -12,7 +12,7 @@ x-logging: &logging
 
 services:
   hostwatch:
-    # HOSTWATCH_VERSION in .env pins a release, e.g. 1.0.0. The default follows 1.x.
+    # HOSTWATCH_VERSION in .env pins a release, e.g. 1.1.0. The default follows 1.x.
     image: ghcr.io/vladimir-pokhodi/hostwatch:${HOSTWATCH_VERSION:-1}
     restart: unless-stopped
     env_file: .env

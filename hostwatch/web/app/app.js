@@ -4,6 +4,7 @@ import { count, setLang, t } from "./i18n.js";
 import { journalView, resetJournal } from "./journal.js";
 import { moneyView, resetMoney } from "./money.js";
 import { resetServers, serverView, serversView } from "./servers.js";
+import { resetTips, tipsView } from "./tips.js";
 import { clock, h, header, icon, message, money, monthName, native, setZone, sum, sumValue, tg } from "./ui.js";
 
 const view = document.getElementById("view");
@@ -154,10 +155,6 @@ function overview(d) {
   ];
 }
 
-function soon() {
-  return [header(t(`tab.${tab}`)), message(t("soon.title"), t("soon.text"))];
-}
-
 // Pages
 
 function content() {
@@ -169,7 +166,7 @@ function content() {
   if (tab === "servers") return server ? serverView(ctx, ...server) : serversView(ctx);
   if (tab === "money") return moneyView(ctx);
   if (tab === "journal") return journalView(ctx);
-  return soon();
+  return tipsView(ctx);
 }
 
 function render() {
@@ -225,8 +222,11 @@ function syncBackButton() {
 }
 
 let listScroll = 0;
+// The tab a server page was opened from («Tips» links to servers); «Back» returns there.
+let fromTab = "servers";
 function openServer(acc, sid) {
   listScroll = window.scrollY;
+  fromTab = tab;
   tab = "servers";
   server = [acc, sid];
   tg?.HapticFeedback?.impactOccurred?.("light");
@@ -237,6 +237,8 @@ function openServer(acc, sid) {
 function closeServer() {
   if (!server) return;
   server = null;
+  tab = fromTab;
+  fromTab = "servers";
   render();
   window.scrollTo(0, listScroll);
 }
@@ -247,6 +249,7 @@ function reload() {
   resetServers();
   resetMoney();
   resetJournal();
+  resetTips();
   load();
 }
 
@@ -294,8 +297,12 @@ function applyTheme() {
   if (state === "ready") render();
 }
 
-// «📊 Charts» on a server card in the chat opens the app on that server: ?server=1:abc
-const wanted = new URLSearchParams(location.search).get("server");
+// «📊 Charts» on a server card in the chat opens the app on that server: ?server=1:abc;
+// ?tab=tips and the like open a tab.
+const params = new URLSearchParams(location.search);
+const wantedTab = params.get("tab");
+if (TABS.includes(wantedTab)) tab = wantedTab;
+const wanted = params.get("server");
 if (wanted && /^\d+:.+/.test(wanted)) {
   const at = wanted.indexOf(":");
   tab = "servers";

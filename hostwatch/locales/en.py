@@ -624,4 +624,32 @@ MESSAGES: dict[str, str] = {
     "settings.times": "🌙 Quiet hours {quiet} · 📰 summary at {summary}",
     "invoices.other": "not a renewal",
     "topup.lasts": "💰 Lasts: {lasts}",
+    # Tips in the Mini App (1.1)
+    "tips.offer": "{plan}{specs} · {location} — {price}/mo",
+    "tips.now": "Now {price}/mo.",
+    "tips.oversized": "A smaller plan will do",
+    "tips.oversized.why": "CPU p95 {cpu}, RAM p95 {ram} over {days} d. (hourly peaks).",
+    "tips.no_catalog_plan": "The hoster's catalog does not match this plan: pick one yourself.",
+    "tips.cramped": "The server is cramped",
+    "tips.cramped.why": "{parts} over {days} d. (hourly averages).",
+    "tips.cramped.generic": "It needs a bigger plan or less load.",
+    "tips.cheaper": "Cheaper at {hoster}",
+    "tips.cheaper.why": "A similar or bigger plan costs less than the {price}/mo now.",
+    "tips.cheaper.note": "Compared by the catalog, regardless of country and bandwidth.",
+    "tips.renewal": "Will not renew",
+    "tips.renewal.why": "Autorenew is off, the term ends {date}. Renewal: {price}.",
+    "tips.shortfall": "Not enough money",
+    "tips.shortfall.why": "{date} {amount} is missing for {server}.",
+    "tips.idle": "Stopped but paid for",
+    "tips.idle.why": "Stopped since {date} at least ({days} d.), yet costs {price}/mo.",
+    "tips.trend": "Spending grows",
+    "tips.trend.why": "In {days} d. the pace is {pace}/mo, last month {last}.",
+    "tips.trend.line": "{name}: {now} this month, {last} last month",
+    "tips.trend.note": (
+        "The pace is the month's spending stretched over the whole month;"
+        " a one-off renewal inflates it."
+    ),
+    "tips.no_data": "Little load data",
+    "tips.no_data.why": "Plan tips need {days} days of load; not there yet: {count}.",
+    "tips.no_data.ready": "Enough by about {date}.",
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # hostwatch installer.
 #
-#   curl -fsSL https://raw.githubusercontent.com/Vladimir-Pokhodi/hostwatch/v1.0.0/install.sh -o install.sh
+#   curl -fsSL https://raw.githubusercontent.com/Vladimir-Pokhodi/hostwatch/v1.1.0/install.sh -o install.sh
 #   sudo bash install.sh
 #
 # Installs Docker if it is missing, creates /opt/hostwatch with docker-compose.yml,
@@ -14,7 +14,7 @@
 
 set -euo pipefail
 
-REF="v1.0.0"
+REF="v1.1.0"
 DIR="${HOSTWATCH_DIR:-/opt/hostwatch}"
 BASE_URL="${HOSTWATCH_BASE_URL:-https://raw.githubusercontent.com/Vladimir-Pokhodi/hostwatch/$REF}"
 FILES=(docker-compose.yml Caddyfile .env.example)
@@ -187,7 +187,7 @@ read_owner_id() {
 
 read_address() {
     if [ -z "${HOSTWATCH_DOMAIN+set}" ] && [ -n "$TTY" ]; then
-        HOSTWATCH_DOMAIN=$(ask "Domain for the login page, if it points to this server (empty: none)")
+        HOSTWATCH_DOMAIN=$(ask "Domain for the login page and the Mini App, if it points to this server (empty: none)")
     fi
     HOSTWATCH_DOMAIN=${HOSTWATCH_DOMAIN:-}
     if [ -z "${HOSTWATCH_IP:-}" ]; then

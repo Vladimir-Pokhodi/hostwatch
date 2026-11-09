@@ -29,6 +29,43 @@ One installation serves one person. The bot answers only the Telegram account se
 «Cabinet login» means you log in on the hoster's site through a one-time link the bot
 sends. The browser runs on your server, so the session belongs to the server's IP.
 
+## Chat and Mini App
+
+**The chat** is for quick actions. It keeps one live menu: every button edits that message,
+and «☰ Menu» under the input field (or `/start`) brings a fresh one to the bottom and
+removes the old one. Each screen starts with one line of state («🟢 All good · 4 hosters ·
+13 servers»), then a few short lines; details are behind buttons. Alerts still come as
+separate messages, and their buttons open the menu on the right screen. Everything the bot
+can do, it does from the chat, with or without the Mini App.
+
+**The Mini App** («📊 Analytics» left of the input field, «📊 Charts» on a server card) is
+for looking, not acting:
+
+- Overview: balances, the month's spending against last month, problems, each hoster's
+  forecast.
+- Servers: all servers with filters and sorting; a server's page has CPU, RAM, disk and
+  network charts for 24 hours, 7 and 30 days and a year, its plan and price history and
+  what it has cost.
+- Money: spending by month split by hoster and server, every top-up and charge.
+- Journal: every action of yours, of the autopay rule and of the bot, with filters.
+- Tips: rules over the load, prices and the hosters' order catalogs. A server whose 30-day
+  peaks stay under 10% CPU and 30% RAM may do with a smaller plan; one above 85% CPU or 90%
+  RAM or disk for a week is cramped; a similar plan at another connected hoster may be 15%
+  cheaper or more; autorenewal is off and the term ends within 14 days; the balance will
+  not cover a coming charge; a server has been stopped for a week but is still billed;
+  this month's spending runs 25% above last month. Each card says why, with the numbers,
+  and how much it saves or costs a month when the catalog allows counting it. The load
+  tips wait for 7 days of data.
+
+The Mini App needs a domain (see [Domain and Mini App](#domain-and-mini-app)). It shows
+only to your Telegram account: every request carries Telegram's signed `initData`, and the
+bot checks it against its own token and `OWNER_ID`.
+
+**History.** The database keeps the load (every poll for 30 days, then hourly average and
+peak), server changes (appeared, removed, plan, price, IP, status, autorenewal), balances,
+top-ups and charges, and the journal, all forever. Aeza and Timeweb give the past weeks of
+load once, so the charts do not start empty. For 15 servers that is a few MB a year.
+
 ## What has been tested on live accounts
 
 hostwatch 1.0 was built and tested on one person's accounts with a zero budget. Nothing
@@ -43,6 +80,8 @@ that spends money or changes a server has been run against a real hoster yet.
 | Autopay rule | no payment made; a dry run on Regxa found nothing to pay |
 | Ordering a server | catalogs and prices read live at Aeza, Timeweb and Regxa; no order placed. AdminVPS ordering waits for a test order (v2) |
 | How long cabinet sessions live | Regxa: the bot extends the session on every poll. AdminVPS: not known yet |
+| Coin and network lists (1.1) | read from live unpaid invoices: Aeza 13 crypto methods, Regxa's Cryptomus page 97 coin-network pairs |
+| One menu, chat screens, Mini App, history, tips (1.1) | tests and a browser preview at phone size. Checks in the Telegram apps are listed in the manual checks |
 
 The step-by-step checks for the untested parts are in
 [docs/manual-checks.md](docs/manual-checks.md) (in Russian). If you run one of them, please
@@ -58,6 +97,8 @@ report the result in an issue.
 - Root access.
 - Ports 80 and 443 free and open from the internet. They serve the login page and get it a
   Let's Encrypt certificate.
+- For the Mini App: a domain or subdomain whose A record points to the server. Without one
+  the bot works fully in the chat.
 - A Telegram bot token and your Telegram user ID.
 
 ### Create the bot
@@ -74,7 +115,7 @@ message to your new bot when it asks. Or get it from [@userinfobot](https://t.me
 On the server, as root:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/Vladimir-Pokhodi/hostwatch/v1.0.0/install.sh -o install.sh && bash install.sh
+curl -fsSL https://raw.githubusercontent.com/Vladimir-Pokhodi/hostwatch/v1.1.0/install.sh -o install.sh && bash install.sh
 ```
 
 As a user with sudo, run `sudo bash install.sh` instead of `bash install.sh`.
@@ -96,12 +137,12 @@ The first start downloads about 1.5 GB of images. Allow 5 to 10 minutes for the 
 install.
 
 Then open your bot in Telegram and send `/start`. It asks for the language, the time zone
-and the currency of totals, then offers to connect the first hoster. `/menu` opens the main
-menu from anywhere.
+and the currency of totals, then offers to connect the first hoster. «☰ Menu» under the input
+field (or `/menu`) brings the main menu from anywhere.
 
 ## Connect hosters
 
-In the bot: **Integrations → + Connect**, pick the hoster and give the account a label (or
+In the bot: **🔌 Hosters → ＋ Connect a hoster**, pick the hoster and give the account a label (or
 press the button for none). One hoster can have several accounts.
 
 **Aeza.** In [my.aeza.net](https://my.aeza.net) open Settings → API keys and create a key.
@@ -110,7 +151,7 @@ Send the key to the bot: it deletes your message at once and stores the key encr
 
 **Timeweb Cloud.** In the panel open «API и Терраформ» and create a token. Send it to the
 bot. That is enough for servers, balance, load, power and ordering. Top-up invoices need a
-cabinet session: on the account card in Integrations press **Log in again** and log in
+cabinet session: on the account card in 🔌 Hosters press **🔑 Log in again** and log in
 through the link.
 
 **Regxa, AdminVPS.** The bot sends a one-time link to `https://<server-ip>/login/...`. Open
@@ -122,12 +163,18 @@ with a **Not me** button that ends the login.
 If the login page does not work for you, `/cookie` takes the cookies of a session pasted by
 hand. A session made on another IP may not work on the server.
 
-### Login page address
+### Domain and Mini App
 
-Without a domain the page lives at the server's IP, with a Let's Encrypt certificate for
-that IP. Such certificates last 6 days, and Caddy renews them by itself. To use a domain,
-point its A record to the server, set `HOSTWATCH_DOMAIN=` in `/opt/hostwatch/.env` and run
-`docker compose up -d` in `/opt/hostwatch`.
+Without a domain the login page lives at the server's IP, with a Let's Encrypt certificate
+for that IP. Such certificates last 6 days, and Caddy renews them by itself. There is no
+Mini App then: Telegram opens Mini Apps only from an https address with a name.
+
+To add a domain, point its A record to the server, set `HOSTWATCH_DOMAIN=` (for example
+`HOSTWATCH_DOMAIN=hostwatch.example.com`) in `/opt/hostwatch/.env` and run
+`docker compose up -d` in `/opt/hostwatch`. Caddy gets a usual certificate for the domain,
+login links move to it, and the bot puts «📊 Analytics» left of the input field in your chat.
+The Mini App lives at `https://<domain>/app/`. From the outside only `/login/*`, `/app/*`
+and `/api/*` answer; everything else is 404.
 
 ### Telegram blocked on the server
 
@@ -144,14 +191,14 @@ docker compose up -d
 ```
 
 The bot checks GitHub once a day and writes when a new release is out. By default the
-image follows the newest 1.x release. To stay on one version, set `HOSTWATCH_VERSION=1.0.0`
+image follows the newest 1.x release. To stay on one version, set `HOSTWATCH_VERSION=1.1.0`
 in `.env`. If a release changes `docker-compose.yml` or `Caddyfile`, its notes say so.
 
 ## Backup and restore
 
 Every night at 03:30 (your time zone) the bot copies its database to
-`/opt/hostwatch/data/backups/` and keeps the last 7 copies. **Settings → Send backup** sends
-a fresh copy to the chat. Hoster keys and sessions in it are encrypted with
+`/opt/hostwatch/data/backups/` and keeps the last 7 copies. **⚙️ Settings → 📦 Backup** sends
+a fresh copy to the chat. The history lives in the same database, so a backup keeps it too. Hoster keys and sessions in it are encrypted with
 `HOSTWATCH_KEY`; the key itself is not in the backup.
 
 To copy the backups to your computer:
@@ -236,7 +283,7 @@ docker compose exec hostwatch hostwatch autopay <account>  # what the autopay ru
 docker compose logs -f hostwatch                           # the bot's log
 ```
 
-`<account>` is the label or number of an account from Integrations.
+`<account>` is the label or number of an account from 🔌 Hosters.
 
 ## Development
 

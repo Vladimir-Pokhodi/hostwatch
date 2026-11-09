@@ -340,6 +340,40 @@ class JournalOut(BaseModel):
     has_more: bool
 
 
+# Tips
+
+
+class TipOut(BaseModel):
+    # oversized, cramped, cheaper, renewal, shortfall, idle, trend, no_data
+    kind: str
+    account_id: int | None
+    server_id: str | None
+    hoster: str | None
+    server: str | None
+    # What to do, one short line; why, with the numbers behind it.
+    title: str
+    why: str
+    # The plan the tip names, with its price.
+    offer: str | None
+    note: str | None
+    # A breakdown: what grew, which servers have little data.
+    lines: list[str]
+    # In the owner's currency: a month of saving or extra cost, or the money at stake.
+    amount: Amount | None
+    impact: Literal["saving", "cost", "risk"] | None
+    per_month: bool
+
+
+class TipsOut(BaseModel):
+    lang: str
+    currency: str
+    generated_at: datetime
+    tips: list[TipOut]
+    # Hosters whose order catalog could not be read now: their plans are not compared.
+    no_catalog: list[str]
+    collecting_since: datetime | None
+
+
 # Query parameters
 
 
@@ -391,6 +425,8 @@ class Source(Protocol):
 
     async def journal(self, query: JournalQuery) -> JournalOut: ...
 
+    async def tips(self) -> TipsOut: ...
+
 
 # The app
 
@@ -435,6 +471,7 @@ def add_routes(app: web.Application, miniapp: MiniApp) -> None:
     app.router.add_get("/api/money", api_money, allow_head=False)
     app.router.add_get("/api/money/events", api_money_events, allow_head=False)
     app.router.add_get("/api/journal", api_journal, allow_head=False)
+    app.router.add_get("/api/tips", api_tips, allow_head=False)
     app.router.add_route("*", "/api/{tail:.*}", api_missing)
 
 
@@ -601,6 +638,14 @@ async def api_journal(request: web.Request) -> web.StreamResponse:
     if query.since is not None and query.until is not None and query.since > query.until:
         raise _bad_request("since")
     return _json(await _source(request).journal(query))
+
+
+async def api_tips(request: web.Request) -> web.StreamResponse:
+    refused = check(request)
+    if refused is not None:
+        return refused
+    _query(request, Query)
+    return _json(await _source(request).tips())
 
 
 async def api_missing(request: web.Request) -> web.StreamResponse:

@@ -314,3 +314,32 @@ h2.section { margin: 20px 4px 8px; }
 .entry .time { flex: none; width: 40px; font-size: 13px; font-variant-numeric: tabular-nums; }
 .entry .dot { transform: translateY(-1px); width: 7px; height: 7px; }
 .entry .what { overflow-wrap: anywhere; }
+
+/* Stage 7: tips */
+
+.tip { padding: 14px 16px 10px; }
+.tip-head { display: flex; align-items: flex-start; gap: 10px; }
+.tip-head h3 { margin: 1px 0 0; font-size: 16px; font-weight: 600; line-height: 1.3; }
+.tip-icon {
+  flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
+  font-size: 15px; font-weight: 700; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.tip-icon.saving { color: var(--ok); background: color-mix(in srgb, var(--ok) 15%, transparent); }
+.tip-icon.cost { color: var(--warn); background: color-mix(in srgb, var(--warn) 16%, transparent); }
+.tip-icon.risk { color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, transparent); }
+.tip-icon.info { color: var(--hint); background: var(--sep); }
+.tip-amount { flex: none; text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+.tip-amount b { font-size: 16px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tip-amount span { font-size: 11px; color: var(--hint); }
+.tip-amount.saving b { color: var(--ok); }
+.tip-amount.cost b { color: var(--warn); }
+.tip-amount.risk b { color: var(--bad); }
+.tip-why { margin: 10px 0 0; overflow-wrap: anywhere; }
+.tip-offer {
+  margin: 8px 0 0; padding: 8px 10px; border-radius: 10px; background: var(--bg); font-size: 14px; font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.tip-lines { margin: 8px 0 0; padding: 0 0 0 18px; font-size: 14px; }
+.tip-lines li + li { margin-top: 2px; }
+.tip-note { margin-top: 8px; }
+.tip-open { display: block; margin: 4px 0 0 -8px; font-weight: 500; }
