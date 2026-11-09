@@ -1,6 +1,7 @@
 """The login page: `/login/<token>` opens a session, `/login/s` shows it, `/login/ws` streams it.
 
-Caddy passes only `/login/*` to this server (spec, decision 6).
+Caddy passes only `/login/*`, `/app/*` and `/api/*` to this server (spec, decision 6;
+1.1, part 5). The Mini App under `/app/` and `/api/` lives in `miniapp.py`.
 """
 
 from __future__ import annotations
@@ -21,6 +22,7 @@ from hostwatch.locales import LANGUAGES, t
 
 from .browser import clamp_size
 from .login import EndReason, LoginService, LoginTarget, NotDone, Session
+from .miniapp import MiniApp, add_routes
 
 log = logging.getLogger(__name__)
 
@@ -44,7 +46,9 @@ SERVICE: web.AppKey[LoginService] = web.AppKey("login", LoginService)
 SECURE: web.AppKey[bool] = web.AppKey("secure", bool)
 
 
-def make_app(service: LoginService, secure: bool = True) -> web.Application:
+def make_app(
+    service: LoginService, secure: bool = True, miniapp: MiniApp | None = None
+) -> web.Application:
     app = web.Application(client_max_size=64 * 1024)
     app[SERVICE] = service
     app[SECURE] = secure
@@ -52,6 +56,8 @@ def make_app(service: LoginService, secure: bool = True) -> web.Application:
     app.router.add_get("/login/ws", stream, allow_head=False)
     # HEAD must not burn the token: link checkers and previews send it.
     app.router.add_get("/login/{token}", open_link, allow_head=False)
+    if miniapp is not None:
+        add_routes(app, miniapp)
     return app
 
 
@@ -236,8 +242,13 @@ def _number(value: object) -> float:
     return float(value) if isinstance(value, int | float) else 0.0
 
 
-async def serve(service: LoginService, host: str = "0.0.0.0", port: int = PORT) -> web.AppRunner:
-    runner = web.AppRunner(make_app(service), access_log=None)
+async def serve(
+    service: LoginService,
+    host: str = "0.0.0.0",
+    port: int = PORT,
+    miniapp: MiniApp | None = None,
+) -> web.AppRunner:
+    runner = web.AppRunner(make_app(service, miniapp=miniapp), access_log=None)
     await runner.setup()
     await web.TCPSite(runner, host, port).start()
     log.info("login page listens on %s:%s", host, port)

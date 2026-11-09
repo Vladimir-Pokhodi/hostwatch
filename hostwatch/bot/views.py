@@ -17,7 +17,7 @@ from enum import IntEnum
 from html import escape
 
 from aiogram.filters.callback_data import CallbackData
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from hostwatch.core.alerts import Thresholds
@@ -450,8 +450,10 @@ def menu(
     rates: Rates | None = None,
     currency: str = "RUB",
     th: Thresholds | None = None,
+    app_url: str | None = None,
 ) -> Screen:
-    """The home screen: the state, the worst problems, the money; then the sections."""
+    """The home screen: the state, the worst problems, the money; then the sections.
+    `app_url`: the Mini App, opened by «📊 Analytics» (a domain is set)."""
     kb = InlineKeyboardBuilder()
     if not accounts:
         lines = [f"<b>🔌 {v.t('home.empty')}</b>", v.t("home.empty_hint")]
@@ -466,6 +468,8 @@ def menu(
     lines += _totals(v, accounts, rates, currency)
     if found:
         kb.row(_button(v.t("menu.problems", count=len(found)), Nav(to="problems")))
+    if app_url is not None:
+        kb.row(InlineKeyboardButton(text=v.t("webapp.button"), web_app=WebAppInfo(url=app_url)))
     kb.row(
         _button(v.t("menu.servers"), Nav(to="servers")),
         _button(v.t("menu.balance"), Nav(to="balance")),

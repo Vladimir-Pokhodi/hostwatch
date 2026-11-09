@@ -48,9 +48,10 @@ from hostwatch.storage.repositories import (
 from hostwatch.web.browser import remote_launcher
 from hostwatch.web.headless import HeadlessPages
 from hostwatch.web.login import LoginEvents, LoginService
+from hostwatch.web.miniapp import MiniApp
 from hostwatch.web.server import serve, serve_admin
 
-from . import views
+from . import views, webapp
 from .autopay import Reporter
 from .handlers import home, make_router
 from .hub import Hub
@@ -231,6 +232,7 @@ async def run(settings: Settings) -> None:
     runner = AccountRunner(
         accounts, registry, make_client, pages=HeadlessPages(launcher, browser_busy)
     )
+    history = HistoryRepository(conn)
     poller = Poller(
         runner,
         accounts,
@@ -238,7 +240,7 @@ async def run(settings: Settings) -> None:
         UsageRepository(conn),
         BalanceHistoryRepository(conn),
         _log_event,
-        history=HistoryRepository(conn),
+        history=history,
     )
     settings_repo = SettingsRepository(conn)
     prefs = Prefs(settings_repo)
@@ -260,6 +262,8 @@ async def run(settings: Settings) -> None:
             autopay=AutopayStore(conn),
             own_ip=settings.hostwatch_ip,
             backups=Backups(conn, settings.data_dir / "backups", settings_repo, lambda: prefs.tz),
+            history=history,
+            app_url=webapp.app_url(settings.hostwatch_domain),
         )
         bot = await make_bot(settings.bot_token.get_secret_value(), settings.tg_proxy)
         hub.menu = Menu(bot, settings.owner_id, prefs)
@@ -272,7 +276,15 @@ async def run(settings: Settings) -> None:
         hub.login = BotLogin(hub, login_service, owner, make_client, settings.hostwatch_domain)
         login.append(hub.login)
         hub.autopay_job = autopay_job(hub, runner, owner, registry)
-        web = await serve(hub.login.service)
+        miniapp = None
+        if hub.app_url is not None:
+            miniapp = MiniApp(
+                settings.bot_token.get_secret_value(),
+                settings.owner_id,
+                lambda: webapp.overview(hub),
+            )
+            await webapp.set_menu_button(bot, settings.owner_id, hub.app_url, prefs.lang)
+        web = await serve(hub.login.service, miniapp=miniapp)
         admin = await serve_admin(hub.login.resolve, hub.login.send_link)
         jobs = _jobs(hub, owner, settings, http, AlertRepository(conn), settings_repo)
         poller.start()

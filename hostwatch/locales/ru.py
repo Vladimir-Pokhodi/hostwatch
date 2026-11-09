@@ -517,6 +517,7 @@ MESSAGES: dict[str, str] = {
     "bot.login.expired": ("<b>🔴 Ссылка входа в {hoster} истекла</b>\nЕё не открыли за 10 минут."),
     "topup.expired": "<b>🔴 Срок счёта истёк</b>\nЕсли не успели оплатить, выставите новый.",
     "topup.again": "💰 Новый счёт",
+    "webapp.button": "📊 Аналитика",
     "menu.problems": "⚠️ Проблемы ({count})",
     "menu.connect": "＋ Подключить хостера",
     "time.today": "сегодня {time}",

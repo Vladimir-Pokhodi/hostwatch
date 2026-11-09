@@ -33,7 +33,7 @@ from hostwatch.core.rates import Rates, RatesUnavailable
 from hostwatch.storage.repositories import NotFound
 from hostwatch.web.login import EndReason, LoginTarget, NotDone
 
-from . import views
+from . import views, webapp
 from .callbacks import (
     AccountCb,
     AddCb,
@@ -197,7 +197,7 @@ async def screen_for(hub: Hub, to: str) -> Screen:
         return await order.order_entry(hub)
     # «menu», and «summary» of the buttons sent before 1.1: the home screen.
     accounts = hub.load_all()
-    return views.menu(v, accounts, await _rates(hub), hub.prefs.currency, th)
+    return views.menu(v, accounts, await _rates(hub), hub.prefs.currency, th, hub.app_url)
 
 
 def journal_screen(hub: Hub, page: int) -> Screen:
@@ -285,6 +285,8 @@ async def on_language(query: CallbackQuery, callback_data: SetCb, hub: Hub) -> N
         await show(hub, query, views.choose_language(view(hub), onb=False))
         return
     hub.prefs.lang = callback_data.value
+    if hub.app_url is not None and query.bot is not None:
+        await webapp.set_menu_button(query.bot, query.from_user.id, hub.app_url, hub.prefs.lang)
     if callback_data.onb:
         await show(hub, query, views.choose_timezone(view(hub), onb=True))
     else:

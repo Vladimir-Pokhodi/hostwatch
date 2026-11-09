@@ -522,6 +522,7 @@ MESSAGES: dict[str, str] = {
     ),
     "topup.expired": ("<b>🔴 The invoice expired</b>\nIf you did not pay in time, make a new one."),
     "topup.again": "💰 New invoice",
+    "webapp.button": "📊 Analytics",
     "menu.problems": "⚠️ Problems ({count})",
     "menu.connect": "＋ Connect a hoster",
     "time.today": "today {time}",

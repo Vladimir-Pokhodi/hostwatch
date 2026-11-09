@@ -47,8 +47,10 @@ services:
       - "443:443"
       - "443:443/udp"
     environment:
-      # The login page address: the domain if there is one, otherwise the server IP.
+      # The login page and Mini App address: the domain if there is one, else the server IP.
       SITE_ADDRESS: ${HOSTWATCH_DOMAIN:-${HOSTWATCH_IP:?set HOSTWATCH_IP or HOSTWATCH_DOMAIN in .env}}
+      # A domain gets the usual certificate; an IP the 6-day one (see Caddyfile).
+      SITE_CERT: shortlived${HOSTWATCH_DOMAIN:+-off}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

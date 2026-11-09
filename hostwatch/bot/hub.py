@@ -20,6 +20,7 @@ from hostwatch.scheduler.autopay import AutopayJob
 from hostwatch.scheduler.maintenance import Backups
 from hostwatch.scheduler.polling import Poller
 from hostwatch.storage.autopay import AutopayStore
+from hostwatch.storage.history import HistoryRepository
 from hostwatch.storage.repositories import (
     AccountRepository,
     BalanceHistoryRepository,
@@ -109,6 +110,10 @@ class Hub:
     # Coins of recent top-up invoices that are chosen after the invoice, by `payments` row.
     # Lost on restart: the plugin reads them again.
     topup_options: dict[int, tuple[PayOption, ...]] = field(default_factory=dict)
+    # History for the Mini App (1.1, part 4); None: not kept.
+    history: HistoryRepository | None = None
+    # The Mini App address; None without HOSTWATCH_DOMAIN: then no «📊» buttons.
+    app_url: str | None = None
 
     def plugins(self) -> list[type[Plugin]]:
         ids = [pid for pid in self.registry.ids() if pid not in self.hidden_plugins]

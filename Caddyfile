@@ -1,21 +1,32 @@
-# TLS in front of hostwatch. Outside only the login page is reachable (spec, decision 6).
+# TLS in front of hostwatch. Outside only the login page and the Mini App are reachable
+# (spec, decision 6; 1.1, part 5).
 # SITE_ADDRESS is HOSTWATCH_DOMAIN, or the server IP when there is no domain;
-# docker-compose.yml fills it in.
+# SITE_CERT picks the certificate snippet below: "shortlived-off" with a domain,
+# "shortlived" without. docker-compose.yml fills both in.
 
 {
 	# Clients send no SNI when they connect by IP; without this Caddy finds no certificate.
 	default_sni {$SITE_ADDRESS}
 }
 
-{$SITE_ADDRESS} {
+# A domain: the usual Let's Encrypt certificate.
+(shortlived-off) {
+}
+
+# An IP address: Let's Encrypt issues IP certificates only in the 6-day profile.
+(shortlived) {
 	tls {
-		# Let's Encrypt issues IP certificates only in the 6-day profile.
 		issuer acme {
 			profile shortlived
 		}
 	}
+}
 
-	handle /login/* {
+{$SITE_ADDRESS} {
+	import {$SITE_CERT}
+
+	@hostwatch path /login/* /app /app/* /api/*
+	handle @hostwatch {
 		reverse_proxy hostwatch:8080
 	}
 
